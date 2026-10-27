@@ -369,7 +369,7 @@ const PET_SPECIES = ["tabby", "fluff", "dog", "husky", "golden", "shiba", "macaw
 function petSrc(species, stage) {
   const kind = PET_SPECIES.includes(species) ? species : "dog";
   const form = PET_STAGES[stage] || "bubble";
-  return `assets/pets/${kind}/${form}.png?v=3`;
+  return `assets/pets/${kind}/${form}.png?v=4`;
 }
 
 function avatarHtml(userId, name) {
