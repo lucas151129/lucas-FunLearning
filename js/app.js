@@ -157,6 +157,75 @@ function renderPicks() {
 
 const WIDE_QUERY = window.matchMedia("(min-width: 700px)");
 
+/* ---------- 全螢幕／PWA ---------- */
+const IS_IOS =
+  /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const IS_STANDALONE =
+  window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+/* iOS／iPadOS Safari 對 div 的全螢幕支援時有時無（webkitFullscreenEnabled 會回 true 但呼叫失敗），
+   一律不顯示按鈕，改提示「加到主畫面」。 */
+const FS_SUPPORTED =
+  !IS_IOS &&
+  Boolean(document.fullscreenEnabled || document.webkitFullscreenEnabled) &&
+  typeof (document.documentElement.requestFullscreen ||
+          document.documentElement.webkitRequestFullscreen) === "function";
+
+function fullscreenElement() {
+  return document.fullscreenElement || document.webkitFullscreenElement || null;
+}
+
+function syncFullscreenUI() {
+  const on = Boolean(fullscreenElement());
+  document.body.classList.toggle("is-fs", on);
+  const exit = document.querySelector("[data-fs-exit]");
+  if (exit) exit.hidden = !on;
+  const button = document.querySelector("[data-play-fs]");
+  if (button) button.setAttribute("aria-pressed", on ? "true" : "false");
+}
+
+function enterFullscreen() {
+  const root = document.documentElement;
+  const request = root.requestFullscreen || root.webkitRequestFullscreen;
+  if (!request) return;
+  Promise.resolve()
+    .then(() => request.call(root, { navigationUI: "hide" }))
+    .then(() => {
+      /* 只有 Android 支援方向鎖定；iOS 與桌機會 reject，忽略即可 */
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock("landscape").catch(() => {});
+      }
+    })
+    .catch(() => {
+      showToast(I18n.t("play.fsFail"));
+    });
+}
+
+function exitFullscreen() {
+  if (!fullscreenElement()) return;
+  const exit = document.exitFullscreen || document.webkitExitFullscreen;
+  if (exit) Promise.resolve(exit.call(document)).catch(() => {});
+  if (screen.orientation && screen.orientation.unlock) {
+    try {
+      screen.orientation.unlock();
+    } catch (err) {
+      /* ignore */
+    }
+  }
+}
+
+function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+  const secure = location.protocol === "https:" || /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  if (!secure) return;
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+
+document.addEventListener("fullscreenchange", syncFullscreenUI);
+document.addEventListener("webkitfullscreenchange", syncFullscreenUI);
+
 /* 版面不再靠使用者切換：由螢幕寬度自動決定，iPad 一律走寬版。 */
 function syncShell() {
   document.documentElement.dataset.size = WIDE_QUERY.matches ? "desk" : "phone";
@@ -523,6 +592,15 @@ function renderGame(id) {
   const loginHint = user
     ? ""
     : `<p class="hint">${esc(I18n.t("guest.hint")).replace(I18n.t("nav.login"), `<a href="#/login">${esc(I18n.t("nav.login"))}</a>`)}</p>`;
+  const fsButton = FS_SUPPORTED
+    ? `<button class="btn btn-small play-fs" type="button" data-play-fs aria-pressed="false" aria-label="${esc(I18n.t("play.fullscreen"))}" title="${esc(I18n.t("play.fullscreen"))}">
+         <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></svg>
+       </button>`
+    : IS_IOS && !IS_STANDALONE
+      ? `<button class="btn btn-small play-fs" type="button" data-ios-install aria-label="${esc(I18n.t("play.install"))}" title="${esc(I18n.t("play.install"))}">
+           <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 2v7m0 0 3-3m-3 3L5 6M3 11v2h10v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></svg>
+         </button>`
+      : "";
   app.innerHTML = `
     <a class="btn btn-cream btn-small back play-back" href="#/c/${game.category}">${iconBack()} ${esc(catName(cat))}</a>
     <div class="play-layout">
@@ -530,6 +608,7 @@ function renderGame(id) {
         <div class="play-bar">
           <a class="btn btn-cream btn-small" href="#/c/${game.category}">${iconBack()} ${esc(catName(cat))}</a>
           <strong>${esc(gameText(game, "title"))}</strong>
+          ${fsButton}
           <button class="btn btn-small" type="button" data-play-more aria-pressed="false">${esc(I18n.t("play.board"))}</button>
         </div>
         <header class="stage-head">
@@ -547,6 +626,9 @@ function renderGame(id) {
             <p>${esc(I18n.t("play.rotate"))}</p>
             <small>${esc(I18n.t("play.rotateHint"))}</small>
           </div>
+          <button class="fs-exit" type="button" data-fs-exit hidden aria-label="${esc(I18n.t("play.exitFs"))}">
+            <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+          </button>
         </div>
       </section>
       <button class="sheet-veil" type="button" hidden aria-label="${esc(I18n.t("play.close"))}"></button>
@@ -689,6 +771,8 @@ function missing(text) {
 
 function render() {
   document.body.classList.remove("playing");
+  /* 離開遊戲頁時順便退出全螢幕，避免使用者卡在沒有工具列的畫面 */
+  if (fullscreenElement() && !/^#\/g\//.test(location.hash)) exitFullscreen();
   renderChrome();
   renderAccount();
   const parts = (location.hash || "#/").replace(/^#\/?/, "").split("/").filter(Boolean);
@@ -744,6 +828,19 @@ document.body.addEventListener("click", async (event) => {
   const more = event.target.closest("[data-play-more]");
   if (more) {
     toggleSheet(!more.hasAttribute("data-open"));
+    return;
+  }
+  if (event.target.closest("[data-play-fs]")) {
+    if (fullscreenElement()) exitFullscreen();
+    else enterFullscreen();
+    return;
+  }
+  if (event.target.closest("[data-fs-exit]")) {
+    exitFullscreen();
+    return;
+  }
+  if (event.target.closest("[data-ios-install]")) {
+    showToast(I18n.t("play.installHint"));
     return;
   }
   if (event.target.closest(".sheet-veil")) {
@@ -907,6 +1004,7 @@ window.addEventListener("message", async (event) => {
 
 syncShell();
 syncOrientation();
+registerServiceWorker();
 WIDE_QUERY.addEventListener("change", () => {
   syncShell();
   render();

@@ -1147,6 +1147,47 @@ html[data-size="desk"] .egg-list { grid-template-columns: repeat(auto-fit, minma
 
 html[data-size="desk"] .pet-still { width: 320px; height: 320px; }
 
+/* ---------- 沉浸模式（全螢幕） ---------- */
+.play-fs { min-width: 44px; padding-left: 10px; padding-right: 10px; }
+
+.fs-exit {
+  position: absolute;
+  z-index: 9;
+  /* 放在各遊戲自己那條工具列的下方：實測 16 款遊戲在 (8,8) 有 8 款會壓到音效／玩法鍵，
+     往下讓開 52px 後 0 款重疊，仍然是右上角。 */
+  top: calc(52px + env(safe-area-inset-top));
+  right: calc(8px + env(safe-area-inset-right));
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: rgba(24, 10, 40, 0.58);
+  border: 2px solid rgba(255, 255, 255, 0.78);
+  border-radius: 999px;
+  cursor: pointer;
+  opacity: 0.8;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.fs-exit[hidden] { display: none; }
+.fs-exit:active { transform: scale(0.93); opacity: 1; }
+
+@media (hover: hover) and (pointer: fine) {
+  .fs-exit:hover { opacity: 1; }
+}
+
+body.is-fs .play-bar { display: none; }
+body.is-fs .stage { background: #140826; }
+body.is-fs .stage-frame iframe { border: 0; border-radius: 0; }
+body.is-fs .rotate-tip { border-radius: 0; }
+
+/* 全螢幕時系統列／瀏海高度會變，提示氣泡跟著重算 */
+body.is-fs #toast { top: calc(16px + env(safe-area-inset-top)); }
+
 /* ---------- 橫屏提示（遊戲一律以橫向遊玩） ---------- */
 .rotate-tip {
   display: none;
