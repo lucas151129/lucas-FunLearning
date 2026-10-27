@@ -280,6 +280,203 @@
     .cert { box-shadow: none; }
     @page { size: A4 landscape; margin: 10mm; }
   }
+  /* ============ 平台嵌入（橫屏 iframe）============ */
+  html.dsh-embed, html.dsh-embed body { height: 100%; }
+  html.dsh-embed body {
+    min-height: 0; padding: 4px 8px 6px; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  html.dsh-embed #root { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  html.dsh-embed .app {
+    width: 100%; max-width: none; flex: 1 1 auto; min-height: 0;
+    display: flex; flex-direction: column;
+  }
+  /* 只保留音效，隱藏電腦／平板與全螢幕 */
+  html.dsh-embed .tools { top: 4px; right: 8px; gap: 4px; max-width: none; }
+  html.dsh-embed .tools .seg,
+  html.dsh-embed .tools > button[data-act="full"] { display: none !important; }
+  html.dsh-embed .tools > button { padding: 4px 9px; font-size: 12px; min-height: 30px; }
+  html.dsh-embed .hud {
+    flex: 0 0 auto; flex-wrap: nowrap; gap: 6px; margin-bottom: 6px; padding-right: 74px;
+  }
+  html.dsh-embed .brand { font-size: 15px; line-height: 1.15; }
+  html.dsh-embed .who {
+    font-size: 12px; max-width: 190px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  html.dsh-embed .steps { flex-wrap: nowrap; gap: 4px; min-width: 0; }
+  html.dsh-embed .steps span { font-size: 12px; padding: 2px 7px; white-space: nowrap; }
+  html.dsh-embed .scorebox { padding: 2px 9px; font-size: 12px; border-radius: 10px; white-space: nowrap; }
+  html.dsh-embed .scorebox b { font-size: 17px; }
+  html.dsh-embed .ghost { padding: 4px 9px; font-size: 12px; min-height: 30px; border-radius: 10px; }
+  html.dsh-embed .layout {
+    flex: 1 1 auto; min-height: 0; display: grid;
+    grid-template-columns: minmax(0, 1fr) 244px; gap: 8px; align-items: stretch;
+  }
+  html.dsh-embed .main {
+    min-height: 0; overflow: hidden; padding: 8px 10px 10px;
+    display: flex; flex-direction: column;
+  }
+  html.dsh-embed .main > .ai-row { flex: 0 0 auto; }
+  html.dsh-embed .phase-body { flex: 1 1 auto; min-height: 0; min-width: 0; }
+  html.dsh-embed .podium { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  html.dsh-embed .bases { grid-template-columns: 1fr 1fr; }
+  html.dsh-embed .cert-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  html.dsh-embed .lab-wrap {
+    display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+    gap: 12px; align-items: center;
+  }
+  html.dsh-embed .lab-visual { min-width: 0; display: flex; flex-direction: column; align-items: center; }
+  html.dsh-embed .lab-visual > * { flex: 0 0 auto; }
+  html.dsh-embed .lab-copy { min-width: 0; }
+  html.dsh-embed .lab-copy .nums { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  html.dsh-embed .lab-copy .actions { justify-content: flex-start; }
+  html.dsh-embed .cert-wrap { flex: 1 1 auto; min-height: 0; overflow: auto; }
+  html.dsh-embed .design-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; }
+  html.dsh-embed .design-group > p { margin: 0; font-size: 12px; }
+  html.dsh-embed .design-group .choices { gap: 6px; }
+  html.dsh-embed .bars { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  html.dsh-embed aside { min-height: 0; overflow: hidden; padding: 8px 10px; font-size: 12px; }
+  html.dsh-embed aside h3 { font-size: 13px; margin: 2px 0 4px; }
+  html.dsh-embed aside h3:first-child { margin-top: 0; }
+  html.dsh-embed aside p { margin: 3px 0; font-size: 12px; line-height: 1.4; }
+  html.dsh-embed aside .sub { font-size: 12px; }
+  html.dsh-embed aside table { font-size: 12px; }
+  html.dsh-embed th, html.dsh-embed td { padding: 2px 3px; }
+  html.dsh-embed .learned { font-size: 12px; padding-left: 16px; margin: 3px 0; }
+
+  /* 主區域文字 */
+  html.dsh-embed .main h2 { font-size: 19px; margin: 0 0 6px; line-height: 1.25; }
+  html.dsh-embed .main p { margin: 3px 0; font-size: 13px; line-height: 1.4; }
+  html.dsh-embed .sub { font-size: 12px; line-height: 1.4; }
+  html.dsh-embed .ai-row { position: static; margin-bottom: 6px; gap: 8px; align-items: center; }
+  html.dsh-embed .bubble { padding: 6px 10px; font-size: 13px; line-height: 1.4; border-radius: 12px; }
+  html.dsh-embed .art { width: auto; max-width: 100%; max-height: 150px; margin: 0 auto 4px; }
+  html.dsh-embed .choices { gap: 8px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  html.dsh-embed .nums { gap: 6px; }
+  html.dsh-embed .choice, html.dsh-embed .num, html.dsh-embed .item {
+    min-height: 44px; padding: 6px; font-size: 14px; border-width: 2px; border-radius: 12px;
+  }
+  html.dsh-embed .sh { width: 26px; height: 26px; flex: 0 0 26px; }
+  html.dsh-embed .big { min-height: 42px; padding: 8px 14px; font-size: 15px; border-radius: 12px; }
+  html.dsh-embed .actions { margin-top: 6px; gap: 6px; }
+  html.dsh-embed .need { min-height: 0; font-size: 12px; margin: 2px 0; }
+  html.dsh-embed .chair { min-height: 108px; }
+  html.dsh-embed .preview { min-height: 0; height: 110px; }
+  html.dsh-embed .meter { max-width: 280px; }
+  html.dsh-embed .seat { width: 60px; height: 12px; }
+  html.dsh-embed .legs { height: 36px; gap: 12px; }
+  html.dsh-embed .leg.tri { border-bottom-width: 30px; }
+  html.dsh-embed .leg.sq, html.dsh-embed .leg.cyl { height: 30px; }
+
+  /* 開始畫面 */
+  html.dsh-embed .hero {
+    width: 100%; max-width: none; flex: 1 1 auto; min-height: 0; margin: 0;
+    padding: 8px 16px 10px; display: flex; flex-direction: column; justify-content: center;
+    overflow: hidden;
+  }
+  html.dsh-embed .hero .badge { align-self: center; padding: 4px 10px; font-size: 12px; }
+  html.dsh-embed .hero h1 { font-size: 34px; margin: 2px 0 4px; line-height: 1.1; }
+  html.dsh-embed .hero .lead { font-size: 16px; margin: 2px 0; }
+  html.dsh-embed .hero-cols { height: 112px; gap: 18px; margin: 4px 0 2px; }
+  html.dsh-embed .pcol.tri { width: 54px; height: 84px; }
+  html.dsh-embed .pcol.sq { width: 52px; height: 98px; }
+  html.dsh-embed .pcol.cyl { width: 56px; height: 106px; }
+  html.dsh-embed .pcol.cyl:before { top: -8px; height: 18px; }
+  html.dsh-embed .hero .ai-row { margin-bottom: 4px; }
+  html.dsh-embed .form { margin: 4px 0; gap: 8px; }
+  html.dsh-embed .form label { font-size: 12px; }
+  html.dsh-embed input[type="text"] {
+    width: 176px; margin-top: 2px; padding: 6px 10px; font-size: 15px; border-radius: 10px;
+  }
+  html.dsh-embed .hero .actions { margin-top: 6px; }
+  html.dsh-embed .hero > .sub { font-size: 12px; }
+
+  /* 遊戲中段：課室紀錄在矮屏收起 */
+  @media (max-height: 520px) {
+    html.dsh-embed body { padding: 3px 6px 4px; }
+    html.dsh-embed .hud { margin-bottom: 4px; }
+    html.dsh-embed .who { display: none; }
+    html.dsh-embed .steps { display: none; }
+    html.dsh-embed .layout { grid-template-columns: minmax(0, 1fr); }
+    html.dsh-embed aside { display: none; }
+    html.dsh-embed .hero .badge,
+    html.dsh-embed .hero-cols,
+    html.dsh-embed .hero > .sub,
+    html.dsh-embed .main .bot { display: none; }
+    html.dsh-embed .hero { padding: 4px 12px 6px; justify-content: center; }
+    html.dsh-embed .hero h1 { font-size: 26px; margin: 0 0 2px; }
+    html.dsh-embed .hero .lead { font-size: 14px; }
+    html.dsh-embed .hero .ai-row { margin-bottom: 2px; }
+    html.dsh-embed .bubble { padding: 5px 9px; font-size: 12px; line-height: 1.35; }
+    html.dsh-embed .form { margin: 2px 0; }
+    html.dsh-embed input[type="text"] { width: 160px; padding: 5px 9px; font-size: 14px; }
+    html.dsh-embed .hero .actions { margin-top: 4px; }
+    html.dsh-embed .big { min-height: 40px; padding: 6px 12px; font-size: 14px; }
+    html.dsh-embed .art { max-height: 96px; margin-bottom: 2px; }
+    html.dsh-embed .main { padding: 6px 8px 8px; }
+    html.dsh-embed .main h2 { font-size: 17px; margin-bottom: 4px; }
+    html.dsh-embed .choice, html.dsh-embed .num, html.dsh-embed .item { min-height: 42px; font-size: 13px; }
+    html.dsh-embed .chair { min-height: 84px; }
+    html.dsh-embed .lab-wrap { gap: 8px; align-items: center; }
+    html.dsh-embed .lab-visual h2 { text-align: center; }
+    html.dsh-embed .tower { min-height: 0; height: 170px; width: 100%; }
+    html.dsh-embed .tower .col { width: 66px; height: 76px; }
+    html.dsh-embed .tower .col.tall { height: 92px; }
+    html.dsh-embed .tower .col.short { height: 52px; }
+    html.dsh-embed .tower .col.cyl { margin-top: 12px; }
+    html.dsh-embed .book { width: 76px; height: 9px; margin-top: 2px; }
+    html.dsh-embed .stable { min-height: 0; font-size: 12px; }
+    html.dsh-embed .lab-copy .num { min-height: 38px; }
+    html.dsh-embed .rule { padding: 5px 8px; font-size: 12px; }
+    html.dsh-embed .preview, html.dsh-embed .stool { display: none; }
+    html.dsh-embed .podium .col { width: 64px; height: 84px; }
+    html.dsh-embed .pod { padding: 6px 4px; }
+    html.dsh-embed .pod .col { margin-bottom: 2px; }
+    html.dsh-embed .pod b { font-size: 16px; }
+    html.dsh-embed .pod small { font-size: 12px; }
+    html.dsh-embed .pod span { font-size: 12px; }
+    html.dsh-embed .basefig { max-height: 70px; width: auto; }
+    html.dsh-embed .basecard, html.dsh-embed .circlecard { padding: 4px; }
+    html.dsh-embed .basecard p { margin: 0; font-size: 12px; }
+    html.dsh-embed .ringbox { width: 96px; height: 96px; margin: 2px auto; border-width: 6px; }
+    html.dsh-embed .countlab { font-size: 13px; margin: 2px 0; }
+    html.dsh-embed .sentence { font-size: 16px; padding: 8px; }
+    html.dsh-embed .bars, html.dsh-embed .main .learned, html.dsh-embed .main table { display: none; }
+    html.dsh-embed .design-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; }
+    html.dsh-embed body[data-phase="design"] .phase-body > .sub,
+    html.dsh-embed body[data-phase="design"] .phase-body > .meter,
+    html.dsh-embed body[data-phase="design"] .phase-body > .meter + p { display: none; }
+    html.dsh-embed .design-group > p { margin: 0; font-size: 12px; }
+    html.dsh-embed .design-group .choices { gap: 6px; }
+    html.dsh-embed .design-groups .choice { min-height: 38px; }
+    html.dsh-embed .meter { margin: 4px 0; }
+    html.dsh-embed .bigcount { font-size: 34px; }
+    html.dsh-embed .cert-wrap { flex: 1 1 auto; min-height: 0; overflow: auto; }
+    html.dsh-embed .cert h1 { font-size: 40px; }
+    /* 觀察題：左圖右選項，矮屏也看得清建築物 */
+    html.dsh-embed body[data-phase="observe"] .phase-body {
+      display: grid; grid-template-columns: 196px minmax(0, 1fr); align-items: center;
+      grid-template-areas: "sub sub" "art title" "art choices" "art actions";
+      grid-template-rows: auto auto 1fr auto; gap: 2px 12px;
+    }
+    html.dsh-embed body[data-phase="observe"] .phase-body > .sub { grid-area: sub; }
+    html.dsh-embed body[data-phase="observe"] .phase-body > .art {
+      grid-area: art; width: 188px; height: auto; max-height: 126px; margin: 0;
+    }
+    html.dsh-embed body[data-phase="observe"] .phase-body > h2 { grid-area: title; margin: 2px 0; }
+    html.dsh-embed body[data-phase="observe"] .phase-body > .choices { grid-area: choices; align-self: center; }
+    html.dsh-embed body[data-phase="observe"] .phase-body > .actions {
+      grid-area: actions; margin-top: 2px; justify-content: flex-start;
+    }
+  }
+  /* 桌面／平板切換器的加大樣式在嵌入時失效 */
+  html.dsh-embed body[data-device="tablet"] .choice,
+  html.dsh-embed body[data-device="tablet"] .num,
+  html.dsh-embed body[data-device="tablet"] .item,
+  html.dsh-embed body[data-device="tablet"] .big { min-height: 44px; font-size: 14px; }
+  html.dsh-embed body[data-device="tablet"] h2 { font-size: 19px; }
+  html.dsh-embed body[data-device="tablet"] .choices { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  html.dsh-embed body[data-device="tablet"] .design-groups .choices { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 </style>
 </head>
 <body>
@@ -773,9 +970,9 @@
     if (state.labPhase === "est") {
       var nums = "";
       for (var n = 1; n <= 8; n++) nums += '<button type="button" class="num" data-act="est" data-n="' + n + '">' + n + "</button>";
-      return head + "<h2>你估計它可以承托幾多本？</h2>" +
-        '<div class="tower">' + colHTML(key) + "</div><p>底部是" + (key === "tri" ? "三角形" : key === "sq" ? "方形" : "圓形") + "</p>" +
-        '<div class="nums">' + nums + "</div><p class=\"kb\">電腦可按鍵盤 1 至 8。</p>";
+      return head + '<div class="lab-wrap"><div class="lab-visual"><h2>你估計它可以承托幾多本？</h2>' +
+        '<div class="tower">' + colHTML(key) + "</div><p>底部是" + (key === "tri" ? "三角形" : key === "sq" ? "方形" : "圓形") + "</p></div>" +
+        '<div class="lab-copy"><div class="nums">' + nums + "</div><p class=\"kb\">電腦可按鍵盤 1 至 8。</p></div></div>";
     }
     var cap = CAP[key];
     var status = "準備放上第一本練習簿";
@@ -788,11 +985,11 @@
     var btn = state.collapsed
       ? nextBtn("lab-next", state.labIndex < 2 ? "測試下一種" : "看實驗結果")
       : '<div class="actions"><button type="button" class="big" data-act="book">放一本練習簿</button></div>';
-    return head + "<h2>把練習簿放在正中間</h2>" +
-      '<div class="labbox"><div class="tower"><div class="stack">' + booksHTML(state.books, state.collapsed) + "</div>" +
+    return head + '<div class="lab-wrap"><div class="lab-visual"><h2>把練習簿放在正中間</h2>' +
+      '<div class="tower"><div class="stack">' + booksHTML(state.books, state.collapsed) + "</div>" +
       colHTML(key, extra) + "</div>" +
-      '<p class="stable ' + st + '">' + status + "</p>" +
-      '<p class="rule">規則：練習簿要一本一本，放在柱體頂部的正中間。</p></div>' + btn;
+      '<p class="stable ' + st + '">' + status + "</p></div>" +
+      '<div class="lab-copy"><p class="rule">規則：練習簿要一本一本，放在柱體頂部的正中間。</p>' + btn + "</div></div>";
   }
   function renderLabResult() {
     var pods = ORDER.map(function (k) {
@@ -845,14 +1042,16 @@
     var n = bestCount(d);
     html += '<div class="meter" aria-hidden="true">' + [0, 1, 2, 3].map(function (i) { return '<i class="' + (i < n ? "on" : "") + '"></i>'; }).join("") + "</div>";
     html += "<p><b>" + meterLabel(n) + "</b></p>";
+    html += '<div class="design-groups">';
     groups.forEach(function (g) {
-      html += "<p>" + g[1] + "</p><div class=\"choices\">";
+      html += '<div class="design-group"><p>' + g[1] + "</p><div class=\"choices\">";
       g[2].forEach(function (op) {
         var on = d[g[0]] === op[0] ? " on" : "";
         html += '<button type="button" class="choice' + on + '" data-act="pick" data-g="' + g[0] + '" data-k="' + op[0] + '">' + (g[0] === "shape" ? icon(op[0]) : "") + esc(op[1]) + "</button>";
       });
-      html += "</div>";
+      html += "</div></div>";
     });
+    html += "</div>";
     var ready = d.shape && d.paper && d.height && d.width;
     html += '<div class="actions"><button type="button" class="big" data-act="design-go"' + (ready ? "" : " disabled") + ">開始比賽</button></div>";
     return html;
@@ -966,11 +1165,12 @@
     return "";
   }
   function render() {
+    document.body.dataset.phase = state.phase;
     if (state.phase === "start") { renderStart(); return; }
     if (state.phase === "cert") { renderCert(); return; }
     ensureShell();
     paintChrome();
-    $("main").innerHTML = aiHTML() + uiHTML();
+    $("main").innerHTML = aiHTML() + '<div class="phase-body">' + uiHTML() + "</div>";
     $("note").innerHTML = noteHTML();
   }
   function goto(phase, line, mood) {
@@ -1459,39 +1659,6 @@
 })();
 </script>
 
-<script id="phone-first">
-(function () {
-  if (!document.querySelector('meta[name="viewport"]')) {
-    var meta = document.createElement("meta");
-    meta.name = "viewport";
-    meta.content = "width=device-width, initial-scale=1, viewport-fit=cover";
-    document.head.appendChild(meta);
-  }
-  var style = document.createElement("style");
-  style.textContent = "@media (max-width:900px){html,body{max-width:100%;overflow-x:hidden;margin:0}button,input,select,textarea{font-size:16px;touch-action:manipulation}canvas,img,svg,video{max-width:100%}}";
-  document.head.appendChild(style);
-  function fit() {
-    var limit = document.documentElement.clientWidth || window.innerWidth;
-    if (limit > 900) return;
-    document.querySelectorAll("body *").forEach(function (el) {
-      var cs;
-      try { cs = getComputedStyle(el); } catch (err) { return; }
-      var cols = (cs.gridTemplateColumns || "").trim();
-      if (!cols || cols === "none") return;
-      var parts = cols.split(/\s+/).filter(Boolean);
-      if (parts.length < 2) return;
-      var wide = parts.some(function (part) { return parseFloat(part) >= 200; });
-      var box = el.getBoundingClientRect();
-      if (!wide && el.scrollWidth <= limit + 8 && box.width <= limit + 8) return;
-      el.style.gridTemplateColumns = parts.length >= 4 ? "1fr 1fr" : "1fr";
-      el.style.minWidth = "0";
-      el.style.maxWidth = "100%";
-    });
-  }
-  window.addEventListener("resize", fit);
-  window.addEventListener("load", function () { fit(); setTimeout(fit, 400); });
-  if (document.readyState !== "loading") setTimeout(fit, 50);
-})();
-</script>
+
 </body>
 </html>

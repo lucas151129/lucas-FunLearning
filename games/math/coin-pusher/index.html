@@ -474,6 +474,131 @@
   .bar { border-radius: 0; box-shadow: inset 3px 3px 0 #000; }
   .floater { text-shadow: 2px 2px 0 #3a2200; }
   .opt-key { border-radius: 0; box-shadow: 2px 2px 0 #2a1600; }
+
+  /* =====================================================================
+     平台橫屏 iframe（html.dsh-embed）— 328–368px 高也要完整顯示、不滾動
+     只有在平台上才會生效，獨立開頁面維持原本外觀。
+     ===================================================================== */
+  html.dsh-embed, html.dsh-embed body { height: 100%; min-height: 0; }
+  html.dsh-embed body { overflow: hidden; }
+  html.dsh-embed main, html.dsh-embed .screen.active { height: 100%; min-height: 0; }
+  html.dsh-embed .wrap { max-width: none; height: 100%; padding: 6px 10px; margin: 0; }
+
+  /* ---------------- 開始畫面 ---------------- */
+  html.dsh-embed #screen-start .wrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+  }
+  html.dsh-embed .hero { padding: 0; }
+  html.dsh-embed .subtitle { margin: 0; font-size: 13px; }
+  html.dsh-embed .title { margin: 2px 0; font-size: clamp(22px, 6.4vh, 48px); }
+  html.dsh-embed .lead { margin: 0 auto; max-width: 780px; font-size: clamp(12px, 2vh, 15px); line-height: 1.5; }
+  html.dsh-embed .previews { width: 100%; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 2px; }
+  html.dsh-embed .preview { padding: 6px 6px; }
+  html.dsh-embed .coin-face { width: clamp(24px, 7vh, 56px); height: clamp(24px, 7vh, 56px); margin-bottom: 2px; }
+  html.dsh-embed .preview b { font-size: 13px; }
+  html.dsh-embed .preview em { margin-top: 1px; font-size: 12px; }
+  html.dsh-embed .row.center { margin-top: 4px; gap: 8px; }
+  html.dsh-embed .row.center button { min-height: 40px; padding: 6px 18px; font-size: 14px; }
+
+  /* ---------------- 玩法說明／成績頁：內容在卡片內捲動，不動到頁面 ---------------- */
+  html.dsh-embed #screen-rules .wrap,
+  html.dsh-embed #screen-clear .wrap { display: flex; flex-direction: column; gap: 8px; }
+  html.dsh-embed #screen-rules .hero { padding: 0; }
+  html.dsh-embed #screen-rules .title { font-size: 24px; }
+  html.dsh-embed #screen-rules .card { flex: 1; min-height: 0; overflow: auto; max-width: none; padding: 6px 18px 12px; }
+  html.dsh-embed .rules li { margin: 6px 0; font-size: 13px; line-height: 1.5; }
+  html.dsh-embed #screen-rules .row.center { margin-top: 0; }
+  html.dsh-embed #screen-clear .row.center { margin-top: 0; }
+
+  /* ---------------- 遊戲畫面 ---------------- */
+  html.dsh-embed #screen-game .wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px 10px;
+  }
+  html.dsh-embed #screen-game .topbar { flex: none; }
+  html.dsh-embed .top-row { flex-wrap: nowrap; gap: 6px; }
+  html.dsh-embed .top-row h1 { display: none; }
+  html.dsh-embed .wallet-box { padding: 3px 10px; font-size: 13px; }
+  html.dsh-embed .top-actions { display: flex; flex-wrap: nowrap; gap: 6px; margin-left: auto; }
+  html.dsh-embed .top-actions button { min-height: 36px; padding: 4px 10px; font-size: 12px; }
+  html.dsh-embed .hint,
+  html.dsh-embed #screen-game .stat-list,
+  html.dsh-embed #screen-game .goals { display: none; }
+
+  html.dsh-embed .stage {
+    flex: 1;
+    min-height: 0;
+    margin-top: 0;
+    grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
+    gap: 8px;
+    align-items: stretch;
+  }
+  html.dsh-embed .cabinet {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 6px;
+    box-shadow: 0 0 0 3px #3a1d6e, 0 0 0 5px #ffd76a, 0 10px 24px rgba(0, 0, 0, .4), inset 0 0 30px rgba(0, 0, 0, .35);
+  }
+  html.dsh-embed .marquee,
+  html.dsh-embed .bulbs,
+  html.dsh-embed .machine-foot { display: none; }
+  html.dsh-embed .glass { flex: 1; min-height: 0; height: auto; }
+  html.dsh-embed .quiz {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+    padding: 6px;
+    overflow: hidden;
+  }
+  html.dsh-embed .quiz-head { font-size: 12px; }
+  html.dsh-embed .round-note { min-height: 0; margin: 2px 0 0; font-size: 12px; }
+  html.dsh-embed #q-text { margin: 4px 0 6px; font-size: clamp(16px, 3.8vh, 28px); }
+  html.dsh-embed .options { flex: 1 1 auto; max-height: 200px; gap: 6px; }
+  html.dsh-embed button.opt { min-height: 40px; padding: 3px 8px; font-size: 15px; }
+  html.dsh-embed .opt-key { width: 20px; height: 20px; font-size: 12px; }
+  html.dsh-embed .opt-val { font-size: 18px; }
+  html.dsh-embed .q-actions { margin-top: 6px; }
+  html.dsh-embed .track-label { font-size: 12px; margin-bottom: 2px; }
+  html.dsh-embed .track { height: 22px; }
+  html.dsh-embed .track-zones { top: 32px; font-size: 12px; }
+  html.dsh-embed .result { margin-top: 4px; padding: 3px 6px; font-size: 12px; }
+
+  /* ---------------- 浮層 ---------------- */
+  html.dsh-embed .modal { padding: 10px; }
+  html.dsh-embed .modal-card,
+  html.dsh-embed .shot-card { max-height: calc(100dvh - 20px); overflow: auto; padding: 14px 16px; }
+  html.dsh-embed .modal-card h3 { margin: 4px 0 6px; font-size: 18px; }
+  html.dsh-embed .modal-card .note { font-size: 12px; }
+  html.dsh-embed .shot-list li { padding: 2px 0; font-size: 12px; }
+  html.dsh-embed .modal .row { margin-top: 8px; gap: 8px; }
+  html.dsh-embed .modal .row button { min-height: 40px; font-size: 14px; }
+
+  @media (max-height: 470px) {
+    /* 矮屏：把畫面盡量留給機台與選項 */
+    html.dsh-embed #screen-start .wrap { gap: 4px; }
+    html.dsh-embed .subtitle { font-size: 12px; }
+    html.dsh-embed .title { font-size: clamp(20px, 6vh, 32px); }
+    html.dsh-embed #screen-start .lead { font-size: 12px; line-height: 1.45; margin: 0; }
+    html.dsh-embed .preview em { font-size: 11px; }
+    html.dsh-embed .preview b { font-size: 12px; }
+    html.dsh-embed .coin-face { width: clamp(22px, 6vh, 40px); height: clamp(22px, 6vh, 40px); }
+    html.dsh-embed .top-actions button { min-height: 34px; }
+    html.dsh-embed .options { flex: 1; max-height: 132px; align-content: stretch; }
+    html.dsh-embed button.opt { min-height: 36px; }
+    html.dsh-embed .q-actions { margin-top: 4px; }
+    html.dsh-embed .track { height: 18px; }
+    html.dsh-embed .track-zones { top: 28px; font-size: 11px; }
+    html.dsh-embed .result { font-size: 11px; }
+  }
 </style>
 </head>
 <body>
@@ -2116,39 +2241,6 @@
 })();
 </script>
 
-<script id="phone-first">
-(function () {
-  if (!document.querySelector('meta[name="viewport"]')) {
-    var meta = document.createElement("meta");
-    meta.name = "viewport";
-    meta.content = "width=device-width, initial-scale=1, viewport-fit=cover";
-    document.head.appendChild(meta);
-  }
-  var style = document.createElement("style");
-  style.textContent = "@media (max-width:900px){html,body{max-width:100%;overflow-x:hidden;margin:0}button,input,select,textarea{font-size:16px;touch-action:manipulation}canvas,img,svg,video{max-width:100%}}";
-  document.head.appendChild(style);
-  function fit() {
-    var limit = document.documentElement.clientWidth || window.innerWidth;
-    if (limit > 900) return;
-    document.querySelectorAll("body *").forEach(function (el) {
-      var cs;
-      try { cs = getComputedStyle(el); } catch (err) { return; }
-      var cols = (cs.gridTemplateColumns || "").trim();
-      if (!cols || cols === "none") return;
-      var parts = cols.split(/\s+/).filter(Boolean);
-      if (parts.length < 2) return;
-      var wide = parts.some(function (part) { return parseFloat(part) >= 200; });
-      var box = el.getBoundingClientRect();
-      if (!wide && el.scrollWidth <= limit + 8 && box.width <= limit + 8) return;
-      el.style.gridTemplateColumns = parts.length >= 4 ? "1fr 1fr" : "1fr";
-      el.style.minWidth = "0";
-      el.style.maxWidth = "100%";
-    });
-  }
-  window.addEventListener("resize", fit);
-  window.addEventListener("load", function () { fit(); setTimeout(fit, 400); });
-  if (document.readyState !== "loading") setTimeout(fit, 50);
-})();
-</script>
+
 </body>
 </html>

@@ -1038,6 +1038,72 @@ body[data-dash="open"] #dash-backdrop { opacity: 1; pointer-events: auto; }
   .moves #btn-fire { min-height: 44px; letter-spacing: 2px; }
   #dash-card { max-height: 92dvh; }
 }
+
+/* =====================================================================
+   平台橫屏 iframe（html.dsh-embed）— 328–368px 高也要完整顯示、不滾動
+   1) 收掉關閉中的抽屜（避免超出畫面）2) 提示不壓住開砲鍵 3) 平板放大機台
+   ===================================================================== */
+
+/* 關閉中的「遺物・紀錄」抽屜用 display 收起，展開時才佔位 */
+html.dsh-embed #dash { display: none; }
+html.dsh-embed body[data-dash="open"] #dash { display: flex; }
+html.dsh-embed #dash-card { max-height: min(76dvh, 520px); }
+
+/* 一次性操作提示改放在戰區上緣，不擋下方按鍵 */
+html.dsh-embed #hint {
+  top: 4px;
+  bottom: auto;
+  padding: 4px 12px;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+/* 平板（≥880px 寬）：機台放到最大，控制項收在右側一欄 */
+@media (min-width: 880px) {
+  html.dsh-embed .cabinet {
+    max-width: 1120px;
+    padding: 8px 14px calc(8px + env(safe-area-inset-bottom));
+  }
+  html.dsh-embed .layout {
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    gap: 14px;
+  }
+  html.dsh-embed #stage { flex: 1 1 auto; width: auto; min-width: 0; align-self: stretch; }
+  html.dsh-embed #side {
+    flex: 0 0 auto;
+    align-self: center;
+    width: min(40%, 430px);
+    max-height: 100%;
+  }
+  html.dsh-embed .logo { font-size: 20px; }
+}
+
+/* 328–368px 高的橫屏手機：收掉次要文字，讓開砲鍵整顆露出來 */
+@media (max-height: 460px) {
+  html.dsh-embed .cabinet { padding: 4px 10px calc(4px + env(safe-area-inset-bottom)); }
+  html.dsh-embed header { gap: 6px; }
+  html.dsh-embed .ghost { min-height: 36px; padding: 2px 6px; }
+  html.dsh-embed #rail { margin: 0 0 3px; }
+  html.dsh-embed #hint { top: 40px; padding: 3px 12px; }
+  html.dsh-embed #banner { margin-bottom: 3px; font-size: 11px; }
+  html.dsh-embed #side { gap: 4px; }
+  html.dsh-embed .note { display: none; }
+  html.dsh-embed .expr { font-size: 21px; }
+  html.dsh-embed #btn-swap { min-height: 38px; }
+  html.dsh-embed .card { min-height: 46px; font-size: 22px; }
+  html.dsh-embed .op { width: 40px; min-height: 40px; font-size: 18px; }
+  html.dsh-embed .moves { gap: 6px; }
+  html.dsh-embed .moves button { min-height: 38px; font-size: 12px; }
+  html.dsh-embed .moves #btn-fire { min-height: 44px; font-size: 15px; letter-spacing: 2px; }
+  html.dsh-embed .modal { max-height: 94dvh; padding: 12px; }
+  html.dsh-embed .modal h2 { font-size: 20px; margin-bottom: 6px; }
+  html.dsh-embed .modal p, html.dsh-embed .modal li { font-size: 13px; line-height: 1.45; }
+  html.dsh-embed .choices { margin-top: 8px; gap: 6px; }
+  html.dsh-embed .choice { padding: 8px 10px; }
+  html.dsh-embed .choice b { font-size: 15px; margin-bottom: 1px; }
+}
 </style>
 </head>
 <body>

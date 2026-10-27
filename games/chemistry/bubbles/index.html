@@ -52,6 +52,10 @@
             min-width: 0;
         }
 
+        /* Footer wrapper used only by the landscape embed; transparent on
+           desktop so the original stacking order is untouched. */
+        .board-foot { display: contents; }
+
         .sidebar {
             flex: 0 0 290px;
             display: flex;
@@ -278,6 +282,250 @@
                 height: auto !important;
             }
         }
+
+        /* =================================================================
+           LANDSCAPE EMBED (platform iframe: html.dsh-embed)
+           Keep the "board + info column" row layout even on narrow phones,
+           let the canvas absorb the available height, and hide secondary
+           instructional copy. Scoped to html.dsh-embed so the standalone
+           page keeps its original layout.
+           ================================================================= */
+        html.dsh-embed, html.dsh-embed body { height: 100%; }
+        html.dsh-embed body {
+            display: block;
+            min-height: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        html.dsh-embed .game-container {
+            flex-direction: row;
+            align-items: stretch;
+            flex-wrap: nowrap;
+            gap: 12px;
+            max-width: none;
+            width: 100%;
+            height: 100dvh;
+            padding: 8px 12px;
+        }
+
+        html.dsh-embed .main-content {
+            position: relative;
+            flex: 1 1 auto;
+            min-width: 0;
+            height: 100%;
+            display: grid;
+            grid-template-rows: auto auto;
+            align-content: center;
+            justify-items: center;
+        }
+
+        html.dsh-embed h1 { display: none; }
+
+        html.dsh-embed #gameCanvas {
+            grid-row: 1;
+            /* Keep the 700x500 board ratio: size from the frame height,
+               never from a max-width clamp (which would distort it). */
+            width: min(100%, calc((100dvh - 78px) * 1.4)) !important;
+            height: auto !important;
+            aspect-ratio: 700 / 500;
+            max-width: 100%;
+            max-height: 100%;
+            min-height: 0;
+            align-self: center;
+            box-sizing: border-box;
+            border-radius: 10px;
+            border-width: 3px;
+            object-fit: contain;
+        }
+
+        /* Controls + "compound formed" readout share a footer the width of
+           the board, so feedback never pushes the board off-screen. */
+        html.dsh-embed .board-foot {
+            grid-row: 2;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            align-items: center;
+            gap: 10px;
+            width: min(100%, calc((100dvh - 78px) * 1.4));
+            margin-top: 6px;
+        }
+
+        html.dsh-embed .mobile-controls {
+            grid-column: 1;
+            flex: 0 0 auto;
+            margin: 0;
+            padding: 3px 6px;
+            gap: 8px;
+            border-radius: 10px;
+        }
+        html.dsh-embed .control-arrow {
+            width: 42px;
+            height: 42px;
+            font-size: 1.05rem;
+        }
+
+        /* The panel is hidden while it holds the two-line how-to text.
+           A formed compound becomes a compact readout in the footer;
+           notifications and the game-over card pop over the board. */
+        html.dsh-embed .compound-display { display: none; }
+
+        /* How-to text (no rich content yet): a compact hint beside the
+           arrow controls, so the footer is never half empty. */
+        html.dsh-embed .compound-display:not(:has(div)) {
+            display: block;
+            grid-column: 2;
+            position: static;
+            margin: 0;
+            padding: 4px 8px;
+            max-height: 50px;
+            overflow: hidden;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            line-height: 1.15;
+            text-align: left;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            animation: none;
+        }
+        html.dsh-embed .compound-display:not(:has(div)) p {
+            font-size: 0.75rem;
+            line-height: 1.15;
+            margin: 0;
+        }
+        html.dsh-embed .compound-display:not(:has(div)) p + p { display: none; }
+
+        html.dsh-embed .compound-display:has(.compound-name) {
+            display: block;
+            grid-column: 2;
+            position: static;
+            margin: 0;
+            padding: 4px 8px;
+            max-height: 50px;
+            overflow: hidden;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            line-height: 1.25;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            animation: none;
+        }
+        html.dsh-embed .compound-display:has(.compound-name) > div {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 0;
+        }
+        html.dsh-embed .compound-display:has(.compound-name) > div > div:first-child {
+            min-width: 0;
+        }
+        html.dsh-embed .compound-display:has(.compound-name) .compound-name {
+            font-size: 0.72rem;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        html.dsh-embed .compound-display:has(.compound-name) .compound-formula {
+            font-size: 0.8rem;
+            line-height: 1.2;
+        }
+        html.dsh-embed .compound-display:has(.compound-name) p { display: none; }
+        html.dsh-embed .compound-display:has(.compound-name) > div > div:last-child {
+            display: none !important; /* the markup carries an inline display:flex */
+        }
+
+        html.dsh-embed .compound-display:has(div):not(:has(.compound-name)):not(:has(button)) {
+            display: block;
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(92%, 620px);
+            max-height: 90%;
+            overflow-y: auto;
+            margin: 0;
+            padding: 8px 12px;
+            z-index: 8;
+            font-size: 0.75rem;
+            line-height: 1.35;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        }
+        html.dsh-embed .compound-display:has(div):not(:has(.compound-name)) div {
+            font-size: 0.8rem !important;
+            margin: 2px 0 !important;
+        }
+        html.dsh-embed .compound-display:has(div):not(:has(.compound-name)) p {
+            font-size: 0.75rem;
+            margin: 1px 0;
+        }
+        html.dsh-embed .compound-display:has(button) {
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: min(92%, 460px);
+            padding: 16px 20px;
+            font-size: 0.9rem;
+            z-index: 9;
+        }
+        html.dsh-embed .compound-display:has(button) div { font-size: 1.3rem !important; }
+        html.dsh-embed .compound-display:has(button) p { font-size: 0.9rem; margin: 4px 0; }
+        html.dsh-embed .compound-display:has(button) button {
+            margin-top: 10px !important;
+            min-height: 44px;
+            min-width: 136px;
+        }
+
+        html.dsh-embed .sidebar {
+            flex: 0 0 clamp(250px, 34%, 330px);
+            width: auto;
+            height: 100%;
+            max-height: none;
+            overflow-y: auto;
+            gap: 8px;
+            padding: 10px;
+            border-radius: 12px;
+        }
+        html.dsh-embed .info-panel { padding: 6px 9px; border-radius: 8px; }
+        html.dsh-embed .info-panel:hover { transform: none; }
+        html.dsh-embed .info-panel h3 { font-size: 0.85rem; gap: 4px; margin-bottom: 2px; }
+        html.dsh-embed .info-panel p { font-size: 0.8rem; margin: 1px 0; line-height: 1.3; }
+        html.dsh-embed .progress-bar { margin-top: 2px; }
+        html.dsh-embed .compounds-list {
+            grid-template-columns: repeat(auto-fit, minmax(74px, 1fr));
+            gap: 4px;
+            max-height: 120px;
+        }
+        html.dsh-embed .compound-item { padding: 4px; }
+        html.dsh-embed .compound-formula-small { font-size: 0.8rem; }
+        html.dsh-embed .compound-name-small { font-size: 0.7rem; }
+        html.dsh-embed .end-game-btn {
+            padding: 8px 10px;
+            font-size: 0.85rem;
+            min-height: 40px;
+        }
+
+        /* Short frames: drop the "Discoveries" list and the +500 bonus line
+           so score / level / next ion / target all stay visible. */
+        @media (max-height: 460px) {
+            html.dsh-embed .sidebar .info-panel:nth-child(5) { display: none; }
+            html.dsh-embed .sidebar { overflow-y: hidden; }
+            html.dsh-embed .mobile-controls { margin-top: 4px; }
+        }
+
+        /* Tall frames (iPad): the sidebar has room to breathe. */
+        @media (min-height: 560px) {
+            html.dsh-embed .sidebar { gap: 10px; justify-content: flex-start; }
+            html.dsh-embed .sidebar .end-game-btn { margin-top: auto; }
+            html.dsh-embed .info-panel { padding: 10px 12px; }
+            html.dsh-embed .info-panel h3 { font-size: 1rem; }
+            html.dsh-embed .info-panel p { font-size: 0.9rem; }
+            html.dsh-embed .compounds-list { max-height: 200px; }
+            html.dsh-embed .end-game-btn { font-size: 1rem; min-height: 46px; }
+            /* There is room to show which ions were needed. */
+            html.dsh-embed .compound-display:has(.compound-name) { max-height: 64px; padding: 6px 10px; }
+            html.dsh-embed .compound-display:has(.compound-name) > div > div:last-child { display: flex !important; }
+        }
     </style>
 </head>
 <body>
@@ -285,6 +533,7 @@
         <div class="main-content">
             <h1>🧪 Ionic Bubbles</h1>
             <canvas id="gameCanvas" width="700" height="500"></canvas>
+            <div class="board-foot">
             <div class="mobile-controls">
                 <button id="leftArrow" class="control-arrow">←</button>
                 <button id="shootButton" class="control-arrow" style="background: #00f2fe; border-color: #4facfe; font-size: 0.9rem;">Shoot</button>
@@ -294,6 +543,7 @@
                 <p>Match cations (+) and anions (-) to form ionic compounds!</p>
                 <p>Aim with mouse/touch &middot; Click to shoot &middot; Larger compounds = more points!</p>
             </div>
+            </div><!-- /.board-foot -->
         </div>
         <div class="sidebar">
             <div class="info-panel">
@@ -1739,8 +1989,10 @@
             if (usingArrowControls) return;
             
             const rect = canvas.getBoundingClientRect();
-            const rawMouseX = e.clientX - rect.left;
-            const rawMouseY = e.clientY - rect.top;
+            // The canvas is displayed smaller than its 700x500 bitmap on
+            // phones/tablets, so map CSS pixels back into canvas space.
+            const rawMouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const rawMouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
             
             // Calculate the angle from shooter to mouse position
             const dx = rawMouseX - shooter.x;
@@ -1771,6 +2023,14 @@
                 // Update aimAngle to match mouse position for consistency
                 aimAngle = clampedAngle;
             }
+        }
+
+        function handleCanvasClick(e) {
+            // A tap does not fire mousemove first, so aim from the click
+            // coordinates before shooting (arrow-button aiming is preserved
+            // because handleMouseMove() ignores pointer input in that mode).
+            handleMouseMove(e);
+            handleClick();
         }
 
         function handleClick() {
@@ -1949,7 +2209,7 @@
             gameRunning = false;
 
             canvas.removeEventListener('mousemove', handleMouseMove);
-            canvas.removeEventListener('click', handleClick);
+            canvas.removeEventListener('click', handleCanvasClick);
 
             const display = document.getElementById('compoundDisplay');
             display.innerHTML = `
@@ -2008,7 +2268,7 @@
             updateTargetDisplay();
             
             canvas.addEventListener('mousemove', handleMouseMove);
-            canvas.addEventListener('click', handleClick);
+            canvas.addEventListener('click', handleCanvasClick);
             
             // Mobile control event listeners with hold-to-adjust
             
@@ -2110,39 +2370,6 @@
         }
     </script>
 
-<script id="phone-first">
-(function () {
-  if (!document.querySelector('meta[name="viewport"]')) {
-    var meta = document.createElement("meta");
-    meta.name = "viewport";
-    meta.content = "width=device-width, initial-scale=1, viewport-fit=cover";
-    document.head.appendChild(meta);
-  }
-  var style = document.createElement("style");
-  style.textContent = "@media (max-width:900px){html,body{max-width:100%;overflow-x:hidden;margin:0}button,input,select,textarea{font-size:16px;touch-action:manipulation}canvas,img,svg,video{max-width:100%}}";
-  document.head.appendChild(style);
-  function fit() {
-    var limit = document.documentElement.clientWidth || window.innerWidth;
-    if (limit > 900) return;
-    document.querySelectorAll("body *").forEach(function (el) {
-      var cs;
-      try { cs = getComputedStyle(el); } catch (err) { return; }
-      var cols = (cs.gridTemplateColumns || "").trim();
-      if (!cols || cols === "none") return;
-      var parts = cols.split(/\s+/).filter(Boolean);
-      if (parts.length < 2) return;
-      var wide = parts.some(function (part) { return parseFloat(part) >= 200; });
-      var box = el.getBoundingClientRect();
-      if (!wide && el.scrollWidth <= limit + 8 && box.width <= limit + 8) return;
-      el.style.gridTemplateColumns = parts.length >= 4 ? "1fr 1fr" : "1fr";
-      el.style.minWidth = "0";
-      el.style.maxWidth = "100%";
-    });
-  }
-  window.addEventListener("resize", fit);
-  window.addEventListener("load", function () { fit(); setTimeout(fit, 400); });
-  if (document.readyState !== "loading") setTimeout(fit, 50);
-})();
-</script>
+
 </body>
 </html>

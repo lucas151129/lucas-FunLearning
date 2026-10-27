@@ -92,6 +92,10 @@
     margin-bottom: 18px;
   }
 
+  /* Layout wrappers used by the platform's landscape embed. Outside the
+     embed they are transparent, so the desktop column order is unchanged. */
+  .play-info, .play-form, .menu-cta { display: contents; }
+
   /* ===================== TOP CONTROL BAR ===================== */
   .topbar {
     display: flex;
@@ -1038,6 +1042,482 @@
     .calc-key { padding: 16px 0; }
     button { -webkit-tap-highlight-color: transparent; }
   }
+
+  /* =====================================================================
+     LANDSCAPE EMBED (platform iframe: html.dsh-embed)
+     The game is played full-screen in a short, wide iframe. Re-flow the
+     single tall column into "main area + info column" and compress the
+     menu / instructions / end screens so nothing scrolls.
+     Everything here is scoped to html.dsh-embed: the standalone page keeps
+     its original look.
+     ===================================================================== */
+  html.dsh-embed, html.dsh-embed body { height: 100%; }
+  html.dsh-embed body {
+    display: block;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+    background-attachment: scroll;
+  }
+  /* Decorative embers start 20px below the viewport (bottom:-20px) which
+     counts as page overflow in a 100dvh iframe; drop them in embed mode. */
+  html.dsh-embed .ember { display: none; }
+
+  html.dsh-embed .game {
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    min-height: 0;
+    padding: 8px 14px 10px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(250px, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas:
+      "title  info"
+      "form   info";
+    column-gap: 18px;
+    row-gap: 4px;
+    overflow: hidden;
+  }
+  html.dsh-embed .play-info {
+    grid-area: info;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 0;
+  }
+  html.dsh-embed .play-form {
+    grid-area: form;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    min-height: 0;
+  }
+
+  /* ---- header row ---- */
+  html.dsh-embed h1 {
+    grid-area: title;
+    margin: 0;
+    text-align: left;
+    font-size: 1.05rem;
+    line-height: 1.25;
+    letter-spacing: 0.3px;
+    align-self: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  html.dsh-embed .subtitle { display: none; }
+
+  html.dsh-embed .topbar {
+    margin: 0;
+    flex: 0 0 auto;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  html.dsh-embed .difficulty-badge {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+    letter-spacing: 1px;
+  }
+  html.dsh-embed .btn-small {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    min-height: 40px;
+  }
+
+  /* ---- info column ---- */
+  html.dsh-embed .scoreboard {
+    margin: 0;
+    flex: 0 0 auto;
+    padding: 5px 10px;
+    gap: 6px;
+    border-radius: 10px;
+    flex-wrap: nowrap;
+    align-self: center;
+    width: 100%;
+  }
+  html.dsh-embed .stat { min-width: 0; }
+  html.dsh-embed .stat .label {
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    line-height: 1.1;
+  }
+  html.dsh-embed .stat .value { font-size: 1rem; line-height: 1.2; }
+  html.dsh-embed .lives { font-size: 0.95rem; letter-spacing: 1px; }
+
+  html.dsh-embed .timer-wrap {
+    margin: 0;
+    flex: 0 0 auto;
+    width: 100%;
+    height: 10px;
+  }
+  html.dsh-embed #timerLabel {
+    margin: 0;
+    flex: 0 0 auto;
+    align-self: flex-start;
+    padding: 3px 12px;
+    font-size: 0.8rem;
+  }
+
+  /* ---- scene: fills the rest of the info column ---- */
+  html.dsh-embed .scene-wrap {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+    margin: 0;
+  }
+  html.dsh-embed .scene {
+    transform: translateX(-50%) scale(0.62);
+  }
+
+  /* ---- main column ---- */
+  html.dsh-embed .recipe {
+    margin: 0;
+    padding: 8px 12px;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+  }
+  html.dsh-embed .recipe .round-tag {
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    margin-bottom: 3px;
+  }
+  html.dsh-embed .recipe .equation {
+    font-size: 0.95rem;
+    margin-bottom: 5px;
+    padding: 4px;
+  }
+  html.dsh-embed .recipe .prompt {
+    font-size: 0.95rem;
+    line-height: 1.35;
+  }
+  html.dsh-embed .recipe .molar-hint {
+    margin-top: 4px;
+    font-size: 0.75rem;
+  }
+  html.dsh-embed .recipe .sig-fig-note {
+    margin-top: 3px;
+    font-size: 0.75rem;
+  }
+
+  /* Answer row + submit stack in the centred form column. */
+  html.dsh-embed .answer-row {
+    margin: 0;
+    flex: 0 0 auto;
+    align-self: stretch;
+  }
+  html.dsh-embed #answerInput {
+    padding: 10px 12px;
+    font-size: 1rem;
+    min-width: 0;
+  }
+  html.dsh-embed .unit-tag { min-width: 46px; padding: 0 10px; font-size: 0.9rem; }
+
+  html.dsh-embed #submitBtn {
+    align-self: stretch;
+    width: 100%;
+    margin: 0;
+    padding: 12px 8px;
+    font-size: 0.95rem;
+    min-height: 44px;
+  }
+
+  /* Feedback / worked solution floats over the info column's scene area,
+     so it never pushes the form out of the frame. */
+  html.dsh-embed .feedback {
+    position: absolute;
+    right: 14px;
+    bottom: 10px;
+    width: 41%;
+    max-height: 74%;
+    overflow-y: auto;
+    z-index: 6;
+    margin: 0;
+    padding: 10px 12px;
+    backdrop-filter: blur(6px);
+  }
+  html.dsh-embed .feedback.show { display: block; }
+  html.dsh-embed .feedback.good,
+  html.dsh-embed .feedback.bad { background-color: rgba(16, 10, 30, 0.94); }
+  html.dsh-embed .feedback h3 { font-size: 0.85rem; margin-bottom: 4px; }
+  html.dsh-embed .feedback p { font-size: 0.75rem; }
+  html.dsh-embed .solution-steps {
+    margin-top: 4px;
+    padding: 6px 8px;
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+  html.dsh-embed .game:has(.feedback.show) .scene-wrap { visibility: hidden; }
+
+  /* Short frames: let the worked solution use the full info column instead
+     of becoming an inner scroll area. */
+  @media (max-height: 460px) {
+    html.dsh-embed .feedback {
+      top: 50px;
+      bottom: 8px;
+      max-height: none;
+    }
+    html.dsh-embed .solution-steps {
+      line-height: 1.4;
+      padding: 5px 8px;
+    }
+    html.dsh-embed .feedback h3 { margin-bottom: 3px; }
+  }
+
+  /* ============ MENU OVERLAY (2 columns) ============ */
+  html.dsh-embed #menuOverlay:not(.hidden) {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas:
+      "mtitle  mlang"
+      "mintro  mright"
+      "mscene  mright";
+    align-items: start;
+    justify-items: center;
+    gap: 6px 26px;
+    padding: 8px 20px 10px;
+    overflow: hidden;
+  }
+  html.dsh-embed #menuOverlay h2 {
+    grid-area: mtitle;
+    font-size: 1.4rem;
+    line-height: 1.2;
+    margin: 0;
+  }
+  html.dsh-embed #menuOverlay #menuIntro {
+    grid-area: mintro;
+    max-width: 100%;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin: 0;
+  }
+  html.dsh-embed #menuOverlay .lang-toggle {
+    grid-area: mlang;
+    position: static;
+    justify-self: end;
+    padding: 5px 12px;
+    font-size: 0.75rem;
+  }
+  html.dsh-embed #menuOverlay .menu-scene {
+    grid-area: mscene;
+    height: 100%;
+    min-height: 0;
+    width: 100%;
+    margin: 0;
+  }
+  html.dsh-embed #menuOverlay .menu-scene .scene {
+    transform: translateX(-50%) scale(0.72);
+  }
+  html.dsh-embed #menuOverlay .menu-cta {
+    grid-area: mright;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-self: stretch;
+    gap: 10px;
+    width: 100%;
+    min-height: 0;
+  }
+  html.dsh-embed .difficulty-select {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+  html.dsh-embed .diff-btn {
+    padding: 8px 6px;
+    border-width: 2px;
+    border-radius: 10px;
+    min-height: 44px;
+  }
+  html.dsh-embed .diff-btn .diff-name { font-size: 0.85rem; }
+  html.dsh-embed .diff-btn .diff-desc { font-size: 0.75rem; margin-top: 1px; }
+  html.dsh-embed .menu-actions {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  html.dsh-embed .menu-actions button {
+    padding: 9px 8px;
+    font-size: 0.85rem;
+    min-height: 40px;
+  }
+
+  /* ============ INSTRUCTIONS OVERLAY ============ */
+  html.dsh-embed #instructionsOverlay {
+    padding: 8px 18px 10px;
+    gap: 4px;
+    overflow: hidden;
+  }
+  html.dsh-embed #instructionsOverlay h2 {
+    font-size: 1.15rem;
+    margin: 0;
+    flex: 0 0 auto;
+  }
+  html.dsh-embed #instructionsOverlay .instructions {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-width: 900px;
+    overflow-y: auto;
+    columns: 2;
+    column-gap: 26px;
+    font-size: 0.75rem;
+    line-height: 1.45;
+    padding-right: 4px;
+  }
+  html.dsh-embed #instructionsOverlay .instructions h4 { margin: 6px 0 2px; }
+  html.dsh-embed #instructionsOverlay .rules-list {
+    margin: 2px 0 6px;
+    font-size: 0.75rem;
+    line-height: 1.45;
+  }
+  html.dsh-embed #instructionsOverlay .instructions p { margin-bottom: 4px; }
+  html.dsh-embed #instructionsOverlay > .btn-violet {
+    flex: 0 0 auto;
+    margin-top: 4px !important;
+    padding: 8px 18px;
+    font-size: 0.8rem;
+    min-height: 36px;
+  }
+  @media (max-height: 460px) {
+    html.dsh-embed #instructionsOverlay { padding: 4px 14px 6px; }
+    html.dsh-embed #instructionsOverlay .instructions {
+      line-height: 1.32;
+      font-size: 0.75rem;
+    }
+    html.dsh-embed #instructionsOverlay .rules-list {
+      line-height: 1.32;
+      margin: 0 0 4px;
+    }
+    html.dsh-embed #instructionsOverlay .instructions h4 { margin: 3px 0 1px; }
+    html.dsh-embed #instructionsOverlay .instructions p { margin-bottom: 2px; }
+  }
+
+  /* ============ END OVERLAY ============ */
+  html.dsh-embed #endOverlay {
+    padding: 10px 18px;
+    gap: 2px;
+    overflow: hidden;
+  }
+  html.dsh-embed #endOverlay h2 { font-size: 1.3rem; margin: 0; }
+  html.dsh-embed #endOverlay .rank-badge { font-size: 1.05rem; margin: 2px 0; }
+  html.dsh-embed #endOverlay #endMessage { font-size: 0.78rem; line-height: 1.4; margin: 0; }
+  html.dsh-embed #endOverlay .final-score {
+    font-size: 1.7rem;
+    line-height: 1.1;
+    margin: 2px 0 8px;
+  }
+  html.dsh-embed #endOverlay .menu-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 420px;
+    align-self: center;
+  }
+
+  /* ============ CALCULATOR: compact so it fits short frames ============ */
+  html.dsh-embed .calculator {
+    top: 8px;
+    width: 220px;
+    border-radius: 12px;
+    animation: none;
+  }
+  html.dsh-embed .calc-head { padding: 6px 10px; font-size: 0.75rem; min-height: 30px; }
+  html.dsh-embed .calc-close { font-size: 1.1rem; }
+  html.dsh-embed .calc-display { font-size: 1.15rem; padding: 8px 10px; min-height: 0; }
+  html.dsh-embed .calc-keys { gap: 4px; padding: 6px; }
+  html.dsh-embed .calc-key { padding: 6px 0; font-size: 0.9rem; min-height: 40px; }
+
+  /* Taller frames (iPad): give the scene more presence and centre it in
+     the free info-column space instead of pinning it to the bottom. */
+  @media (min-height: 560px) {
+    html.dsh-embed .scene-wrap { display: flex; align-items: center; justify-content: center; }
+    html.dsh-embed .scene {
+      bottom: auto;
+      top: 50%;
+      transform-origin: center;
+      transform: translate(-50%, -50%) scale(1.05);
+    }
+    html.dsh-embed #menuOverlay .menu-scene .scene {
+      bottom: auto;
+      top: 50%;
+      transform-origin: center;
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+    html.dsh-embed #menuOverlay h2 { font-size: 1.7rem; }
+    html.dsh-embed #menuOverlay #menuIntro { font-size: 0.95rem; line-height: 1.5; }
+    html.dsh-embed #menuOverlay .lang-toggle { font-size: 0.8rem; padding: 7px 14px; }
+    html.dsh-embed .diff-btn { padding: 12px 8px; }
+    html.dsh-embed .diff-btn .diff-name { font-size: 1rem; }
+    html.dsh-embed .diff-btn .diff-desc { font-size: 0.8rem; }
+    html.dsh-embed .menu-actions button { font-size: 1rem; min-height: 46px; }
+    html.dsh-embed .recipe .prompt { font-size: 1.1rem; }
+    html.dsh-embed .recipe .equation { font-size: 1.05rem; }
+    html.dsh-embed #answerInput { padding: 14px 16px; font-size: 1.15rem; }
+    html.dsh-embed #submitBtn { padding: 16px 8px; font-size: 1.05rem; }
+    html.dsh-embed .stat .value { font-size: 1.2rem; }
+    html.dsh-embed .feedback { width: 41%; }
+
+    /* Let the instructions block hug its text on tall screens instead of
+       stretching and pushing the Back button to the bottom edge. */
+    html.dsh-embed #instructionsOverlay .instructions {
+      flex: 0 1 auto;
+      max-height: calc(100% - 90px);
+      font-size: 0.85rem;
+      column-gap: 34px;
+    }
+    html.dsh-embed #instructionsOverlay > .btn-violet { margin-top: 12px !important; }
+  }
+
+  /* iPad-sized frames: the original one-column menu fits again, just
+     compressed so it never needs scrolling. */
+  @media (min-height: 640px) {
+    html.dsh-embed #menuOverlay:not(.hidden) {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 20px;
+    }
+    html.dsh-embed #menuOverlay .lang-toggle {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      left: auto;
+      z-index: 3;
+    }
+    html.dsh-embed #menuOverlay .menu-scene {
+      height: 290px;
+      width: min(720px, 100%);
+      align-self: center;
+    }
+    html.dsh-embed #menuOverlay .menu-scene .scene {
+      top: 50%;
+      bottom: auto;
+      transform-origin: center;
+      transform: translate(-50%, -50%) scale(0.95);
+    }
+    html.dsh-embed #menuOverlay .menu-cta {
+      display: flex;
+      align-self: center;
+      width: min(620px, 100%);
+      gap: 12px;
+    }
+    html.dsh-embed #menuOverlay #menuIntro { max-width: 720px; }
+  }
 </style>
 </head>
 <body>
@@ -1046,6 +1526,11 @@
   <div class="game">
     <h1 id="pageTitle">The Alchemist's Cauldron</h1>
     <div class="subtitle" id="pageSubtitle">Master the mole to brew legendary potions</div>
+
+    <!-- Everything in .play-info / .play-form keeps its original desktop
+         order; both wrappers are display:contents outside the platform
+         embed so the standalone page is byte-for-byte the same layout. -->
+    <div class="play-info">
 
     <!-- Top control bar: difficulty badge + Calculator + End Game -->
     <div class="topbar">
@@ -1135,6 +1620,9 @@
         </div>
       </div>
     </div>
+    </div><!-- /.play-info -->
+
+    <div class="play-form">
 
     <!-- Recipe / question prompt -->
     <div class="recipe">
@@ -1152,6 +1640,7 @@
       <div class="unit-tag" id="unitTag">g</div>
     </div>
     <button class="btn-primary" id="submitBtn">Drop into Cauldron</button>
+    </div><!-- /.play-form -->
 
     <!-- Feedback / step-by-step solution -->
     <div class="feedback" id="feedback">
@@ -1222,6 +1711,7 @@
         </div>
       </div>
 
+      <div class="menu-cta">
       <div class="difficulty-select" id="difficultySelect">
         <div class="diff-btn active" data-diff="easy">
           <span class="diff-name" id="diffEasyName">Easy</span>
@@ -1245,6 +1735,7 @@
         <button class="btn-violet" id="startBtn">▶ Start Game</button>
         <button class="btn-ghost" id="instructionsBtn">Instructions</button>
       </div>
+      </div><!-- /.menu-cta -->
     </div>
 
     <!-- ============ INSTRUCTIONS OVERLAY ============ -->
@@ -2674,7 +3165,7 @@ const translations = {
     diffExpertDesc: "Limiting reagent · 200s",
     instructionsTitle: "Instructions",
     instructionsIntro: "Every potion is a mole calculation. Read the recipe, work out the missing value, and drop your answer into the cauldron.",
-    instructionsFormula: "Core formula: moles = mass ÷ molar mass",
+    instructionsFormula: "moles = mass ÷ molar mass",
     instructionsFormulaPrefix: "Core formula:",
     instructionsEasyBody: "Convert between mass and moles of a single element. 30 seconds.",
     instructionsMediumBody: "Convert between mass and moles of a compound (e.g. H₂O, CaCO₃). 60 seconds.",
@@ -2778,7 +3269,7 @@ const translations = {
     diffExpertDesc: "限量試劑 · 200 秒",
     instructionsTitle: "玩法說明",
     instructionsIntro: "每一瓶藥水都需要摩爾計算。閱讀配方，算出缺少的數值，然後把答案投入大鍋。",
-    instructionsFormula: "核心公式：摩爾數 = 質量 ÷ 摩爾質量",
+    instructionsFormula: "摩爾數 = 質量 ÷ 摩爾質量",
     instructionsFormulaPrefix: "核心公式：",
     instructionsEasyBody: "在單一元素的質量與摩爾數之間互相換算。30 秒。",
     instructionsMediumBody: "在化合物的質量與摩爾數之間互相換算（例如 H₂O、CaCO₃）。60 秒。",
@@ -3203,39 +3694,6 @@ el('backFromInstr').addEventListener('click', () => {
 spawnEmbers(24);
 </script>
 
-<script id="phone-first">
-(function () {
-  if (!document.querySelector('meta[name="viewport"]')) {
-    var meta = document.createElement("meta");
-    meta.name = "viewport";
-    meta.content = "width=device-width, initial-scale=1, viewport-fit=cover";
-    document.head.appendChild(meta);
-  }
-  var style = document.createElement("style");
-  style.textContent = "@media (max-width:900px){html,body{max-width:100%;overflow-x:hidden;margin:0}button,input,select,textarea{font-size:16px;touch-action:manipulation}canvas,img,svg,video{max-width:100%}}";
-  document.head.appendChild(style);
-  function fit() {
-    var limit = document.documentElement.clientWidth || window.innerWidth;
-    if (limit > 900) return;
-    document.querySelectorAll("body *").forEach(function (el) {
-      var cs;
-      try { cs = getComputedStyle(el); } catch (err) { return; }
-      var cols = (cs.gridTemplateColumns || "").trim();
-      if (!cols || cols === "none") return;
-      var parts = cols.split(/\s+/).filter(Boolean);
-      if (parts.length < 2) return;
-      var wide = parts.some(function (part) { return parseFloat(part) >= 200; });
-      var box = el.getBoundingClientRect();
-      if (!wide && el.scrollWidth <= limit + 8 && box.width <= limit + 8) return;
-      el.style.gridTemplateColumns = parts.length >= 4 ? "1fr 1fr" : "1fr";
-      el.style.minWidth = "0";
-      el.style.maxWidth = "100%";
-    });
-  }
-  window.addEventListener("resize", fit);
-  window.addEventListener("load", function () { fit(); setTimeout(fit, 400); });
-  if (document.readyState !== "loading") setTimeout(fit, 50);
-})();
-</script>
+
 </body>
 </html>

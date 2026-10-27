@@ -297,6 +297,199 @@
     .no-print, .tools, .modal, .summary { display: none !important; }
     .cert { box-shadow: none; outline: 4px solid #e7b23c; }
   }
+  /* ============ 平台嵌入（橫屏 iframe）============ */
+  html.dsh-embed, html.dsh-embed body { height: 100%; }
+  html.dsh-embed body {
+    min-height: 0; padding: 4px 8px 6px; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  html.dsh-embed #root { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  html.dsh-embed .app {
+    width: 100%; max-width: none; flex: 1 1 auto; min-height: 0;
+    display: flex; flex-direction: column;
+  }
+  /* 只保留音效；玩法已在標題列，隱藏電腦／平板與全螢幕 */
+  html.dsh-embed .tools { top: 4px; right: 8px; gap: 4px; max-width: none; }
+  html.dsh-embed .tools .seg,
+  html.dsh-embed .tools > button[data-act="full"],
+  html.dsh-embed .tools > button[data-act="how"] { display: none !important; }
+  html.dsh-embed .tools > button { padding: 4px 9px; font-size: 12px; min-height: 30px; }
+  html.dsh-embed .hud {
+    flex: 0 0 auto; flex-wrap: nowrap; gap: 6px; margin-bottom: 6px; padding-right: 74px;
+  }
+  html.dsh-embed .brand { font-size: 15px; line-height: 1.15; }
+  html.dsh-embed .who {
+    font-size: 12px; max-width: 190px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  html.dsh-embed .steps { flex-wrap: nowrap; gap: 4px; min-width: 0; }
+  html.dsh-embed .steps span { font-size: 12px; padding: 2px 7px; white-space: nowrap; }
+  html.dsh-embed .scorebox { padding: 2px 9px; font-size: 12px; border-radius: 10px; white-space: nowrap; }
+  html.dsh-embed .scorebox b { font-size: 17px; }
+  html.dsh-embed .ghost { padding: 4px 9px; font-size: 12px; min-height: 30px; border-radius: 10px; }
+  html.dsh-embed .layout {
+    flex: 1 1 auto; min-height: 0; display: grid;
+    grid-template-columns: minmax(0, 1fr) 228px; gap: 8px; align-items: stretch;
+  }
+  html.dsh-embed .main {
+    min-height: 0; overflow: hidden; padding: 8px 10px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  html.dsh-embed aside { min-height: 0; overflow: hidden; padding: 8px 10px; font-size: 12px; }
+  html.dsh-embed aside h3 { font-size: 13px; margin: 2px 0 4px; }
+  html.dsh-embed .chip { padding: 5px 8px; margin: 3px 0; font-size: 12px; line-height: 1.35; }
+  html.dsh-embed #ai { flex: 0 0 auto; }
+  html.dsh-embed .ai-row { margin-bottom: 0; gap: 8px; align-items: center; }
+  html.dsh-embed .bubble { padding: 6px 10px; font-size: 13px; line-height: 1.35; border-radius: 12px; }
+  html.dsh-embed .bubble b { font-size: 12px; }
+  html.dsh-embed .bubble p { margin: 2px 0 0; font-size: 12px; line-height: 1.35; }
+  html.dsh-embed .ask { gap: 4px; margin-top: 4px; }
+  html.dsh-embed .ask button { padding: 2px 8px; font-size: 12px; }
+  html.dsh-embed #stage-wrap { flex: 0 0 auto; height: 208px; min-height: 0; }
+  /* 有畫布時：左邊畫布、右邊控制項，充分利用橫屏高度 */
+  html.dsh-embed body.has-canvas .main {
+    display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    grid-template-areas: "ai ui" "stage ui" "meters ui" "status ui";
+    gap: 4px 10px; align-items: stretch;
+  }
+  html.dsh-embed body.has-canvas #ai { grid-area: ai; }
+  html.dsh-embed body.has-canvas #stage-wrap {
+    grid-area: stage; height: min(100%, 300px); min-height: 0; align-self: center;
+  }
+  html.dsh-embed body.has-canvas #meters { grid-area: meters; }
+  html.dsh-embed body.has-canvas #status { grid-area: status; }
+  html.dsh-embed body.has-canvas #ui { grid-area: ui; min-height: 0; }
+  html.dsh-embed .meters { margin-top: 2px; }
+  html.dsh-embed .meters span, html.dsh-embed .meters b { font-size: 12px; }
+  html.dsh-embed .status { min-height: 0; margin: 2px 0; font-size: 12px; }
+  html.dsh-embed #ui { flex: 1 1 auto; min-height: 0; }
+  html.dsh-embed #ui h2 { font-size: 18px; margin: 0 0 4px; }
+  html.dsh-embed #ui p { margin: 3px 0; font-size: 13px; line-height: 1.35; }
+  html.dsh-embed #ui .sub { font-size: 12px; }
+  html.dsh-embed .big { min-height: 42px; padding: 8px 14px; font-size: 15px; border-radius: 12px; }
+  html.dsh-embed .choice { min-height: 44px; padding: 6px 10px; font-size: 13px; line-height: 1.3; border-radius: 12px; }
+  html.dsh-embed .choice small { font-size: 12px; }
+  html.dsh-embed .choices.two { grid-template-columns: 1fr 1fr; }
+  html.dsh-embed .readout { gap: 6px; margin: 4px 0; }
+  html.dsh-embed .readout div, html.dsh-embed .stat { padding: 3px 8px; font-size: 12px; }
+  html.dsh-embed .readout b, html.dsh-embed .stat b { font-size: 16px; }
+  html.dsh-embed .sliders { gap: 4px; margin: 2px 0; }
+  html.dsh-embed .sliders label { font-size: 12px; }
+  html.dsh-embed input[type="range"] { height: 20px; }
+  html.dsh-embed .stepper-row { font-size: 12px; }
+  html.dsh-embed .stepper { gap: 6px; }
+  html.dsh-embed .stepper button { width: 38px; height: 38px; font-size: 20px; border-radius: 10px; }
+  html.dsh-embed .stepper span { font-size: 12px; }
+  html.dsh-embed .check { font-size: 12px; margin: 2px 0; gap: 6px; }
+  html.dsh-embed .firebar { margin: 2px 0; }
+  html.dsh-embed .firebar .big { width: 100%; }
+  html.dsh-embed .bar-row { font-size: 12px; margin: 2px 0; grid-template-columns: 34px 1fr 56px; }
+  html.dsh-embed .bar { height: 12px; }
+  html.dsh-embed .table-wrap { display: none; }
+  html.dsh-embed .kb { display: none !important; }
+  html.dsh-embed .story { padding: 8px 10px; font-size: 13px; line-height: 1.5; }
+  html.dsh-embed .story h2 { font-size: 18px; margin-bottom: 4px; }
+  html.dsh-embed .story p { margin: 4px 0; }
+  html.dsh-embed .summary .sum-grid { grid-template-columns: repeat(5, 1fr); }
+  html.dsh-embed .cert-wrap { flex: 1 1 auto; min-height: 0; overflow: auto; margin-top: 0; }
+  html.dsh-embed .summary.main { padding: 8px; }
+  html.dsh-embed .app.summary { flex: 0 0 auto; }
+
+  /* 開始畫面 */
+  html.dsh-embed .hero {
+    width: 100%; max-width: none; flex: 1 1 auto; min-height: 0; margin: 0;
+    padding: 8px 16px 10px; display: flex; flex-direction: column; justify-content: center;
+    overflow: hidden;
+  }
+  html.dsh-embed .hero .badge { align-self: center; padding: 4px 10px; font-size: 12px; }
+  html.dsh-embed .hero h1 { font-size: 32px; margin: 2px 0 4px; line-height: 1.1; }
+  html.dsh-embed .hero .lead { font-size: 15px; }
+  html.dsh-embed .hero-scene { height: 118px; margin: 6px auto; max-width: 560px; width: 100%; }
+  html.dsh-embed .hero > .sub { font-size: 12px; max-width: 640px; margin: 2px auto; }
+  html.dsh-embed .form { margin: 4px 0; gap: 8px; }
+  html.dsh-embed .form label { font-size: 12px; }
+  html.dsh-embed .form input, html.dsh-embed .form select {
+    min-width: 150px; margin-top: 2px; padding: 5px 9px; font-size: 14px; border-radius: 10px;
+  }
+  html.dsh-embed .actions { margin-top: 4px; gap: 6px; }
+  html.dsh-embed body[data-device="tablet"] { padding: 4px 8px 6px; }
+  html.dsh-embed body[data-device="tablet"] .big,
+  html.dsh-embed body[data-device="tablet"] .choice { min-height: 44px; font-size: 13px; }
+  html.dsh-embed body[data-device="tablet"] .stepper button { width: 38px; height: 38px; }
+  html.dsh-embed body[data-device="tablet"] #stage-wrap { height: 208px; }
+  html.dsh-embed body[data-device="tablet"] .seg button,
+  html.dsh-embed body[data-device="tablet"] .tools > button { min-height: 30px; font-size: 12px; }
+  html.dsh-embed body[data-device="tablet"] .firebar { position: static; }
+
+  @media (max-height: 520px) {
+    html.dsh-embed body { padding: 3px 6px 4px; }
+    html.dsh-embed .hud { margin-bottom: 4px; }
+    html.dsh-embed .who { display: none; }
+    html.dsh-embed .steps { display: none; }
+    html.dsh-embed .layout { grid-template-columns: minmax(0, 1fr); }
+    html.dsh-embed aside { display: none; }
+    html.dsh-embed .main { padding: 5px 8px 6px; gap: 3px; }
+    html.dsh-embed .bot { display: none; }
+    html.dsh-embed .bubble { padding: 4px 8px; }
+    html.dsh-embed .bubble b { display: none; }
+    html.dsh-embed .bubble p { font-size: 12px; margin: 0; }
+    html.dsh-embed .ask { display: none; }
+    html.dsh-embed body.has-canvas .main {
+      display: grid; grid-template-columns: minmax(0, 1.04fr) minmax(0, .96fr);
+      grid-template-rows: auto minmax(0, 1fr) auto auto;
+      grid-template-areas: "ai ui" "stage ui" "meters ui" "status ui";
+      gap: 2px 8px; align-items: stretch;
+    }
+    html.dsh-embed body.has-canvas #ai { grid-area: ai; }
+    html.dsh-embed body.has-canvas #stage-wrap { grid-area: stage; height: auto; min-height: 0; align-self: stretch; }
+    html.dsh-embed body.has-canvas #meters { grid-area: meters; }
+    html.dsh-embed body.has-canvas #status { grid-area: status; }
+    html.dsh-embed body.has-canvas #ui { grid-area: ui; overflow: hidden; }
+    html.dsh-embed #ui h2 { font-size: 16px; margin-bottom: 3px; }
+    html.dsh-embed #ui p { font-size: 12px; }
+    html.dsh-embed .big { min-height: 40px; padding: 6px 12px; font-size: 14px; }
+    html.dsh-embed .choice { min-height: 40px; padding: 5px 8px; font-size: 12px; }
+    html.dsh-embed .choice small { display: none; }
+    html.dsh-embed .choices { grid-template-columns: 1fr 1fr; gap: 6px; }
+    html.dsh-embed body[data-phase="build"] .choices { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    html.dsh-embed .stepper button { width: 34px; height: 34px; }
+    html.dsh-embed .readout { gap: 4px; margin: 2px 0; }
+    html.dsh-embed .readout div { padding: 2px 6px; }
+    html.dsh-embed .readout b { font-size: 14px; }
+    html.dsh-embed .sliders { gap: 2px; }
+    html.dsh-embed .sliders label { display: flex; align-items: center; gap: 6px; }
+    html.dsh-embed .sliders input { flex: 1; }
+    html.dsh-embed .check { margin: 0; }
+    html.dsh-embed .firebar { margin: 0; }
+    html.dsh-embed #ui > p.sub, html.dsh-embed #ui > .sub { display: none; }
+    html.dsh-embed #ui .readout { margin: 0; }
+    html.dsh-embed #ui .readout div { padding: 1px 7px; }
+    html.dsh-embed #ui .readout b { font-size: 13px; }
+    html.dsh-embed .stepper-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    html.dsh-embed .stepper-row .stepper { margin: 0; }
+    html.dsh-embed .sliders { margin: 0; }
+    html.dsh-embed #ui > p { margin: 2px 0; }
+    html.dsh-embed .chart, html.dsh-embed .bar-row { display: none; }
+    html.dsh-embed .hero { padding: 4px 12px 6px; }
+    html.dsh-embed .hero .badge,
+    html.dsh-embed .hero > .sub { display: none; }
+    html.dsh-embed .hero h1 { font-size: 25px; margin: 0 0 2px; }
+    html.dsh-embed .hero .lead { font-size: 13px; }
+    html.dsh-embed .hero-scene { height: 74px; margin: 3px auto; max-width: 420px; }
+    html.dsh-embed .form { margin: 2px 0; }
+    html.dsh-embed .form input, html.dsh-embed .form select { min-width: 132px; padding: 4px 8px; font-size: 13px; }
+    html.dsh-embed .story { font-size: 12px; line-height: 1.4; padding: 6px 8px; }
+    html.dsh-embed .story h2 { font-size: 16px; }
+    html.dsh-embed .cert-wrap { overflow: auto; }
+    html.dsh-embed .cert h1 { font-size: 38px; }
+    html.dsh-embed .cert { padding: 14px 12px; }
+    html.dsh-embed .cert-name { font-size: 22px; }
+    html.dsh-embed .cert-body, html.dsh-embed .cert-ai { font-size: 12px; }
+    html.dsh-embed .cert-foot { flex-direction: row; font-size: 12px; }
+    html.dsh-embed .seal { width: 60px; height: 60px; font-size: 11px; }
+  }
 </style>
 </head>
 <body data-device="desktop">
@@ -966,6 +1159,7 @@
     return h;
   }
   function paintChrome() {
+    document.body.classList.toggle("has-canvas", canvasOn());
     var sc = $("score");
     if (sc) sc.textContent = String(state.score);
     var st = $("steps");
@@ -1169,6 +1363,7 @@
     startLoop();
   }
   function renderUI() {
+    document.body.dataset.phase = state.phase;
     ensureShell();
     $("ui").innerHTML = uiHTML();
     paintChrome();
@@ -1176,6 +1371,8 @@
   }
   function renderStart() {
     stopLoop();
+    document.body.dataset.phase = "start";
+    document.body.classList.remove("has-canvas");
     $("root").innerHTML =
       '<div class="app"><section class="hero">' +
       '<div class="badge">樂善堂梁銶琚學校 · 2026-2027 · 六年級 STEAM DAY</div>' +
@@ -1250,6 +1447,8 @@
     return h;
   }
   function renderCert() {
+    document.body.dataset.phase = "cert";
+    document.body.classList.remove("has-canvas");
     var name = state.name || "六年級同學";
     var klass = state.className || "六年級";
     var now = new Date();
@@ -1719,8 +1918,8 @@
     if (!canvas || !wrap || wrap.className.indexOf("off") >= 0) return;
     var rect = wrap.getBoundingClientRect();
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    var w = Math.max(320, rect.width);
-    var h = Math.max(260, rect.height);
+    var w = Math.max(260, rect.width);
+    var h = Math.max(150, rect.height);
     canvas.width = Math.floor(w * dpr);
     canvas.height = Math.floor(h * dpr);
     canvas.style.width = w + "px";
@@ -2247,39 +2446,6 @@
 })();
 </script>
 
-<script id="phone-first">
-(function () {
-  if (!document.querySelector('meta[name="viewport"]')) {
-    var meta = document.createElement("meta");
-    meta.name = "viewport";
-    meta.content = "width=device-width, initial-scale=1, viewport-fit=cover";
-    document.head.appendChild(meta);
-  }
-  var style = document.createElement("style");
-  style.textContent = "@media (max-width:900px){html,body{max-width:100%;overflow-x:hidden;margin:0}button,input,select,textarea{font-size:16px;touch-action:manipulation}canvas,img,svg,video{max-width:100%}}";
-  document.head.appendChild(style);
-  function fit() {
-    var limit = document.documentElement.clientWidth || window.innerWidth;
-    if (limit > 900) return;
-    document.querySelectorAll("body *").forEach(function (el) {
-      var cs;
-      try { cs = getComputedStyle(el); } catch (err) { return; }
-      var cols = (cs.gridTemplateColumns || "").trim();
-      if (!cols || cols === "none") return;
-      var parts = cols.split(/\s+/).filter(Boolean);
-      if (parts.length < 2) return;
-      var wide = parts.some(function (part) { return parseFloat(part) >= 200; });
-      var box = el.getBoundingClientRect();
-      if (!wide && el.scrollWidth <= limit + 8 && box.width <= limit + 8) return;
-      el.style.gridTemplateColumns = parts.length >= 4 ? "1fr 1fr" : "1fr";
-      el.style.minWidth = "0";
-      el.style.maxWidth = "100%";
-    });
-  }
-  window.addEventListener("resize", fit);
-  window.addEventListener("load", function () { fit(); setTimeout(fit, 400); });
-  if (document.readyState !== "loading") setTimeout(fit, 50);
-})();
-</script>
+
 </body>
 </html>

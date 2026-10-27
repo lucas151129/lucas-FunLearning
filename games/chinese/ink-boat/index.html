@@ -171,6 +171,51 @@
             .title { font-size: 2.5rem; }
             .subtitle { font-size: 1rem; }
         }
+
+        /* =====================================================================
+           平台橫屏 iframe（html.dsh-embed）— 328–368px 高也要完整顯示、不滾動
+           只有在平台上才會生效，獨立開頁面維持原本外觀。
+           畫布本身用 100% 撐滿，這裡只調整文字層與首頁/結束畫面的排版。
+           ===================================================================== */
+        html.dsh-embed, html.dsh-embed body { height: 100%; overflow: hidden; }
+
+        /* 首頁與結束畫面：字級跟著視窗高度縮，任何橫屏尺寸都收得住 */
+        html.dsh-embed .screen-overlay { padding: 10px 16px; }
+        html.dsh-embed .title {
+            margin-bottom: 6px;
+            font-size: clamp(26px, 8.6vh, 52px);
+            letter-spacing: 4px;
+        }
+        html.dsh-embed .subtitle {
+            margin-bottom: 10px;
+            max-width: 800px;
+            font-size: clamp(12px, 2.2vh, 15px);
+            line-height: 1.55;
+        }
+        html.dsh-embed .ink-button {
+            min-height: 44px;
+            padding: 8px 32px;
+            font-size: 16px;
+        }
+        html.dsh-embed #game-over-screen .subtitle { font-size: clamp(14px, 2.8vh, 20px); }
+
+        /* 遊戲中的題目列：矮屏時壓成兩行以內，把畫面留給落字與小船 */
+        html.dsh-embed #header-area { padding: 6px 16px 8px; }
+        html.dsh-embed #stats-bar { margin-bottom: 4px; font-size: 13px; }
+        html.dsh-embed #question-display {
+            font-size: clamp(16px, 3.4vh, 24px);
+            line-height: 1.35;
+            letter-spacing: 1px;
+        }
+        html.dsh-embed #message-area { font-size: clamp(18px, 3.6vh, 30px); }
+
+        @media (max-height: 400px) {
+            html.dsh-embed .title { margin-bottom: 4px; font-size: clamp(24px, 8vh, 34px); }
+            html.dsh-embed .subtitle { margin-bottom: 8px; font-size: 12px; line-height: 1.45; }
+            html.dsh-embed #header-area { padding: 4px 12px 6px; }
+            html.dsh-embed #stats-bar { font-size: 12px; margin-bottom: 2px; }
+            html.dsh-embed #question-display { font-size: 15px; line-height: 1.3; }
+        }
     </style>
 </head>
 <body>
@@ -1584,39 +1629,6 @@
 
     </script>
 
-<script id="phone-first">
-(function () {
-  if (!document.querySelector('meta[name="viewport"]')) {
-    var meta = document.createElement("meta");
-    meta.name = "viewport";
-    meta.content = "width=device-width, initial-scale=1, viewport-fit=cover";
-    document.head.appendChild(meta);
-  }
-  var style = document.createElement("style");
-  style.textContent = "@media (max-width:900px){html,body{max-width:100%;overflow-x:hidden;margin:0}button,input,select,textarea{font-size:16px;touch-action:manipulation}canvas,img,svg,video{max-width:100%}}";
-  document.head.appendChild(style);
-  function fit() {
-    var limit = document.documentElement.clientWidth || window.innerWidth;
-    if (limit > 900) return;
-    document.querySelectorAll("body *").forEach(function (el) {
-      var cs;
-      try { cs = getComputedStyle(el); } catch (err) { return; }
-      var cols = (cs.gridTemplateColumns || "").trim();
-      if (!cols || cols === "none") return;
-      var parts = cols.split(/\s+/).filter(Boolean);
-      if (parts.length < 2) return;
-      var wide = parts.some(function (part) { return parseFloat(part) >= 200; });
-      var box = el.getBoundingClientRect();
-      if (!wide && el.scrollWidth <= limit + 8 && box.width <= limit + 8) return;
-      el.style.gridTemplateColumns = parts.length >= 4 ? "1fr 1fr" : "1fr";
-      el.style.minWidth = "0";
-      el.style.maxWidth = "100%";
-    });
-  }
-  window.addEventListener("resize", fit);
-  window.addEventListener("load", function () { fit(); setTimeout(fit, 400); });
-  if (document.readyState !== "loading") setTimeout(fit, 50);
-})();
-</script>
+
 </body>
 </html>

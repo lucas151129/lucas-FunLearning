@@ -45,6 +45,134 @@
     @media(max-width:980px){.start-screen{grid-template-columns:1fr}.blueprint{min-height:340px;border-left:0;border-top:1px solid var(--line)}.rocket-hero{transform:translate(-50%,-50%) rotate(26deg) scale(.72)}.game-grid{grid-template-columns:1fr}.control-panel{display:grid;grid-template-columns:repeat(3,1fr);align-items:start}.panel-head,.launch-btn,.telemetry,.formula-box{grid-column:1/-1}.sim-panel,#simCanvas{min-height:430px}}
     @media(max-width:620px){.topbar{padding:0 10px}.brand-sub,.tool-label{display:none}.viewport-stage{padding:0}.viewport-shell,body[data-device="tablet"] .viewport-shell,body[data-device="mobile"] .viewport-shell{border:0;width:100%}.screen{min-height:calc(100dvh - 58px)}.start-screen,.sim-panel,.control-panel,.mission-bar,.finish-screen{border-left:0;border-right:0}.start-copy{padding:34px 20px}.mega-title{font-size:clamp(56px,22vw,92px)}.lead{margin:22px 0}.difficulty-btn{flex:1;min-width:90px;padding:11px 9px}.blueprint{min-height:290px}.mission-bar{grid-template-columns:1fr auto;padding:11px 12px}.progress-track{grid-column:1/-1;grid-row:2;width:100%}.score-box{min-width:82px}.score-value{font-size:22px}.game-grid{gap:0}.sim-panel,#simCanvas{min-height:390px}.control-panel{grid-template-columns:1fr;border-top:0;padding:14px}.panel-head,.launch-btn,.telemetry,.formula-box{grid-column:auto}.control-block{padding-bottom:10px}.formula-box{display:none}.brief-grid{grid-template-columns:1fr}.result-grid,.final-stats{grid-template-columns:1fr 1fr}.feedback-title{font-size:34px}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+
+    /* ===== 平台嵌入（橫屏 iframe / html.dsh-embed）單屏適配 =====
+       只在平台 iframe 內生效；獨立開啟時外觀完全維持原樣。
+       手法：外殼改成 100dvh 直向 flex、主內容區 flex:1 + min-height:0，
+       所有固定 min-height(520/390px) 歸零；矮螢幕再隱藏遙測/公式等次要區塊。 */
+    html.dsh-embed, html.dsh-embed body { height: 100%; overflow: hidden; }
+    html.dsh-embed .app { height: 100dvh; min-height: 0; display: flex; flex-direction: column; }
+    html.dsh-embed .topbar { position: static; height: 42px; flex: 0 0 auto; padding: 0 8px; gap: 8px; }
+    html.dsh-embed .tool-label, html.dsh-embed .device-switch { display: none; }
+    html.dsh-embed .device-tools { gap: 4px; }
+    html.dsh-embed .brand { gap: 9px; }
+    html.dsh-embed .brand-mark { width: 16px; height: 16px; }
+    html.dsh-embed .brand-mark::before { height: 22px; left: 7px; top: -4px; }
+    html.dsh-embed .brand-mark::after { width: 22px; left: -4px; top: 7px; }
+    html.dsh-embed .brand-title { font-size: 13px; }
+    html.dsh-embed .brand-sub { display: none; }
+    html.dsh-embed .icon-btn { width: 40px; height: 40px; min-width: 40px; font-size: 15px; }
+    html.dsh-embed .viewport-stage { flex: 1 1 auto; min-height: 0; padding: 0; display: flex; align-items: stretch; }
+    html.dsh-embed .viewport-shell { flex: 1 1 auto; width: 100%; height: 100%; margin: 0; min-height: 0; border: 0; box-shadow: none; display: flex; }
+    html.dsh-embed .screen { min-height: 0; }
+    html.dsh-embed .screen.active { display: grid; flex: 1 1 auto; height: 100%; min-height: 0; }
+
+    html.dsh-embed .start-screen { grid-template-columns: minmax(0, 1fr) clamp(150px, 27%, 340px); border-left: 0; border-right: 0; box-shadow: none; }
+    html.dsh-embed .start-copy { padding: clamp(10px, 3.4vh, 44px) clamp(14px, 3vw, 48px); }
+    html.dsh-embed .eyebrow { font-size: 12px; letter-spacing: .1em; margin: 0 0 6px; }
+    html.dsh-embed .mega-title { font-size: clamp(28px, 11.6vh, 96px); line-height: 1.04; margin: 0 0 6px; text-shadow: 3px 3px 0 #12323a; }
+    html.dsh-embed .mega-title span { font-size: .44em; line-height: 1.2; margin-top: .34em; letter-spacing: .06em; }
+    html.dsh-embed .lead { font-size: clamp(13px, 1.7vw, 17px); line-height: 1.6; margin: clamp(6px, 1.8vh, 18px) 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    html.dsh-embed .difficulty-title { font-size: 11px; margin-bottom: 4px; }
+    html.dsh-embed .difficulty-grid { gap: 6px; }
+    html.dsh-embed .difficulty-btn { min-width: 0; flex: 1 1 88px; padding: 5px 9px; }
+    html.dsh-embed .difficulty-btn b { font-size: 13px; margin-bottom: 0; }
+    html.dsh-embed .difficulty-btn small { font-size: 11px; }
+    html.dsh-embed .start-actions { margin-top: clamp(8px, 2.2vh, 22px); gap: 8px; }
+    html.dsh-embed .primary-btn, html.dsh-embed .secondary-btn { min-height: 40px; padding: 0 16px; font-size: 14px; }
+    html.dsh-embed .blueprint { min-height: 0; border-left: 1px solid var(--line); }
+    html.dsh-embed .orbit { width: 66%; left: 17%; }
+    html.dsh-embed .rocket-hero { transform: translate(-50%, -50%) rotate(18deg) scale(.6); }
+    html.dsh-embed .blueprint-tag { font-size: 10px; }
+
+    html.dsh-embed .game-screen { grid-template-rows: auto minmax(0, 1fr); gap: 6px; }
+    html.dsh-embed .mission-bar { padding: 5px 10px; gap: 10px; grid-template-columns: minmax(0, 1fr) auto auto; }
+    html.dsh-embed .mission-id { font-size: 11px; letter-spacing: .08em; }
+    html.dsh-embed .mission-title { font-size: 13px; margin-top: 1px; }
+    html.dsh-embed .progress-track { width: min(22vw, 200px); height: 4px; }
+    html.dsh-embed .score-label { font-size: 11px; }
+    html.dsh-embed .score-value { font-size: 19px; }
+    html.dsh-embed .game-grid { grid-template-columns: minmax(0, 1fr) clamp(230px, 28vw, 330px); gap: 8px; min-height: 0; }
+    html.dsh-embed .sim-panel { min-height: 0; }
+    html.dsh-embed #simCanvas { min-height: 0; height: 100%; }
+    html.dsh-embed .control-panel { display: flex; flex-direction: column; align-items: stretch; padding: 7px 10px; gap: 5px; min-height: 0; }
+    html.dsh-embed .panel-head { padding-bottom: 4px; }
+    html.dsh-embed .panel-head h2 { font-size: 13px; }
+    html.dsh-embed .attempts { font-size: 11px; }
+    html.dsh-embed .control-block { padding-bottom: 4px; }
+    html.dsh-embed .control-label { margin-bottom: 1px; }
+    html.dsh-embed .control-label span { font-size: 12px; }
+    html.dsh-embed .control-label output { font-size: 13px; }
+    html.dsh-embed input[type="range"] { height: 26px; }
+    html.dsh-embed .scale { font-size: 11px; margin-top: 0; }
+    html.dsh-embed .launch-btn { min-height: 42px; font-size: 15px; }
+    html.dsh-embed .telemetry { gap: 5px; }
+    html.dsh-embed .data-cell { padding: 4px 6px; }
+    html.dsh-embed .data-cell span { font-size: 10px; }
+    html.dsh-embed .data-cell b { font-size: 13px; margin-top: 1px; }
+    html.dsh-embed .formula-box { font-size: 10px; padding: 6px; }
+    html.dsh-embed .wind-chip { font-size: 11px; padding: 5px 8px; }
+    html.dsh-embed .status-chip { font-size: 11px; padding: 7px 10px; }
+    html.dsh-embed .wind-chip strong { font-size: 13px; }
+    html.dsh-embed .target-chip { font-size: 10px; }
+    html.dsh-embed .target-chip strong { font-size: 15px; }
+
+    html.dsh-embed .finish-card { width: min(760px, 96%); padding: clamp(8px, 3vh, 28px) 16px; }
+    html.dsh-embed .finish-ring { width: 78px; height: 78px; margin-bottom: 6px; }
+    html.dsh-embed .finish-ring::before { inset: 5px; }
+    html.dsh-embed .grade { font-size: 36px; }
+    html.dsh-embed .finish-card h1 { font-size: clamp(22px, 6.4vh, 44px); }
+    html.dsh-embed .finish-card > p { font-size: 12px; line-height: 1.5; margin: 4px 0; }
+    html.dsh-embed .final-stats { margin: 8px 0; gap: 6px; }
+    html.dsh-embed .final-stats div { padding: 5px 8px; }
+    html.dsh-embed .final-stats span { font-size: 10px; }
+    html.dsh-embed .final-stats strong { font-size: 19px; }
+    html.dsh-embed .finish-actions button { min-height: 40px; }
+
+    html.dsh-embed .toast { bottom: 34px; }
+    html.dsh-embed .modal { max-height: 94dvh; }
+    html.dsh-embed .modal-head { padding: 10px 14px; }
+    html.dsh-embed .modal-head h2 { font-size: 16px; }
+    html.dsh-embed .modal-body { padding: 12px 14px; }
+    html.dsh-embed .feedback-hero { padding: 14px 16px 10px; }
+    html.dsh-embed .feedback-title { font-size: 26px; margin: 4px 0 2px; }
+    html.dsh-embed .feedback-body { padding: 12px 16px 16px; }
+    html.dsh-embed .feedback-body p { font-size: 12.5px; line-height: 1.55; }
+    html.dsh-embed .result-grid { gap: 6px; margin: 10px 0; }
+    html.dsh-embed .result-grid b { font-size: 14px; }
+    html.dsh-embed .feedback-actions button { min-height: 40px; }
+
+    @media (max-height: 460px) {
+      html.dsh-embed .blueprint-tag { display: none; }
+      html.dsh-embed .telemetry { display: none; }
+      html.dsh-embed .formula-box { display: none; }
+      html.dsh-embed .scale { display: none; }
+      html.dsh-embed .panel-head { padding-bottom: 2px; }
+      html.dsh-embed .score-label { display: none; }
+      html.dsh-embed .launch-btn { min-height: 40px; }
+      html.dsh-embed .brief-card { padding: 10px; }
+      html.dsh-embed .brief-card b { font-size: 18px; }
+      html.dsh-embed .brief-card h3 { font-size: 12.5px; margin: 4px 0; }
+      html.dsh-embed .brief-card p { font-size: 11.5px; line-height: 1.55; }
+      html.dsh-embed .knowledge { padding: 10px; margin-top: 10px; }
+      html.dsh-embed .knowledge p { font-size: 11.5px; line-height: 1.6; }
+    }
+    @media (max-height: 340px) {
+      html.dsh-embed .lead { -webkit-line-clamp: 1; }
+      html.dsh-embed .difficulty-title { display: none; }
+      html.dsh-embed .start-actions { margin-top: 8px; }
+      html.dsh-embed .control-panel { gap: 4px; padding: 6px 8px; }
+      html.dsh-embed .control-block { padding-bottom: 2px; }
+      html.dsh-embed .control-label { margin-bottom: 0; }
+      html.dsh-embed input[type="range"] { height: 22px; }
+    }
+    @media (max-height: 320px) {
+      html.dsh-embed .lead { display: none; }
+      html.dsh-embed .start-copy { padding: 8px 16px; }
+      html.dsh-embed .mega-title { font-size: clamp(26px, 11vh, 40px); }
+      html.dsh-embed .start-actions { margin-top: 6px; }
+      html.dsh-embed .icon-btn { height: 38px; }
+    }
   </style>
 </head>
 <body data-device="desktop">
@@ -117,39 +245,6 @@
   })();
   </script>
 
-<script id="phone-first">
-(function () {
-  if (!document.querySelector('meta[name="viewport"]')) {
-    var meta = document.createElement("meta");
-    meta.name = "viewport";
-    meta.content = "width=device-width, initial-scale=1, viewport-fit=cover";
-    document.head.appendChild(meta);
-  }
-  var style = document.createElement("style");
-  style.textContent = "@media (max-width:900px){html,body{max-width:100%;overflow-x:hidden;margin:0}button,input,select,textarea{font-size:16px;touch-action:manipulation}canvas,img,svg,video{max-width:100%}}";
-  document.head.appendChild(style);
-  function fit() {
-    var limit = document.documentElement.clientWidth || window.innerWidth;
-    if (limit > 900) return;
-    document.querySelectorAll("body *").forEach(function (el) {
-      var cs;
-      try { cs = getComputedStyle(el); } catch (err) { return; }
-      var cols = (cs.gridTemplateColumns || "").trim();
-      if (!cols || cols === "none") return;
-      var parts = cols.split(/\s+/).filter(Boolean);
-      if (parts.length < 2) return;
-      var wide = parts.some(function (part) { return parseFloat(part) >= 200; });
-      var box = el.getBoundingClientRect();
-      if (!wide && el.scrollWidth <= limit + 8 && box.width <= limit + 8) return;
-      el.style.gridTemplateColumns = parts.length >= 4 ? "1fr 1fr" : "1fr";
-      el.style.minWidth = "0";
-      el.style.maxWidth = "100%";
-    });
-  }
-  window.addEventListener("resize", fit);
-  window.addEventListener("load", function () { fit(); setTimeout(fit, 400); });
-  if (document.readyState !== "loading") setTimeout(fit, 50);
-})();
-</script>
+
 </body>
 </html>

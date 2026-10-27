@@ -155,14 +155,75 @@ function renderPicks() {
   </section>`;
 }
 
-function currentSize() {
-  return document.documentElement.dataset.size === "desk" ? "desk" : "phone";
+const WIDE_QUERY = window.matchMedia("(min-width: 700px)");
+
+/* 版面不再靠使用者切換：由螢幕寬度自動決定，iPad 一律走寬版。 */
+function syncShell() {
+  document.documentElement.dataset.size = WIDE_QUERY.matches ? "desk" : "phone";
 }
 
-function applySize(size) {
-  const next = size === "desk" ? "desk" : "phone";
-  document.documentElement.dataset.size = next;
-  localStorage.setItem("pixel-study-size", next);
+function syncOrientation() {
+  const coarse = window.matchMedia("(pointer: coarse)").matches;
+  /* 只有手機／平板這種小螢幕才提示轉向，桌機視窗拉高不干擾。 */
+  const portrait = coarse && window.innerWidth <= 1024 && window.innerHeight > window.innerWidth;
+  document.body.classList.toggle("is-portrait", portrait);
+}
+
+const EMBED_CSS = `
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html, body { overscroll-behavior: none; }
+  * { -webkit-tap-highlight-color: transparent; }
+  button, a, [role="button"], [data-dir], canvas { touch-action: manipulation; }
+  canvas, svg { -webkit-user-select: none; user-select: none; }
+  @media (hover: none) {
+    .btn:hover, button:hover { transform: none !important; }
+  }
+`;
+
+/* 遊戲都在同源 iframe 裡，這裡做一次全域的觸控整理；版面仍由各遊戲自己負責。 */
+function installEmbedKit(frame) {
+  if (!frame) return;
+  let doc;
+  try {
+    doc = frame.contentDocument;
+  } catch (err) {
+    return;
+  }
+  if (!doc || !doc.documentElement || doc.documentElement.dataset.embed === "1") return;
+  doc.documentElement.dataset.embed = "1";
+  doc.documentElement.classList.add("dsh-embed");
+  try {
+    const style = doc.createElement("style");
+    style.textContent = EMBED_CSS;
+    (doc.head || doc.documentElement).appendChild(style);
+  } catch (err) {
+    /* 跨網域就放棄 */
+  }
+  try {
+    let viewport = doc.querySelector("meta[name=viewport]");
+    if (!viewport) {
+      viewport = doc.createElement("meta");
+      viewport.setAttribute("name", "viewport");
+      (doc.head || doc.documentElement).appendChild(viewport);
+    }
+    viewport.setAttribute("content", "width=device-width, initial-scale=1, viewport-fit=cover");
+  } catch (err) {
+    /* ignore */
+  }
+}
+
+function toggleSheet(open) {
+  const side = document.querySelector(".play-layout .side");
+  const more = document.querySelector("[data-play-more]");
+  const veil = document.querySelector(".sheet-veil");
+  if (!side) return;
+  side.classList.toggle("is-open", open);
+  if (more) {
+    more.setAttribute("aria-pressed", open ? "true" : "false");
+    if (open) more.setAttribute("data-open", "");
+    else more.removeAttribute("data-open");
+  }
+  if (veil) veil.hidden = !open;
 }
 
 function renderChrome() {
@@ -178,17 +239,9 @@ function renderChrome() {
   if (board) board.textContent = I18n.t("nav.board");
   const langs = document.querySelector("#langs");
   if (langs) langs.setAttribute("aria-label", I18n.t("lang.label"));
-  const sizes = document.querySelector("#sizes");
-  if (sizes) sizes.setAttribute("aria-label", I18n.t("size.label"));
   document.querySelectorAll("[data-lang]").forEach((button) => {
     const on = button.dataset.lang === I18n.lang;
     button.classList.toggle("on", on);
-    button.setAttribute("aria-pressed", on ? "true" : "false");
-  });
-  document.querySelectorAll("#sizes button[data-size]").forEach((button) => {
-    const on = button.dataset.size === currentSize();
-    button.classList.toggle("on", on);
-    button.textContent = I18n.t(button.dataset.size === "desk" ? "size.desk" : "size.phone");
     button.setAttribute("aria-pressed", on ? "true" : "false");
   });
 }
@@ -247,7 +300,7 @@ const PET_SPECIES = ["tabby", "fluff", "dog", "husky", "golden", "shiba", "macaw
 function petSrc(species, stage) {
   const kind = PET_SPECIES.includes(species) ? species : "dog";
   const form = PET_STAGES[stage] || "bubble";
-  return `assets/pets/${kind}/${form}.png?v=2`;
+  return `assets/pets/${kind}/${form}.png?v=3`;
 }
 
 function avatarHtml(userId, name) {
@@ -461,9 +514,11 @@ function renderGame(id) {
   }
   openGameId = game.id;
   document.body.classList.add("playing");
+  syncOrientation();
   const cat = categoryById(game.category);
   const max = gameMax(game);
   const entry = game.entry || `games/play.html?id=${encodeURIComponent(game.id)}`;
+  const frameSrc = entry + (entry.includes("?") ? "&" : "?") + "embed=1";
   const user = Store.current();
   const loginHint = user
     ? ""
@@ -485,8 +540,16 @@ function renderGame(id) {
           <span class="pill">${esc(levelText(game.level))}</span>
         </header>
         ${loginHint}
-        <iframe title="${esc(gameText(game, "title"))}" src="${entry}"></iframe>
+        <div class="stage-frame">
+          <iframe title="${esc(gameText(game, "title"))}" src="${frameSrc}" allow="fullscreen; gamepad; autoplay"></iframe>
+          <div class="rotate-tip" role="status">
+            <span class="rot-icon" aria-hidden="true">&#8635;</span>
+            <p>${esc(I18n.t("play.rotate"))}</p>
+            <small>${esc(I18n.t("play.rotateHint"))}</small>
+          </div>
+        </div>
       </section>
+      <button class="sheet-veil" type="button" hidden aria-label="${esc(I18n.t("play.close"))}"></button>
       <aside class="panel side">
         ${rateMarkup(game)}
         <h2>${iconTrophy()} ${esc(I18n.t("side.title"))}</h2>
@@ -494,6 +557,12 @@ function renderGame(id) {
         <div id="game-board">${boardRows(Store.gameBoard(game.id), "game", max)}</div>
       </aside>
     </div>`;
+
+  const frame = app.querySelector(".stage iframe");
+  if (frame) {
+    frame.addEventListener("load", () => installEmbedKit(frame));
+    installEmbedKit(frame);
+  }
 }
 
 function renderBoard() {
@@ -658,17 +727,27 @@ function render() {
   else if (head === "register") renderAuth("register");
   else if (head === "guide") renderGuide();
   else renderPetPage();
+  lazyImages();
   window.scrollTo(0, 0);
+}
+
+/* 手機／iPad 上先把不在首屏的圖延後載入，吉祥物保持立即載入。 */
+function lazyImages() {
+  app.querySelectorAll("img").forEach((img) => {
+    if (img.dataset.eager || /mascot/.test(img.getAttribute("src") || "")) return;
+    img.loading = "lazy";
+    img.decoding = "async";
+  });
 }
 
 document.body.addEventListener("click", async (event) => {
   const more = event.target.closest("[data-play-more]");
   if (more) {
-    const side = document.querySelector(".play-layout .side");
-    if (side) {
-      const open = side.classList.toggle("is-open");
-      more.setAttribute("aria-pressed", open ? "true" : "false");
-    }
+    toggleSheet(!more.hasAttribute("data-open"));
+    return;
+  }
+  if (event.target.closest(".sheet-veil")) {
+    toggleSheet(false);
     return;
   }
   const petButton = event.target.closest("[data-pet]");
@@ -680,12 +759,6 @@ document.body.addEventListener("click", async (event) => {
     }
     showToast(tf("pet.pick.done", { species: I18n.t("pet.species." + chosen.species) }));
     render();
-    return;
-  }
-  const sizeButton = event.target.closest("#sizes button[data-size]");
-  if (sizeButton) {
-    applySize(sizeButton.dataset.size);
-    renderChrome();
     return;
   }
   const langButton = event.target.closest("[data-lang]");
@@ -788,11 +861,17 @@ document.body.addEventListener("click", (event) => {
   if (!href.startsWith("#/g/")) sessionStorage.removeItem("pixel-from");
 });
 
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && document.querySelector(".play-layout .side.is-open")) {
+    toggleSheet(false);
+  }
+});
+
 window.addEventListener("message", async (event) => {
   if (event.origin !== location.origin) return;
   if (!event.data) return;
   if (event.data.type === "game-height") {
-    if (window.innerWidth < 1100) return;
+    if (window.innerWidth < 1000 || window.matchMedia("(pointer: coarse)").matches) return;
     const frame = document.querySelector(".stage iframe");
     const next = Math.min(760, Math.max(360, Number(event.data.height) || 0));
     if (frame && next) frame.style.height = next + "px";
@@ -826,5 +905,12 @@ window.addEventListener("message", async (event) => {
   }
 });
 
-applySize(localStorage.getItem("pixel-study-size") || "phone");
+syncShell();
+syncOrientation();
+WIDE_QUERY.addEventListener("change", () => {
+  syncShell();
+  render();
+});
+window.addEventListener("resize", syncOrientation, { passive: true });
+window.addEventListener("orientationchange", syncOrientation);
 Store.ready.then(render);

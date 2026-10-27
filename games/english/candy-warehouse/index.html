@@ -270,6 +270,206 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration:.001ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.001ms !important; }
     }
+
+    /* =====================================================================
+       平台橫屏 iframe（html.dsh-embed）— 328–368px 高也要完整顯示、不滾動
+       只有在平台上才會生效，獨立開頁面維持原本桌機版外觀。
+       ===================================================================== */
+    html.dsh-embed, html.dsh-embed body { height: 100%; min-height: 0; }
+    html.dsh-embed body { overflow: hidden; }
+    html.dsh-embed .sky-decor { display: none; }
+
+    html.dsh-embed .app-frame {
+      width: 100%;
+      height: 100dvh;
+      min-height: 0;
+      margin: 0;
+      padding: 6px 10px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    html.dsh-embed .topbar {
+      flex: none;
+      min-height: 0;
+      padding: 4px 8px;
+      gap: 8px;
+      border-width: 2px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.82);
+      box-shadow: 0 3px 12px rgba(64,77,120,.10);
+    }
+    html.dsh-embed .brand { gap: 7px; }
+    html.dsh-embed .brand-mark { width: 28px; height: 28px; border-radius: 9px; font-size: 16px; box-shadow: inset 0 -3px 0 rgba(160,31,84,.18); }
+    html.dsh-embed .brand-text small,
+    html.dsh-embed .device-picker { display: none; }
+    html.dsh-embed .brand-text strong { font-size: 15px; }
+
+    html.dsh-embed main { flex: 1; min-height: 0; padding: 0; display: grid; }
+    html.dsh-embed .screen.active { display: grid; height: 100%; min-height: 0; }
+
+    /* ---------------- 開始畫面 ---------------- */
+    html.dsh-embed .start-card {
+      width: min(860px, 100%);
+      padding: clamp(10px, 2.6vh, 28px) clamp(16px, 3vw, 40px);
+      border-width: 3px;
+      border-radius: 24px;
+    }
+    html.dsh-embed .start-card::before { width: 150px; height: 150px; top: -70px; right: -50px; }
+    html.dsh-embed .start-card::after { width: 110px; height: 110px; bottom: -54px; left: -42px; }
+    html.dsh-embed .hero-character { font-size: clamp(30px, 10vh, 82px); }
+    html.dsh-embed .eyebrow { margin: 4px 0 6px; padding: 3px 10px; font-size: 12px; }
+    html.dsh-embed h1 { font-size: clamp(24px, 8.6vh, 60px); }
+    html.dsh-embed .hero-copy { margin: 6px auto 10px; max-width: 660px; font-size: clamp(12px, 2.3vh, 16px); line-height: 1.55; }
+    html.dsh-embed .difficulty-wrap { gap: 8px; margin-bottom: 10px; }
+    html.dsh-embed .difficulty-card { padding: 6px 14px; min-width: 104px; border-width: 2px; border-radius: 14px; font-size: 14px; box-shadow: 0 3px 0 #e1d9ea; }
+    html.dsh-embed .difficulty-card small { margin-top: 2px; font-size: 11px; }
+    html.dsh-embed .button-row { gap: 8px; }
+    html.dsh-embed .primary-btn, html.dsh-embed .secondary-btn {
+      min-height: 40px; padding: 8px 20px; border-radius: 14px; font-size: 15px;
+    }
+    html.dsh-embed .primary-btn { box-shadow: 0 4px 0 var(--berry-dark); }
+
+    /* ---------------- 遊戲畫面 ---------------- */
+    html.dsh-embed #gameScreen { grid-template-rows: auto minmax(0, 1fr); gap: 6px; height: 100%; min-height: 0; }
+    html.dsh-embed .hud { grid-template-columns: minmax(140px, 1.25fr) repeat(4, minmax(0, 1fr)); gap: 6px; }
+    html.dsh-embed .hud-card {
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      border-width: 2px;
+      border-radius: 12px;
+      box-shadow: 0 3px 0 rgba(75,58,108,.10);
+    }
+    html.dsh-embed .hud-card .label { font-size: 12px; letter-spacing: 0; }
+    html.dsh-embed .hud-card strong { margin: 0; font-size: 14px; }
+    html.dsh-embed .level-meta { gap: 7px; }
+    html.dsh-embed .level-badge { width: 26px; height: 26px; border-radius: 8px; font-size: 14px; }
+    html.dsh-embed .level-title { display: flex; flex-direction: column; }
+    html.dsh-embed .level-title > .label { display: none; }
+    html.dsh-embed .level-title strong { font-size: 14px; }
+
+    html.dsh-embed .play-layout {
+      grid-template-columns: minmax(0, 1fr) 234px;
+      gap: 8px;
+      align-items: stretch;
+      min-height: 0;
+    }
+    html.dsh-embed .play-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      border-width: 3px;
+      border-radius: 18px;
+      box-shadow: 0 6px 0 rgba(74,52,110,.12), 0 10px 22px rgba(69,50,100,.10);
+    }
+    html.dsh-embed .word-belt { flex: none; min-height: 0; gap: 4px; padding: 4px 12px 6px; border-bottom-width: 2px; }
+    html.dsh-embed .word-belt::before, html.dsh-embed .word-belt::after { display: none; }
+    html.dsh-embed .word-label { font-size: 12px; }
+    html.dsh-embed .target-letter {
+      width: clamp(20px, 3.8vh, 40px);
+      height: clamp(24px, 4.6vh, 46px);
+      border-width: 2px;
+      border-radius: 8px;
+      font-size: clamp(13px, 2.7vh, 24px);
+    }
+    html.dsh-embed .board-wrap {
+      flex: 1;
+      min-height: 0;
+      padding: 4px;
+      overflow: hidden;
+    }
+    /* 棋盤邊長同時受「可用高度 / 9 列」與「可用寬度 / 欄數」限制 */
+    html.dsh-embed .board {
+      --cell: clamp(20px, min(calc((100dvh - 118px) / 9), calc((100vw - 292px) / var(--cols))), 58px);
+    }
+    html.dsh-embed .tile.target::before { font-size: max(12px, calc(var(--cell) * .42)); border-width: 2px; border-radius: 8px; }
+    html.dsh-embed .crate { padding: 3px; }
+    html.dsh-embed .crate-face { border-width: 2px; border-radius: 8px; font-size: max(12px, calc(var(--cell) * .52)); }
+    html.dsh-embed .player { padding: 2px; }
+    html.dsh-embed .player-face { border-width: 2px; }
+    html.dsh-embed .player-face::before { font-size: max(7px, calc(var(--cell) * .24)); }
+
+    html.dsh-embed .side-panel { grid-template-columns: 1fr; gap: 6px; align-content: start; min-height: 0; }
+    html.dsh-embed .panel-card { padding: 6px 9px; border-width: 2px; border-radius: 14px; box-shadow: 0 3px 0 rgba(75,58,108,.10); }
+    html.dsh-embed .panel-title { margin-bottom: 4px; font-size: 12px; }
+    html.dsh-embed .mission-word { font-size: clamp(20px, 4vh, 32px); }
+    html.dsh-embed .word-meaning { margin-top: 2px; font-size: 12px; }
+    html.dsh-embed .progress-track { height: 8px; margin-top: 6px; }
+    html.dsh-embed .tool-grid { gap: 6px; }
+    html.dsh-embed .tool-btn { min-height: 40px; padding: 4px 3px; font-size: 12px; box-shadow: 0 3px 0 #d6cee6; }
+    html.dsh-embed .tool-btn.danger { box-shadow: 0 3px 0 #efbbcc; }
+    html.dsh-embed .dpad { grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(2, 40px); gap: 6px; }
+    html.dsh-embed .dpad button { border-radius: 12px; font-size: 17px; box-shadow: 0 4px 0 #5747a1; }
+    /* 操作方法卡（提示 + 鍵盤示意）在矮屏是次要資訊 */
+    html.dsh-embed .side-panel > .panel-card:nth-child(3) { display: none; }
+
+    /* ---------------- 完成畫面 ---------------- */
+    html.dsh-embed .finish-card {
+      width: min(620px, 100%);
+      padding: clamp(10px, 2.8vh, 34px);
+      border-width: 3px;
+      border-radius: 24px;
+    }
+    html.dsh-embed .trophy { font-size: clamp(30px, 9vh, 62px); }
+    html.dsh-embed .finish-card h2 { margin: 4px 0 4px; font-size: clamp(22px, 6.6vh, 42px); }
+    html.dsh-embed .stars { font-size: clamp(20px, 5vh, 34px); }
+    html.dsh-embed .finish-card .hero-copy { margin: 4px auto 8px; font-size: clamp(12px, 2.1vh, 15px); }
+    html.dsh-embed .result-grid { gap: 8px; margin: 8px 0; }
+    html.dsh-embed .result-item { padding: 6px 6px; border-radius: 12px; box-shadow: 0 3px 0 #e6dece; }
+    html.dsh-embed .result-item small { font-size: 11px; }
+    html.dsh-embed .result-item strong { margin-top: 2px; font-size: 18px; }
+
+    /* ---------------- 浮層 ---------------- */
+    html.dsh-embed .toast { top: auto; bottom: 14px; padding: 8px 14px; font-size: 13px; border-width: 2px; }
+    html.dsh-embed .modal { padding: 10px; }
+    html.dsh-embed .modal-card { max-height: calc(100dvh - 20px); padding: 14px 16px; border-width: 3px; border-radius: 20px; }
+    html.dsh-embed .modal-card h2 { margin-bottom: 8px; font-size: 22px; }
+    html.dsh-embed .steps { gap: 6px; margin-bottom: 8px; }
+    html.dsh-embed .steps li { grid-template-columns: 30px 1fr; gap: 8px; padding: 7px 9px; font-size: 13px; border-radius: 12px; }
+    html.dsh-embed .step-icon { width: 30px; height: 30px; border-radius: 9px; font-size: 16px; }
+    html.dsh-embed .modal-card .tip { min-height: 0; font-size: 12px; }
+
+    @media (max-height: 470px) {
+      /* 更矮的橫屏：收掉教學文案與拼字緞帶，把高度留給棋盤 */
+      html.dsh-embed .app-frame { padding: 4px 8px 4px; gap: 4px; }
+      html.dsh-embed .topbar { padding: 2px 8px; }
+      html.dsh-embed .brand-mark { width: 26px; height: 26px; font-size: 15px; }
+      html.dsh-embed .hero-copy { display: none; }
+      html.dsh-embed .hero-character { font-size: clamp(24px, 9vh, 46px); margin-bottom: 6px; }
+      html.dsh-embed .eyebrow { display: none; }
+      html.dsh-embed #gameScreen { gap: 4px; }
+      html.dsh-embed .hud { gap: 4px; }
+      html.dsh-embed .hud-card { padding: 2px 8px; }
+      html.dsh-embed .hud-card strong { font-size: 15px; }
+      html.dsh-embed .word-belt { display: none; }
+      html.dsh-embed .board { --cell: clamp(20px, min(calc((100dvh - 118px) / 9), calc((100vw - 292px) / var(--cols))), 58px); }
+      html.dsh-embed .side-panel { gap: 4px; }
+      html.dsh-embed .panel-card { padding: 4px 7px; }
+      html.dsh-embed .panel-title { margin-bottom: 2px; }
+      html.dsh-embed .side-panel > .panel-card:nth-child(2) .panel-title { display: none; }
+      html.dsh-embed .mission-word { font-size: clamp(18px, 4vh, 24px); }
+      html.dsh-embed .word-meaning { display: none; }
+      html.dsh-embed .progress-track { height: 6px; margin-top: 4px; }
+      html.dsh-embed .tool-grid { gap: 4px; }
+      html.dsh-embed .tool-btn { min-height: 40px; }
+      html.dsh-embed .dpad { grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(2, 38px); gap: 4px; }
+      html.dsh-embed .modal-card { padding: 10px 12px; }
+      html.dsh-embed .modal-card h2 { margin-bottom: 6px; font-size: 18px; }
+      html.dsh-embed .steps { gap: 4px; margin-bottom: 6px; }
+      html.dsh-embed .steps li { grid-template-columns: 24px 1fr; gap: 6px; padding: 5px 8px; font-size: 12.5px; }
+      html.dsh-embed .step-icon { width: 24px; height: 24px; border-radius: 7px; font-size: 13px; }
+      html.dsh-embed .modal-card .tip { display: none; }
+      html.dsh-embed .modal-card .button-row { margin-top: 8px !important; }
+    }
+
+    @media (max-height: 352px) {
+      /* 最矮的橫屏（≈328px）：再收一張卡片標題，保住 40px 的按鈕高度 */
+      html.dsh-embed .side-panel > .panel-card:nth-child(1) .panel-title { display: none; }
+      html.dsh-embed .side-panel { gap: 3px; }
+    }
   </style>
 </head>
 <body data-device="auto">
@@ -741,39 +941,6 @@
     })();
   </script>
 
-<script id="phone-first">
-(function () {
-  if (!document.querySelector('meta[name="viewport"]')) {
-    var meta = document.createElement("meta");
-    meta.name = "viewport";
-    meta.content = "width=device-width, initial-scale=1, viewport-fit=cover";
-    document.head.appendChild(meta);
-  }
-  var style = document.createElement("style");
-  style.textContent = "@media (max-width:900px){html,body{max-width:100%;overflow-x:hidden;margin:0}button,input,select,textarea{font-size:16px;touch-action:manipulation}canvas,img,svg,video{max-width:100%}}";
-  document.head.appendChild(style);
-  function fit() {
-    var limit = document.documentElement.clientWidth || window.innerWidth;
-    if (limit > 900) return;
-    document.querySelectorAll("body *").forEach(function (el) {
-      var cs;
-      try { cs = getComputedStyle(el); } catch (err) { return; }
-      var cols = (cs.gridTemplateColumns || "").trim();
-      if (!cols || cols === "none") return;
-      var parts = cols.split(/\s+/).filter(Boolean);
-      if (parts.length < 2) return;
-      var wide = parts.some(function (part) { return parseFloat(part) >= 200; });
-      var box = el.getBoundingClientRect();
-      if (!wide && el.scrollWidth <= limit + 8 && box.width <= limit + 8) return;
-      el.style.gridTemplateColumns = parts.length >= 4 ? "1fr 1fr" : "1fr";
-      el.style.minWidth = "0";
-      el.style.maxWidth = "100%";
-    });
-  }
-  window.addEventListener("resize", fit);
-  window.addEventListener("load", function () { fit(); setTimeout(fit, 400); });
-  if (document.readyState !== "loading") setTimeout(fit, 50);
-})();
-</script>
+
 </body>
 </html>

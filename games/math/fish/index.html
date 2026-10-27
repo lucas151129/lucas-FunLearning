@@ -69,6 +69,52 @@ h1.title{font-size:34px;background:linear-gradient(#fff8d8,#ffc63f,#ff8a1f);-web
   #qText{font-size:24px;letter-spacing:0}
   .big,.ghost{width:min(220px,86%)}
 }
+
+  /* ===== 平台嵌入（橫屏 iframe / html.dsh-embed）單屏適配 =====
+     只在平台 iframe 內生效；獨立開啟時外觀完全維持原樣。
+     矮螢幕（手機橫放）時商店面板改成可收合的右側抽屜，畫布吃滿整個寬度。 */
+  .shopbtn { display: none; pointer-events: auto; background: #0a2440; border: 1px solid #2b6cb0; color: #cfe8ff;
+             border-radius: 10px; padding: 0 14px; min-height: 40px; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+  .scrim { display: none; }
+  html.dsh-embed, html.dsh-embed body { height: 100%; overflow: hidden; }
+  html.dsh-embed #app { position: relative; display: flex; flex-direction: row; width: 100%; height: 100%; }
+  html.dsh-embed #stagemini { flex: 1 1 auto; min-width: 0; min-height: 0; }
+  html.dsh-embed #panel { width: clamp(206px, 24vw, 254px); height: 100%; max-height: none; overflow-y: auto;
+      overflow-x: hidden; overscroll-behavior: contain; padding: 6px; gap: 4px;
+      border-left: 2px solid #16406e; border-top: 0; scrollbar-width: thin; scrollbar-color: #1e4a7a transparent; }
+  html.dsh-embed #panel::-webkit-scrollbar { width: 6px; }
+  html.dsh-embed #panel::-webkit-scrollbar-thumb { background: #1e4a7a; border-radius: 3px; }
+  html.dsh-embed h3 { font-size: 12px; letter-spacing: 1px; margin: 1px 0 0; padding-bottom: 1px; }
+  html.dsh-embed .mbtn, html.dsh-embed .wbtn, html.dsh-embed .ibtn { padding: 5px 7px; font-size: 12px; border-radius: 7px; }
+  html.dsh-embed .wbtn small, html.dsh-embed .ibtn small { font-size: 10.5px; }
+  html.dsh-embed #miniReset { width: 100%; padding: 8px; font-size: 12.5px; }
+  html.dsh-embed .abadg { padding: 3px 5px; }
+  html.dsh-embed #stats { line-height: 1.5; padding: 4px 6px; }
+  html.dsh-embed #hud { padding: 6px 8px; font-size: 12.5px; gap: 5px; }
+  html.dsh-embed .chip { padding: 3px 9px; }
+  html.dsh-embed #examBtn { min-height: 40px; padding: 0 14px; font-size: 12.5px; }
+  html.dsh-embed .scrim { display: block; position: absolute; inset: 0; z-index: 15; background: #020d1acc;
+      opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+  html.dsh-embed .scrim.show { opacity: 1; pointer-events: auto; }
+  @media (max-height: 520px) {
+    html.dsh-embed .shopbtn { display: inline-block; }
+    html.dsh-embed #panel { display: none; position: absolute; top: 0; right: 0; bottom: 0; width: min(640px, 86%);
+        height: auto; z-index: 20; padding: 10px; gap: 6px; box-shadow: -18px 0 36px #000b; }
+    html.dsh-embed #panel.open { display: flex; animation: shopIn .18s ease both; }
+    html.dsh-embed #weapons, html.dsh-embed #items { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    html.dsh-embed .sec2, html.dsh-embed #achv, html.dsh-embed #stats { display: none; }
+    html.dsh-embed #timers { top: 40px; }
+    html.dsh-embed .cardbox { max-height: 96%; overflow-y: auto; padding: 14px 12px; }
+    html.dsh-embed h1.title { font-size: 21px; letter-spacing: 1px; }
+    html.dsh-embed .sub { font-size: 12px; margin-bottom: 10px; }
+    html.dsh-embed #qProg { font-size: 11px; }
+    html.dsh-embed #qText { font-size: 20px; padding: 8px; margin: 6px 0; }
+    html.dsh-embed .opt { font-size: 15px; padding: 7px 0; margin: 1.5%; width: 47%; }
+    html.dsh-embed #qFeedback { font-size: 12.5px; min-height: 18px; margin-top: 4px; }
+    html.dsh-embed .big, html.dsh-embed .ghost { width: min(240px, 80%); min-height: 40px; padding: 8px; font-size: 13.5px; }
+    html.dsh-embed #help { max-height: 44vh; font-size: 12.5px; line-height: 1.7; }
+    @keyframes shopIn { from { transform: translateX(18%); opacity: .5; } }
+  }
 </style>
 </head>
 <body>
@@ -81,7 +127,7 @@ h1.title{font-size:34px;background:linear-gradient(#fff8d8,#ffc63f,#ff8a1f);-web
    <span class="chip">🎯 命中 <b id="accT">0%</b></span>
    <span class="chip">📈 捕获率 <b id="accC">0%</b></span>
    <span class="chip" id="info">倍率 x1 · 木炮 · -1金</span>
-   <button id="examBtn">🎓 考場</button></div>
+   <button id="examBtn">🎓 考場</button><button id="shopBtn" class="shopbtn" type="button" aria-controls="panel" aria-expanded="false">🛒 商店</button></div>
   <div id="timers"></div>
   <div id="toasts"></div>
   <div class="overlay" id="menu">
@@ -113,6 +159,7 @@ h1.title{font-size:34px;background:linear-gradient(#fff8d8,#ffc63f,#ff8a1f);-web
     <div class="sub" id="achD"></div>
     <button class="big" id="achGo">⚡ 繼續捕魚！</button></div></div>
  </div>
+ <div id="shopScrim" class="scrim"></div>
  <div id="panel">
   <h3>倍率（每發消耗）</h3>
   <div class="btnrow" id="mults"></div>
@@ -120,9 +167,9 @@ h1.title{font-size:34px;background:linear-gradient(#fff8d8,#ffc63f,#ff8a1f);-web
   <div id="weapons"></div>
   <h3>道具</h3>
   <div id="items"></div>
-  <h3>成就（無限模式·解鎖即彈出）</h3>
+  <h3 class="sec2">成就（無限模式·解鎖即彈出）</h3>
   <div id="achv"></div>
-  <h3>本局統計</h3>
+  <h3 class="sec2">本局統計</h3>
   <div id="stats"></div>
   <button class="ghost" id="miniReset" style="width:100%">🔁 重新開始本局</button>
  </div>
@@ -436,42 +483,19 @@ $('examBack').onclick=()=>{$('exam').style.display='none';G.mode='play'};
 $('miniReset').onclick=()=>{popOpen=false;G.paused=false;$('achPop').style.display='none';resetAll()};
 
 resize();spawnInit();hud();requestAnimationFrame(loop);
+
+/* 商店抽屜（僅平台 iframe 矮螢幕用得到；桌機外觀不變） */
+const shopPanel=$('panel'),shopBtn=$('shopBtn'),shopScrim=$('shopScrim');
+function shopToggle(on){const open=on===undefined?!shopPanel.classList.contains('open'):!!on;
+ shopPanel.classList.toggle('open',open);shopScrim.classList.toggle('show',open);
+ if(shopBtn)shopBtn.setAttribute('aria-expanded',open?'true':'false');}
+if(shopBtn)shopBtn.onclick=()=>shopToggle();
+if(shopPanel)shopPanel.addEventListener('click',e=>{if(e.target.closest('#mults'))shopToggle(false)});
+if(shopScrim)shopScrim.onclick=()=>shopToggle(false);
+
 window.G=G;window.tryCap=(i)=>{const f=G.fish[i||0];if(f)capture(f,true);return f?f.key:null};window.addCoins=(n)=>{G.coins+=n;hud()};
 </script>
 
-<script id="phone-first">
-(function () {
-  if (!document.querySelector('meta[name="viewport"]')) {
-    var meta = document.createElement("meta");
-    meta.name = "viewport";
-    meta.content = "width=device-width, initial-scale=1, viewport-fit=cover";
-    document.head.appendChild(meta);
-  }
-  var style = document.createElement("style");
-  style.textContent = "@media (max-width:900px){html,body{max-width:100%;overflow-x:hidden;margin:0}button,input,select,textarea{font-size:16px;touch-action:manipulation}canvas,img,svg,video{max-width:100%}}";
-  document.head.appendChild(style);
-  function fit() {
-    var limit = document.documentElement.clientWidth || window.innerWidth;
-    if (limit > 900) return;
-    document.querySelectorAll("body *").forEach(function (el) {
-      var cs;
-      try { cs = getComputedStyle(el); } catch (err) { return; }
-      var cols = (cs.gridTemplateColumns || "").trim();
-      if (!cols || cols === "none") return;
-      var parts = cols.split(/\s+/).filter(Boolean);
-      if (parts.length < 2) return;
-      var wide = parts.some(function (part) { return parseFloat(part) >= 200; });
-      var box = el.getBoundingClientRect();
-      if (!wide && el.scrollWidth <= limit + 8 && box.width <= limit + 8) return;
-      el.style.gridTemplateColumns = parts.length >= 4 ? "1fr 1fr" : "1fr";
-      el.style.minWidth = "0";
-      el.style.maxWidth = "100%";
-    });
-  }
-  window.addEventListener("resize", fit);
-  window.addEventListener("load", function () { fit(); setTimeout(fit, 400); });
-  if (document.readyState !== "loading") setTimeout(fit, 50);
-})();
-</script>
+
 </body>
 </html>

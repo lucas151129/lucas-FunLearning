@@ -127,6 +127,219 @@
         
         .sub { vertical-align: sub; font-size: 0.7em; }
         .sup { vertical-align: super; font-size: 0.7em; }
+
+        /* =================================================================
+           LANDSCAPE EMBED (platform iframe: html.dsh-embed)
+           Compact the start screen and the play HUD so everything fits a
+           344px-tall phone frame without scrolling. Desktop rules above are
+           untouched; every override is scoped to html.dsh-embed.
+           ================================================================= */
+        html.dsh-embed #app-container {
+            max-width: 1180px;
+            height: 100dvh;
+        }
+
+        /* ---------- START SCREEN ---------- */
+        html.dsh-embed #screen-start {
+            padding: 8px 16px 10px;
+            overflow: hidden;
+        }
+        html.dsh-embed #screen-start > div:first-child { margin-bottom: 6px; gap: 10px; }
+        html.dsh-embed #screen-start h1 {
+            font-size: 1.55rem;
+            line-height: 1.1;
+            letter-spacing: 0;
+        }
+        html.dsh-embed #screen-start > div:first-child > button {
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            min-height: 40px;
+            border-width: 1px;
+        }
+        html.dsh-embed #screen-start > div:nth-child(2) {
+            flex: 1 1 auto;
+            min-height: 0;
+            justify-content: center;
+            gap: 8px;
+        }
+        html.dsh-embed #lbl-subtitle {
+            font-size: 0.8rem;
+            line-height: 1.35;
+            margin-bottom: 0;
+        }
+        html.dsh-embed #screen-start > div:nth-child(2) > div:nth-of-type(1) {
+            padding: 8px 12px;
+            margin-bottom: 0;
+            border-radius: 12px;
+        }
+        html.dsh-embed #lbl-rev-title { font-size: 1rem; margin-bottom: 4px; }
+        html.dsh-embed #screen-start > div:nth-child(2) > div:nth-of-type(1) > div {
+            max-height: none !important;
+            overflow: visible !important;
+            gap: 8px;
+        }
+        html.dsh-embed #screen-start > div:nth-child(2) > div:nth-of-type(1) > div > div {
+            padding: 6px 8px;
+        }
+        html.dsh-embed #screen-start > div:nth-child(2) > div:nth-of-type(1) h4 {
+            font-size: 0.8rem;
+            margin-bottom: 2px;
+        }
+        html.dsh-embed #screen-start > div:nth-child(2) > div:nth-of-type(1) p {
+            font-size: 0.75rem;
+            line-height: 1.35;
+        }
+        html.dsh-embed #screen-start > div:nth-child(2) > div:nth-of-type(2) {
+            padding: 6px 10px;
+            margin-bottom: 0;
+            border-radius: 12px;
+        }
+        html.dsh-embed #lbl-how-title { font-size: 0.75rem; margin-bottom: 2px; }
+        html.dsh-embed #screen-start > div:nth-child(2) > div:nth-of-type(2) ul {
+            font-size: 0.75rem;
+            line-height: 1.3;
+        }
+        html.dsh-embed #screen-start > div:nth-child(2) > div:nth-of-type(2) li { gap: 4px; }
+        html.dsh-embed #screen-start kbd { padding: 0 4px; }
+        html.dsh-embed #screen-start > div:nth-child(2) > button {
+            margin-top: 2px;
+            margin-bottom: 0;
+            padding: 8px 30px;
+            font-size: 1.1rem;
+            border-width: 3px;
+            min-height: 44px;
+        }
+
+        /* ---------- PLAY SCREEN ---------- */
+        html.dsh-embed #screen-game { padding-bottom: 0; height: 100%; }
+        html.dsh-embed #screen-game > div:first-child { padding: 3px 10px; }
+        html.dsh-embed #screen-game > div:first-child span.text-xs {
+            font-size: 0.75rem;
+            letter-spacing: 0.04em;
+        }
+        html.dsh-embed #ui-score { font-size: 1.1rem; line-height: 1.1; }
+        html.dsh-embed #screen-game > div:first-child button {
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            min-height: 40px;
+        }
+        html.dsh-embed #ui-streak { font-size: 0.9rem; }
+        html.dsh-embed #ui-lives svg { width: 16px; height: 16px; }
+
+        html.dsh-embed #screen-game > div:nth-child(2) { padding: 0 10px; }
+        html.dsh-embed #question-area {
+            padding: 7px 14px;
+            border-radius: 16px;
+            border-width: 3px;
+            max-width: 900px;
+        }
+        html.dsh-embed #question-area > div:first-child {
+            margin-bottom: 4px;
+            padding: 1px 8px;
+            font-size: 0.75rem;
+        }
+        html.dsh-embed #q-equation {
+            font-size: 1.1rem;
+            line-height: 1.2;
+            margin-bottom: 2px;
+            padding-bottom: 2px;
+        }
+        html.dsh-embed #q-dh { font-size: 0.85rem; line-height: 1.2; margin-bottom: 6px; }
+        html.dsh-embed #question-area .bg-slate-100 {
+            padding: 6px 10px;
+            border-radius: 10px;
+        }
+        html.dsh-embed #q-scenario { font-size: 1rem; line-height: 1.25; }
+
+        html.dsh-embed #screen-game > div:nth-child(3) { height: 8px; }
+        html.dsh-embed .track-height { height: 72px; margin-top: 2px; }
+        html.dsh-embed #player-char { width: 44px; height: 44px; font-size: 28px; }
+        html.dsh-embed .zone { padding-bottom: 4px; border-top-width: 6px; }
+        html.dsh-embed .zone span {
+            font-size: 0.75rem !important;
+            line-height: 1.15;
+            margin-bottom: 0 !important;
+        }
+        html.dsh-embed #screen-game > div:nth-child(5) { padding: 4px 8px; gap: 6px; }
+        html.dsh-embed #screen-game > div:nth-child(5) button {
+            padding-top: 5px;
+            padding-bottom: 5px;
+            min-height: 44px;
+        }
+        html.dsh-embed #btn-lock-text { font-size: 0.95rem; }
+
+        /* ---------- GAME OVER ---------- */
+        html.dsh-embed #screen-gameover { padding: 8px 16px; }
+        html.dsh-embed #lbl-go-title { font-size: 2.1rem; line-height: 1.1; margin-bottom: 2px; }
+        html.dsh-embed #lbl-go-desc { font-size: 0.85rem; line-height: 1.3; margin-bottom: 8px; }
+        html.dsh-embed #screen-gameover > div:first-of-type {
+            padding: 10px 18px;
+            margin-bottom: 10px;
+            border-radius: 14px;
+        }
+        html.dsh-embed #go-score { font-size: 2rem; line-height: 1.1; margin-bottom: 6px; }
+        html.dsh-embed #go-level { font-size: 1.4rem; }
+        html.dsh-embed #screen-gameover > div:last-child { gap: 10px; }
+        html.dsh-embed #screen-gameover > div:last-child button {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            min-height: 44px;
+            border-width: 3px;
+        }
+
+        /* Short phone frames: the "how to play" card is the least important
+           block on the start screen, so drop it below 470px of height. */
+        @media (max-height: 470px) {
+            html.dsh-embed #screen-start > div:nth-child(2) > div:nth-of-type(2) {
+                display: none;
+            }
+        }
+
+        /* Taller frames (iPad): restore a comfortable scale. */
+        @media (min-height: 560px) {
+            html.dsh-embed #screen-start { padding: 14px 22px 16px; justify-content: center; }
+            html.dsh-embed #screen-start > div:nth-child(2) { flex: 0 0 auto; }
+            html.dsh-embed #screen-start h1 { font-size: 2.2rem; }
+            html.dsh-embed #screen-start > div:first-child { margin-bottom: 10px; }
+            html.dsh-embed #screen-start > div:first-child > button {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+                min-height: 40px;
+            }
+            html.dsh-embed #lbl-subtitle { font-size: 0.95rem; }
+            html.dsh-embed #lbl-rev-title { font-size: 1.15rem; }
+            html.dsh-embed #screen-start > div:nth-child(2) > div:nth-of-type(1) { padding: 14px 16px; }
+            html.dsh-embed #screen-start > div:nth-child(2) > div:nth-of-type(1) h4 { font-size: 0.9rem; }
+            html.dsh-embed #screen-start > div:nth-child(2) > div:nth-of-type(1) p { font-size: 0.85rem; }
+            html.dsh-embed #screen-start > div:nth-child(2) > div:nth-of-type(2) { padding: 10px 14px; }
+            html.dsh-embed #lbl-how-title { font-size: 0.8rem; }
+            html.dsh-embed #screen-start > div:nth-child(2) > div:nth-of-type(2) ul { font-size: 0.85rem; }
+            html.dsh-embed #screen-start > div:nth-child(2) > button { padding: 12px 40px; font-size: 1.3rem; }
+            html.dsh-embed #screen-start > div:nth-child(2) { gap: 12px; justify-content: flex-start; }
+
+            html.dsh-embed #screen-game > div:first-child { padding: 8px 16px; }
+            html.dsh-embed #screen-game > div:first-child span.text-xs { font-size: 0.8rem; }
+            html.dsh-embed #ui-score { font-size: 1.5rem; }
+            html.dsh-embed #screen-game > div:first-child button { min-height: 44px; padding: 6px 12px; }
+            html.dsh-embed #ui-lives svg { width: 20px; height: 20px; }
+            html.dsh-embed #screen-game > div:nth-child(2) { padding: 0 20px; }
+            html.dsh-embed #question-area { padding: 16px 22px; border-radius: 22px; }
+            html.dsh-embed #q-equation { font-size: 1.5rem; margin-bottom: 4px; padding-bottom: 4px; }
+            html.dsh-embed #q-dh { font-size: 1.05rem; margin-bottom: 10px; }
+            html.dsh-embed #question-area .bg-slate-100 { padding: 12px 16px; }
+            html.dsh-embed #q-scenario { font-size: 1.35rem; }
+            html.dsh-embed .track-height { height: 100px; margin-top: 6px; }
+            html.dsh-embed #player-char { width: 52px; height: 52px; font-size: 34px; }
+            html.dsh-embed .zone span { font-size: 0.85rem !important; }
+            html.dsh-embed #screen-game > div:nth-child(5) { padding: 10px 14px; gap: 10px; }
+            html.dsh-embed #screen-game > div:nth-child(5) button { min-height: 54px; padding-top: 10px; padding-bottom: 10px; }
+            html.dsh-embed #btn-lock-text { font-size: 1.1rem; }
+
+            html.dsh-embed #lbl-go-title { font-size: 3rem; }
+            html.dsh-embed #lbl-go-desc { font-size: 1rem; }
+            html.dsh-embed #go-score { font-size: 2.8rem; }
+            html.dsh-embed #go-level { font-size: 2rem; }
+        }
     </style>
 </head>
 <body class="bg-slate-100">
@@ -1090,39 +1303,6 @@
 
 </script>
 
-<script id="phone-first">
-(function () {
-  if (!document.querySelector('meta[name="viewport"]')) {
-    var meta = document.createElement("meta");
-    meta.name = "viewport";
-    meta.content = "width=device-width, initial-scale=1, viewport-fit=cover";
-    document.head.appendChild(meta);
-  }
-  var style = document.createElement("style");
-  style.textContent = "@media (max-width:900px){html,body{max-width:100%;overflow-x:hidden;margin:0}button,input,select,textarea{font-size:16px;touch-action:manipulation}canvas,img,svg,video{max-width:100%}}";
-  document.head.appendChild(style);
-  function fit() {
-    var limit = document.documentElement.clientWidth || window.innerWidth;
-    if (limit > 900) return;
-    document.querySelectorAll("body *").forEach(function (el) {
-      var cs;
-      try { cs = getComputedStyle(el); } catch (err) { return; }
-      var cols = (cs.gridTemplateColumns || "").trim();
-      if (!cols || cols === "none") return;
-      var parts = cols.split(/\s+/).filter(Boolean);
-      if (parts.length < 2) return;
-      var wide = parts.some(function (part) { return parseFloat(part) >= 200; });
-      var box = el.getBoundingClientRect();
-      if (!wide && el.scrollWidth <= limit + 8 && box.width <= limit + 8) return;
-      el.style.gridTemplateColumns = parts.length >= 4 ? "1fr 1fr" : "1fr";
-      el.style.minWidth = "0";
-      el.style.maxWidth = "100%";
-    });
-  }
-  window.addEventListener("resize", fit);
-  window.addEventListener("load", function () { fit(); setTimeout(fit, 400); });
-  if (document.readyState !== "loading") setTimeout(fit, 50);
-})();
-</script>
+
 </body>
 </html>

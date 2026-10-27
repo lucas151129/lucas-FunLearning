@@ -322,6 +322,359 @@
     #certificate, #certificate * { visibility: visible; }
     #certificate { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; }
   }
+
+  /* =========================================================
+     平台嵌入（iframe）→ 橫屏全螢幕，不滾動
+     只在 html.dsh-embed 下生效，獨立頁面外觀完全不變。
+     ========================================================= */
+  html.dsh-embed, html.dsh-embed body { height: 100%; }
+  html.dsh-embed body {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+    font-size: 15px;
+    display: flex;
+    flex-direction: column;
+    overscroll-behavior: none;
+  }
+  html.dsh-embed header {
+    position: static;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    gap: 8px;
+    padding: 4px 8px;
+    min-height: 40px;
+    background: rgba(6, 18, 30, .9);
+  }
+  html.dsh-embed .brand {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 7px;
+    min-width: 0;
+  }
+  html.dsh-embed .brand strong { font-size: 15px; white-space: nowrap; }
+  html.dsh-embed .brand span { font-size: 11.5px; white-space: nowrap; }
+  html.dsh-embed .hud { flex-wrap: nowrap; gap: 4px; }
+  html.dsh-embed .pill,
+  html.dsh-embed .hud button,
+  html.dsh-embed .ghost,
+  html.dsh-embed .icon-btn {
+    min-height: 34px;
+    padding: 4px 9px;
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+  html.dsh-embed .hud button { font-size: 12px; padding: 4px 8px; }
+  html.dsh-embed .header-tools { gap: 4px; }
+  html.dsh-embed .device { display: none; }
+
+  /* 主體：問答卡（左）＋ AI 面板（右，夠高才顯示） */
+  html.dsh-embed body[class*="device-"] .layout {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 5px 6px 6px;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    gap: 6px;
+    align-items: stretch;
+  }
+  html.dsh-embed body[class*="device-"] #aiPanel {
+    position: static;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    z-index: 1;
+    display: none;
+  }
+  html.dsh-embed body[class*="device-"] #aiPanel .ai-tab { display: none; }
+  html.dsh-embed body[class*="device-"] #aiPanel .ai-body {
+    display: block;
+    max-height: none;
+    overflow: hidden;
+    border-radius: 16px;
+    padding: 10px;
+    height: 100%;
+  }
+  html.dsh-embed #view {
+    min-height: 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  html.dsh-embed #view > .panel {
+    flex: 0 1 auto;
+    min-height: min-content;
+    padding: 10px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  /* 卡片內容壓縮 */
+  html.dsh-embed h1 { font-size: 20px; margin-bottom: 4px; }
+  html.dsh-embed h2 { font-size: 17px; margin-bottom: 4px; }
+  html.dsh-embed h3 { font-size: 13.5px; margin-bottom: 3px; }
+  html.dsh-embed .kicker { font-size: 12px; }
+  html.dsh-embed .lead,
+  html.dsh-embed .story { font-size: 13px; margin: 4px 0; }
+  html.dsh-embed .story { padding: 6px 8px; }
+  html.dsh-embed .need { font-size: 12.5px; padding: 6px 8px; margin: 4px 0; }
+  html.dsh-embed .feedback {
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    border-radius: 12px;
+    border-width: 2px;
+    gap: 6px;
+  }
+  html.dsh-embed .feedback p { font-size: 12.5px; line-height: 1.4; }
+  html.dsh-embed .feedback .who { font-size: 12px; padding: 2px 6px; }
+  html.dsh-embed .art { font-size: 26px; margin-bottom: 0; }
+  html.dsh-embed #view > section.panel:has(.dress) > .art,
+  html.dsh-embed #view > section.panel:has(.dress) > .story,
+  html.dsh-embed #view > section.panel:has(.dress) > .try { display: none; }
+  html.dsh-embed .progress { margin-bottom: 6px; gap: 4px; }
+  html.dsh-embed .progress span { font-size: 11.5px; padding: 3px 2px; }
+  html.dsh-embed .choices,
+  html.dsh-embed .checks { gap: 5px; }
+  html.dsh-embed .choice,
+  html.dsh-embed .check {
+    min-height: 42px;
+    padding: 7px 10px;
+    font-size: 13px;
+    border-width: 2px;
+    border-radius: 11px;
+  }
+  html.dsh-embed .choice .key { width: 22px; height: 22px; font-size: 12px; }
+  html.dsh-embed .row { gap: 6px; }
+  html.dsh-embed .primary,
+  html.dsh-embed body.device-tablet .primary,
+  html.dsh-embed body.device-tablet .choice,
+  html.dsh-embed body.device-tablet .item {
+    min-height: 42px;
+    padding: 7px 14px;
+    font-size: 13.5px;
+  }
+  html.dsh-embed .ghost.dark,
+  html.dsh-embed .panel .ghost { min-height: 38px; padding: 6px 12px; font-size: 13px; }
+  html.dsh-embed .field { margin: 5px 0; gap: 3px; font-size: 12.5px; }
+  html.dsh-embed .field input { min-height: 38px; font-size: 14px; padding: 5px 9px; }
+  html.dsh-embed .hero-grid { grid-template-columns: 1fr; }
+  html.dsh-embed .skyline { display: none; }
+  html.dsh-embed .tags { gap: 4px; margin: 5px 0; }
+  html.dsh-embed .tags span,
+  html.dsh-embed .badge,
+  html.dsh-embed .chip { font-size: 12px; padding: 2px 8px; }
+  html.dsh-embed .tiny { font-size: 12px; }
+  html.dsh-embed .try { font-size: 12.5px; }
+
+  /* 穿搭 / 實驗 / 防風 */
+  html.dsh-embed .dress { grid-template-columns: 150px minmax(0, 1fr); gap: 8px; }
+  html.dsh-embed .items { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  html.dsh-embed .dress > div:last-child {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 10px;
+    align-content: start;
+  }
+  html.dsh-embed .doll .head { width: 54px; height: 54px; font-size: 24px; }
+  html.dsh-embed .doll .torso { width: 82px; height: 64px; font-size: 24px; margin-top: 5px; }
+  html.dsh-embed .doll .legs i { width: 20px; height: 30px; }
+  html.dsh-embed .layers { display: none; }
+  html.dsh-embed .meters { gap: 4px; margin-top: 4px; }
+  html.dsh-embed .meter { grid-template-columns: 62px 1fr 30px; font-size: 12px; gap: 4px; }
+  html.dsh-embed .track { height: 9px; }
+  html.dsh-embed .group { margin: 4px 0; }
+  html.dsh-embed .group h3 { margin: 2px 0; line-height: 1.25; }
+  html.dsh-embed .items { gap: 4px; }
+  html.dsh-embed .item {
+    min-height: 42px;
+    padding: 3px 6px;
+    gap: 5px;
+    font-size: 12.5px;
+    border-width: 2px;
+    border-radius: 10px;
+  }
+  html.dsh-embed .item .emo { font-size: 18px; }
+  html.dsh-embed .item small { display: none; }
+  html.dsh-embed .item br { display: none; }
+  html.dsh-embed .cups { gap: 6px; margin: 4px 0 6px; }
+  html.dsh-embed .cup-wrap { width: 74px; font-size: 11.5px; }
+  html.dsh-embed .cup { height: 88px; }
+  html.dsh-embed #windBox { height: 140px; margin: 4px 0; }
+  html.dsh-embed .gust { min-width: 48px; min-height: 48px; font-size: 26px; }
+  html.dsh-embed .clock { font-size: 12.5px; }
+
+  /* 開始畫面 */
+  html.dsh-embed #view > .panel .hero-grid { gap: 6px; }
+  html.dsh-embed #view > .panel > h1 { font-size: clamp(20px, 4.6vh, 30px); }
+  html.dsh-embed #view > .panel > .lead { font-size: 13px; }
+  html.dsh-embed #view > .panel form:has(.field) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 12px;
+    align-items: end;
+  }
+  html.dsh-embed #view > .panel form:has(.field) > .field { min-width: 0; }
+  html.dsh-embed #view > .panel form:has(.field) > .row,
+  html.dsh-embed #view > .panel form:has(.field) > .warn { grid-column: 1 / -1; }
+
+  /* AI 面板（只在夠高的畫面出現） */
+  html.dsh-embed .robot { width: 48px; margin-bottom: 2px; }
+  html.dsh-embed .robot .head { height: 34px; border-width: 2px; border-radius: 10px; }
+  html.dsh-embed #aiBubble { min-height: 0; font-size: 12.5px; line-height: 1.45; }
+  html.dsh-embed .ai-name { font-size: 12.5px; margin-bottom: 4px; }
+  html.dsh-embed .chips { gap: 4px; margin: 4px 0; }
+  html.dsh-embed .chips .chip { font-size: 11.5px; padding: 2px 7px; }
+  html.dsh-embed .ask { gap: 4px; }
+  html.dsh-embed .ask input { min-height: 34px; font-size: 12.5px; padding: 4px 7px; }
+  html.dsh-embed .ask button { min-height: 34px; font-size: 12.5px; padding: 0 10px; }
+  html.dsh-embed #aiPanel .tiny { display: none; }
+
+  /* 證書 */
+  html.dsh-embed #certificate { padding: 14px 16px 10px; border-width: 8px; outline-offset: -12px; }
+  html.dsh-embed #certificate h2 { font-size: 22px; margin: 4px 0; }
+  html.dsh-embed .cert-name { font-size: clamp(20px, 3.6vh, 30px); margin: 2px 0; }
+  html.dsh-embed .seal { width: 58px; height: 58px; font-size: 11px; }
+  html.dsh-embed .badges { gap: 4px; margin: 4px 0; }
+  html.dsh-embed .skill-row { grid-template-columns: 70px 1fr 32px; font-size: 12px; margin: 2px 0; }
+  html.dsh-embed .note-list { gap: 3px; margin: 4px 0; }
+  html.dsh-embed .note-list span { font-size: 11.5px; padding: 2px 6px; }
+  html.dsh-embed .sign { margin-top: 6px; font-size: 12px; }
+  html.dsh-embed #certificate > p { margin: 3px 0; font-size: 12.5px; }
+  html.dsh-embed .modal-card { padding: 12px 14px; font-size: 13px; max-height: 90dvh; }
+  html.dsh-embed .modal-card h2 { font-size: 18px; }
+  html.dsh-embed .help-step { margin: 5px 0; font-size: 12.5px; }
+  html.dsh-embed .help-step b { width: 24px; height: 24px; font-size: 12px; }
+  html.dsh-embed #toasts { top: 46px; }
+  /* 平台嵌入時不畫飄雪：裝飾用固定定位元素會超出 iframe，干擾量測也浪費效能 */
+  html.dsh-embed #snow { display: none; }
+
+  /* 矮螢幕：收起裝飾與次要說明 */
+  @media (max-height: 460px) {
+    html.dsh-embed .art { display: none; }
+    html.dsh-embed .progress { display: none; }
+    html.dsh-embed .story { display: none; }
+    html.dsh-embed .kicker { display: none; }
+    html.dsh-embed .tiny { font-size: 11.5px; }
+    html.dsh-embed .field { margin: 3px 0; }
+    html.dsh-embed .field input { min-height: 34px; }
+    html.dsh-embed .tags { display: none; }
+    html.dsh-embed .doll { display: none; }
+    html.dsh-embed .dress { grid-template-columns: minmax(0, 1fr); }
+    html.dsh-embed .meters { display: none; }
+    html.dsh-embed .layer, html.dsh-embed .layers { display: none; }
+    html.dsh-embed .group { margin: 3px 0; }
+    html.dsh-embed .group h3 { font-size: 12px; }
+    html.dsh-embed .items { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    html.dsh-embed .item { font-size: 12px; padding: 3px 4px; gap: 4px; }
+    html.dsh-embed .item .emo { font-size: 16px; }
+    html.dsh-embed .item > span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    html.dsh-embed #certificate .skill-row,
+    html.dsh-embed #certificate > .tiny,
+    html.dsh-embed #certificate .note-list,
+    html.dsh-embed #certificate .sign { display: none; }
+    /* 實驗結果題：冰杯放左、題目與選項放右，矮螢幕也一次看完 */
+    html.dsh-embed #view > section.panel:has(.cups):has(.choices) {
+      display: grid;
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      column-gap: 12px;
+      align-content: start;
+    }
+    html.dsh-embed #view > section.panel:has(.cups):has(.choices) > .feedback {
+      grid-column: 1 / -1;
+      grid-row: 1;
+    }
+    html.dsh-embed #view > section.panel:has(.cups):has(.choices) > h2 {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+    html.dsh-embed #view > section.panel:has(.cups):has(.choices) > .cups {
+      grid-column: 1;
+      grid-row: 3 / span 2;
+      align-self: start;
+    }
+    html.dsh-embed #view > section.panel:has(.cups):has(.choices) > p.lead {
+      grid-column: 2;
+      grid-row: 3;
+    }
+    html.dsh-embed #view > section.panel:has(.cups):has(.choices) > .choices {
+      grid-column: 2;
+      grid-row: 4;
+    }
+    html.dsh-embed #view > section.panel:has(.cups):has(.choices) > .row,
+    html.dsh-embed #view > section.panel:has(.cups):has(.choices) > p:not(.lead) {
+      grid-column: 1 / -1;
+    }
+    /* 穿搭畫面上的 emoji 裝飾在高螢幕也省掉，換取一頁看完 */
+    html.dsh-embed #view > section.panel:has(.dress) > .art { display: none; }
+    html.dsh-embed .choices,
+    html.dsh-embed .checks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    /* 穿搭／大賽：內容最多，收成單行提示並把提示列收起，主按鈕保持可見 */
+    html.dsh-embed #view > section.panel:has(.dress) > .feedback p {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 1;
+      overflow: hidden;
+    }
+    html.dsh-embed #view > section.panel:has(.dress) > .row:last-child { display: none; }
+    html.dsh-embed #view > section.panel:has(.dress) > .try { display: none; }
+    html.dsh-embed #view > section.panel:has(.dress) > .dress { margin-bottom: 4px; }
+    html.dsh-embed .cup { height: 64px; }
+    html.dsh-embed .cup-wrap { width: 62px; font-size: 11px; }
+    html.dsh-embed #view:has(.items) .cups { display: none; }
+    html.dsh-embed #windBox { height: 120px; }
+    /* 證書：改為兩欄，內容全部保留但高度減半 */
+    html.dsh-embed #certificate {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-flow: row dense;
+      column-gap: 16px;
+      align-content: start;
+      padding: 8px 14px;
+      border-width: 6px;
+      outline-width: 3px;
+      outline-offset: -10px;
+      border-radius: 8px;
+    }
+    html.dsh-embed #certificate > * { grid-column: 1; }
+    html.dsh-embed #certificate > *:nth-child(n + 9) { grid-column: 2; }
+    html.dsh-embed #certificate h2 { font-size: 20px; margin: 2px 0; }
+    html.dsh-embed #certificate > p { margin: 2px 0; font-size: 12px; }
+    html.dsh-embed .cert-top { align-items: start; }
+    html.dsh-embed .cert-name { font-size: 24px; }
+    html.dsh-embed .skill-row { font-size: 12px; margin: 1px 0; }
+    html.dsh-embed .badges { margin: 2px 0; }
+    html.dsh-embed .seal { width: 46px; height: 46px; font-size: 10px; }
+  }
+
+  @media (max-height: 400px) {
+    html.dsh-embed .panel { padding: 8px 10px; }
+    html.dsh-embed h1 { font-size: 18px; }
+    html.dsh-embed .cert-name { font-size: 21px; }
+    html.dsh-embed #certificate { padding: 6px 12px; display: block; }
+    html.dsh-embed #view > section.panel:has(.dress) > .need { display: none; }
+    html.dsh-embed #certificate > p:not(.center):not(.tiny),
+    html.dsh-embed #certificate .badges { display: none; }
+    html.dsh-embed #view > section.panel:has(.checks) > .row:last-child { display: none; }
+    html.dsh-embed .need { margin: 2px 0; }
+    html.dsh-embed .feedback { margin-bottom: 4px; }
+    html.dsh-embed #windBox { height: 94px; }
+  }
+
+  /* 夠大的 iPad 橫屏才顯示 AI 側欄 */
+  @media (min-width: 1000px) and (min-height: 560px) {
+    html.dsh-embed body[class*="device-"] .layout {
+      grid-template-columns: minmax(0, 1fr) 292px;
+    }
+    html.dsh-embed body[class*="device-"] #aiPanel { display: block; }
+  }
 </style>
 </head>
 <body>
@@ -1698,39 +2051,6 @@ init();
 })();
 </script>
 
-<script id="phone-first">
-(function () {
-  if (!document.querySelector('meta[name="viewport"]')) {
-    var meta = document.createElement("meta");
-    meta.name = "viewport";
-    meta.content = "width=device-width, initial-scale=1, viewport-fit=cover";
-    document.head.appendChild(meta);
-  }
-  var style = document.createElement("style");
-  style.textContent = "@media (max-width:900px){html,body{max-width:100%;overflow-x:hidden;margin:0}button,input,select,textarea{font-size:16px;touch-action:manipulation}canvas,img,svg,video{max-width:100%}}";
-  document.head.appendChild(style);
-  function fit() {
-    var limit = document.documentElement.clientWidth || window.innerWidth;
-    if (limit > 900) return;
-    document.querySelectorAll("body *").forEach(function (el) {
-      var cs;
-      try { cs = getComputedStyle(el); } catch (err) { return; }
-      var cols = (cs.gridTemplateColumns || "").trim();
-      if (!cols || cols === "none") return;
-      var parts = cols.split(/\s+/).filter(Boolean);
-      if (parts.length < 2) return;
-      var wide = parts.some(function (part) { return parseFloat(part) >= 200; });
-      var box = el.getBoundingClientRect();
-      if (!wide && el.scrollWidth <= limit + 8 && box.width <= limit + 8) return;
-      el.style.gridTemplateColumns = parts.length >= 4 ? "1fr 1fr" : "1fr";
-      el.style.minWidth = "0";
-      el.style.maxWidth = "100%";
-    });
-  }
-  window.addEventListener("resize", fit);
-  window.addEventListener("load", function () { fit(); setTimeout(fit, 400); });
-  if (document.readyState !== "loading") setTimeout(fit, 50);
-})();
-</script>
+
 </body>
 </html>

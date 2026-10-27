@@ -8,11 +8,35 @@
   --line: 4px solid var(--ink);
   --shadow: 6px 6px 0 var(--ink);
   --radius: 20px;
+
+  /* 版面尺吋：手機 → 小平板 → iPad → 大螢幕 */
+  --shell: 480px;
+  --gutter: 8px;
+  --tvh: 100vh;
+
   color: var(--ink);
+}
+
+@supports (height: 100dvh) {
+  :root { --tvh: 100dvh; }
+}
+
+@media (min-width: 700px) {
+  :root { --shell: 720px; --gutter: 12px; }
+}
+
+@media (min-width: 1000px) {
+  :root { --shell: 940px; --gutter: 16px; }
+}
+
+@media (min-width: 1360px) {
+  :root { --shell: 1080px; --gutter: 20px; }
 }
 
 html {
   font-family: "LXGW WenKai TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 html[lang="zh-Hans"] {
@@ -23,15 +47,25 @@ html[lang="en"] {
   font-family: "Fredoka", "Nunito", "Segoe UI", sans-serif;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a, button, [role="button"], input, label {
+  touch-action: manipulation;
+}
 
 body.site {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: var(--sky);
   color: var(--ink);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 img { max-width: 100%; display: block; }
@@ -50,9 +84,11 @@ button, input, a { font-family: inherit; }
   border: 0;
   background: transparent;
   color: var(--ink);
-  padding: 6px 8px;
+  min-height: 40px;
+  min-width: 44px;
+  padding: 9px 10px;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1;
 }
 
@@ -101,7 +137,7 @@ a { color: inherit; }
 .hud, main, .ground, #toast { position: relative; z-index: 1; }
 
 .hud {
-  width: min(430px, calc(100% - 16px));
+  width: min(var(--shell), calc(100% - var(--gutter) * 2));
   margin: 12px auto 0;
   padding: 10px 12px;
   display: flex;
@@ -170,11 +206,15 @@ a { color: inherit; }
   text-decoration: none;
   cursor: pointer;
   line-height: 1.1;
+  min-height: 44px;
 }
 
-.btn:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--ink); }
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--ink); }
+}
+
 .btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
-.btn-small { font-size: 16px; padding: 8px 12px; border-radius: 12px; }
+.btn-small { font-size: 16px; padding: 8px 12px; border-radius: 12px; min-height: 40px; }
 .btn-pink { background: var(--pink); }
 .btn-cream { background: var(--cream); }
 .btn-mint { background: var(--mint); }
@@ -182,7 +222,7 @@ a { color: inherit; }
 .ico { display: block; }
 
 main {
-  width: min(430px, calc(100% - 16px));
+  width: min(var(--shell), calc(100% - var(--gutter) * 2));
   margin: 16px auto 28px;
   flex: 1;
 }
@@ -253,7 +293,9 @@ h2 { font-size: 26px; font-weight: 400; }
   transition: transform 0.12s ease;
 }
 
-.cat-card:hover img { transform: translateY(-6px); }
+@media (hover: hover) and (pointer: fine) {
+  .cat-card:hover img { transform: translateY(-6px); }
+}
 
 .cat-card .name {
   display: inline-block;
@@ -370,9 +412,11 @@ h2 { font-size: 26px; font-weight: 400; }
   padding: 8px 10px;
 }
 
+.stage-frame { position: relative; display: flex; flex-direction: column; }
+
 .stage iframe {
   width: 100%;
-  height: 460px;
+  height: clamp(340px, 58vh, 560px);
   border: var(--line);
   border-radius: 16px;
   background: #fffdf8;
@@ -513,7 +557,7 @@ pre {
 #toast {
   position: fixed;
   left: 50%;
-  bottom: 36px;
+  bottom: calc(36px + env(safe-area-inset-bottom));
   transform: translate(-50%, 12px);
   background: var(--ink);
   color: #fff;
@@ -529,6 +573,14 @@ pre {
 
 #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+/* 全螢幕玩遊戲時，分數提示改到上方，避免蓋住遊戲底部的按鈕 */
+body.playing #toast {
+  bottom: auto;
+  top: calc(64px + env(safe-area-inset-top));
+}
+body.playing #toast { transform: translate(-50%, -12px); }
+body.playing #toast.show { transform: translate(-50%, 0); }
+
 :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 
 input:focus-visible {
@@ -538,7 +590,9 @@ input:focus-visible {
 
 body.quiz {
   margin: 0;
-  padding: 14px;
+  padding: max(14px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
+           max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+  min-height: 100dvh;
   background: #fffdf8;
   color: var(--ink);
   font-family: "LXGW WenKai TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
@@ -576,7 +630,8 @@ body.quiz {
   border: var(--line);
   border-radius: 14px;
   box-shadow: 4px 4px 0 var(--ink);
-  padding: 10px 12px;
+  padding: 12px 14px;
+  min-height: 56px;
   font-size: 22px;
   cursor: pointer;
   color: var(--ink);
@@ -606,7 +661,7 @@ body.quiz {
 
 html[data-size="desk"] .hud,
 html[data-size="desk"] main {
-  width: min(1080px, calc(100% - 28px));
+  width: min(var(--shell), calc(100% - var(--gutter) * 2));
 }
 
 html[data-size="desk"] .hud {
@@ -657,8 +712,10 @@ html[data-size="desk"] .game-row {
 html[data-size="desk"] .game-row img { width: 92px; height: 92px; }
 html[data-size="desk"] .game-row .btn { grid-column: auto; width: auto; }
 
-html[data-size="desk"] .play-layout {
-  grid-template-columns: minmax(0, 1.7fr) minmax(240px, 0.8fr);
+@media (min-width: 1000px) {
+  html[data-size="desk"] .play-layout {
+    grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.8fr);
+  }
 }
 
 .play-bar {
@@ -681,11 +738,15 @@ html[data-size="desk"] .play-layout {
 
 .play-bar .btn { flex: none; }
 
-@media (max-width: 1099px) {
+@media (max-width: 1199px), (pointer: coarse) {
   body.playing {
     overflow: hidden;
-    height: 100svh;
-    min-height: 100svh;
+    overscroll-behavior: none;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: var(--tvh);
+    min-height: var(--tvh);
   }
   body.playing .hud,
   body.playing .ground,
@@ -704,10 +765,18 @@ html[data-size="desk"] .play-layout {
     flex-direction: column;
     align-items: stretch;
     width: 100%;
-    height: 100svh;
+    height: var(--tvh);
     gap: 0;
   }
-  body.playing .play-bar { display: flex; width: 100%; }
+  body.playing .play-bar {
+    display: flex;
+    width: 100%;
+    gap: 10px;
+    padding: 8px 10px calc(8px + env(safe-area-inset-top)) 10px;
+    padding-top: max(8px, env(safe-area-inset-top));
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
+  }
   body.playing .stage {
     flex: 1;
     width: 100%;
@@ -721,7 +790,15 @@ html[data-size="desk"] .play-layout {
     box-shadow: none;
     background: #140826;
   }
-  body.playing .stage iframe {
+  body.playing .stage-frame {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+  }
+  body.playing .stage-frame iframe {
     flex: 1;
     width: 100%;
     height: 100% !important;
@@ -730,6 +807,16 @@ html[data-size="desk"] .play-layout {
     border-radius: 0;
     background: #fff;
   }
+  body.playing .sheet-veil {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: rgba(20, 8, 38, 0.5);
+  }
+  body.playing .sheet-veil[hidden] { display: none; }
   body.playing .play-layout .side { display: none; }
   body.playing .play-layout .side.is-open {
     display: block;
@@ -737,12 +824,27 @@ html[data-size="desk"] .play-layout {
     left: 0;
     right: 0;
     bottom: 0;
-    max-height: 72svh;
+    max-height: 72%;
     overflow: auto;
     z-index: 6;
     margin: 0;
+    padding-bottom: env(safe-area-inset-bottom);
     border-radius: 18px 18px 0 0;
+    -webkit-overflow-scrolling: touch;
   }
+
+
+}
+
+@media (max-height: 500px) {
+  body.playing .play-bar { padding: 4px 8px; gap: 8px; }
+  body.playing .play-bar .btn {
+    min-height: 34px;
+    padding: 4px 10px;
+    font-size: 14px;
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  body.playing .play-bar strong { font-size: 14px; }
 }
 
 .welcome {
@@ -806,9 +908,11 @@ html[data-size="desk"] .play-layout {
   border-radius: 8px;
 }
 
+@media (min-width: 900px) {
 html[data-size="desk"] .hub {
   grid-template-columns: minmax(0, 1fr) 300px;
   align-items: start;
+}
 }
 
 .picks {
@@ -875,16 +979,16 @@ html[data-size="desk"] .hub {
 
 .star {
   position: relative;
-  width: 34px;
-  height: 34px;
+  width: 42px;
+  height: 42px;
   display: inline-block;
 }
 
 .star svg {
   position: absolute;
   inset: 0;
-  width: 34px;
-  height: 34px;
+  width: 42px;
+  height: 42px;
   stroke: var(--ink);
   stroke-width: 1.2;
   stroke-linejoin: round;
@@ -1000,7 +1104,9 @@ html[data-size="desk"] .pet-card canvas { width: 150px; height: 150px; }
   image-rendering: pixelated;
 }
 .egg-card span { font-size: 18px; line-height: 1.3; }
-.egg-card:hover { transform: translateY(-2px); }
+@media (hover: hover) and (pointer: fine) {
+  .egg-card:hover { transform: translateY(-2px); }
+}
 .egg-card:active { transform: translateY(2px); }
 html[data-size="desk"] .egg-list { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
 .pet-still {
@@ -1040,6 +1146,40 @@ html[data-size="desk"] .egg-list { grid-template-columns: repeat(auto-fit, minma
 .shop-empty { font-size: 22px; line-height: 1.5; margin: 22px 0 8px; }
 
 html[data-size="desk"] .pet-still { width: 320px; height: 320px; }
+
+/* ---------- 橫屏提示（遊戲一律以橫向遊玩） ---------- */
+.rotate-tip {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  align-content: center;
+  justify-items: center;
+  gap: 10px;
+  padding: 24px;
+  text-align: center;
+  background: #140826;
+  color: #fff8ec;
+  pointer-events: none;
+}
+
+.rotate-tip .rot-icon {
+  display: block;
+  font-size: 54px;
+  line-height: 1;
+  animation: rot-tip 2.4s ease-in-out infinite;
+}
+
+.rotate-tip p { font-size: 20px; line-height: 1.5; margin: 0; }
+.rotate-tip small { font-size: 15px; opacity: 0.75; }
+
+@keyframes rot-tip {
+  0%, 45% { transform: rotate(0deg); }
+  70%, 100% { transform: rotate(90deg); }
+}
+
+body.playing.is-portrait .rotate-tip { display: grid; }
+body.playing.is-portrait .stage iframe { visibility: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }

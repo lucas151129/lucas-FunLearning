@@ -304,6 +304,127 @@
       .screen { padding-top: 20px; padding-bottom: 20px; }
       .board-wrap { max-height: 62vh; width: auto; margin: 0 auto; }
     }
+    /* ---------- 平台 iframe（橫屏） ---------- */
+    html.dsh-embed .page-doodles,
+    html.dsh-embed .device-switcher,
+    html.dsh-embed .keyboard-note { display: none; }
+
+    html.dsh-embed body { overflow: hidden; }
+
+    html.dsh-embed .app-shell {
+      width: 100%;
+      height: 100dvh;
+      min-height: 0;
+      margin: 0;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    html.dsh-embed .topbar { min-height: 46px; padding: 6px 12px; flex: none; }
+    html.dsh-embed .brand-mark { width: 32px; height: 32px; font-size: 17px; border-width: 2px; }
+    html.dsh-embed .brand-copy small { display: none; }
+    html.dsh-embed main { flex: 1; min-height: 0; }
+
+    html.dsh-embed .screen { height: 100%; min-height: 0; padding: 10px 18px; }
+    html.dsh-embed #startScreen.active { display: grid; align-items: center; }
+    html.dsh-embed .start-layout {
+      height: 100%;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+      gap: clamp(14px, 2.4vw, 30px);
+      align-items: center;
+    }
+    html.dsh-embed h1 { font-size: clamp(24px, 6.2vh, 54px); margin-bottom: 12px; }
+    html.dsh-embed .lead { font-size: clamp(13px, 2.4vh, 17px); }
+    html.dsh-embed .eyebrow { margin-bottom: 8px; padding: 4px 10px; }
+    html.dsh-embed .hero-snake { min-height: 0; height: 100%; }
+    html.dsh-embed .difficulty-title { margin: 12px 0 8px; }
+    html.dsh-embed .difficulty-list { max-width: none; }
+    html.dsh-embed .difficulty { min-height: 46px; padding: 6px 10px; }
+    html.dsh-embed .difficulty span { font-size: 11px; margin-top: 2px; }
+    html.dsh-embed .start-actions { margin-top: 10px; }
+    html.dsh-embed .primary-btn,
+    html.dsh-embed .secondary-btn { padding: 10px 18px; }
+
+    html.dsh-embed .how-card { display: none; }
+    html.dsh-embed .how-card.open {
+      display: block;
+      position: fixed;
+      z-index: 12;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      width: min(760px, calc(100% - 32px));
+      max-height: calc(100% - 90px);
+      overflow: auto;
+      background: #fff;
+      box-shadow: 0 -8px 40px rgba(20, 8, 38, .28);
+    }
+
+    html.dsh-embed #gameScreen { padding: 8px 12px; }
+    html.dsh-embed .game-grid {
+      height: 100%;
+      grid-template-columns: minmax(0, 1fr) minmax(196px, 232px);
+      gap: 10px;
+      max-width: none;
+    }
+    html.dsh-embed .game-main { display: flex; flex-direction: column; min-height: 0; }
+    html.dsh-embed .question-card {
+      min-height: 0;
+      flex: none;
+      padding: 6px 14px;
+      margin-bottom: 8px;
+    }
+    html.dsh-embed .equation { font-size: clamp(18px, 4.2vh, 34px); }
+    html.dsh-embed .question-badge { padding: 5px 9px; font-size: 11px; }
+    html.dsh-embed .board-wrap {
+      flex: 1;
+      min-height: 0;
+      height: 100%;
+      width: auto;
+      max-width: 100%;
+      aspect-ratio: 1 / 1;
+      margin: 0 auto;
+    }
+    html.dsh-embed .side-panel { min-height: 0; gap: 8px; }
+    html.dsh-embed .hud-card { padding: 9px 10px; }
+    html.dsh-embed .hud-card h3 { font-size: 11px; margin-bottom: 6px; }
+    html.dsh-embed .score-number { font-size: 30px; }
+    html.dsh-embed .hearts { font-size: 18px; min-height: 22px; }
+    html.dsh-embed .rank-row { margin: 6px 0; }
+    html.dsh-embed .progress-label { font-size: 11px; margin-bottom: 5px; }
+    html.dsh-embed .progress-track { height: 10px; }
+    html.dsh-embed .game-actions { gap: 7px; }
+    html.dsh-embed .small-btn { padding: 8px 6px; font-size: 14px; }
+    html.dsh-embed .controls { grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(2, 38px); gap: 6px; }
+    html.dsh-embed .control-btn { font-size: 17px; }
+
+    @media (max-height: 420px) {
+      html.dsh-embed .lead { display: none; }
+      html.dsh-embed h1 { margin-bottom: 6px; font-size: clamp(22px, 6.6vh, 34px); }
+      html.dsh-embed .difficulty-title { margin: 6px 0 6px; }
+      html.dsh-embed .start-actions { margin-top: 6px; }
+      html.dsh-embed .primary-btn,
+      html.dsh-embed .secondary-btn { padding: 8px 16px; }
+    }
+
+    @media (max-height: 460px) {
+      html.dsh-embed .tip-card { display: none; }
+      html.dsh-embed .brand-copy strong { font-size: 15px; }
+      html.dsh-embed .topbar { min-height: 40px; padding: 4px 10px; }
+      html.dsh-embed .screen { padding: 6px 14px; }
+      html.dsh-embed .start-layout { gap: 16px; }
+      html.dsh-embed .how-steps { grid-template-columns: 1fr; }
+      html.dsh-embed .difficulty span { display: none; }
+      html.dsh-embed .difficulty { min-height: 40px; }
+      html.dsh-embed .hud-card h3 { display: none; }
+      html.dsh-embed .game-grid { grid-template-columns: minmax(0, 1fr) 190px; }
+      html.dsh-embed .rank-row { display: none; }
+      html.dsh-embed .controls { grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(2, 32px); }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
     }
@@ -894,39 +1015,6 @@
     })();
   </script>
 
-<script id="phone-first">
-(function () {
-  if (!document.querySelector('meta[name="viewport"]')) {
-    var meta = document.createElement("meta");
-    meta.name = "viewport";
-    meta.content = "width=device-width, initial-scale=1, viewport-fit=cover";
-    document.head.appendChild(meta);
-  }
-  var style = document.createElement("style");
-  style.textContent = "@media (max-width:900px){html,body{max-width:100%;overflow-x:hidden;margin:0}button,input,select,textarea{font-size:16px;touch-action:manipulation}canvas,img,svg,video{max-width:100%}}";
-  document.head.appendChild(style);
-  function fit() {
-    var limit = document.documentElement.clientWidth || window.innerWidth;
-    if (limit > 900) return;
-    document.querySelectorAll("body *").forEach(function (el) {
-      var cs;
-      try { cs = getComputedStyle(el); } catch (err) { return; }
-      var cols = (cs.gridTemplateColumns || "").trim();
-      if (!cols || cols === "none") return;
-      var parts = cols.split(/\s+/).filter(Boolean);
-      if (parts.length < 2) return;
-      var wide = parts.some(function (part) { return parseFloat(part) >= 200; });
-      var box = el.getBoundingClientRect();
-      if (!wide && el.scrollWidth <= limit + 8 && box.width <= limit + 8) return;
-      el.style.gridTemplateColumns = parts.length >= 4 ? "1fr 1fr" : "1fr";
-      el.style.minWidth = "0";
-      el.style.maxWidth = "100%";
-    });
-  }
-  window.addEventListener("resize", fit);
-  window.addEventListener("load", function () { fit(); setTimeout(fit, 400); });
-  if (document.readyState !== "loading") setTimeout(fit, 50);
-})();
-</script>
+
 </body>
 </html>

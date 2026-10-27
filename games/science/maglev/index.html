@@ -423,6 +423,340 @@
     .no-print, .tools, .modal { display: none !important; }
     .cert { box-shadow: none; }
   }
+
+  /* =========================================================
+     平台嵌入（iframe）→ 橫屏全螢幕，不滾動
+     只在 html.dsh-embed 下生效，獨立頁面外觀完全不變。
+     ========================================================= */
+  html.dsh-embed, html.dsh-embed body { height: 100%; }
+  html.dsh-embed body {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+    font-size: 15px;
+    display: flex;
+    flex-direction: column;
+  }
+  html.dsh-embed #root { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  html.dsh-embed .app {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    margin: 0;
+    padding: 5px 8px 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* 工具列：只留音效／玩法／計分 */
+  html.dsh-embed .tools {
+    top: 4px;
+    right: 8px;
+    gap: 4px;
+    flex-wrap: nowrap;
+    max-width: none;
+  }
+  html.dsh-embed .tools .seg,
+  html.dsh-embed .tools [data-act="full"] { display: none; }
+  html.dsh-embed .tools > button,
+  html.dsh-embed .tools > a.tool {
+    min-height: 32px;
+    padding: 4px 9px;
+    font-size: 12.5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .92);
+    box-shadow: none;
+    border: 2px solid var(--line);
+  }
+
+  /* HUD 一行 */
+  html.dsh-embed .hud {
+    flex-wrap: nowrap;
+    gap: 6px;
+    margin: 0;
+    padding-right: 292px;
+    min-height: 34px;
+  }
+  html.dsh-embed .hud > * { flex: 0 0 auto; }
+  html.dsh-embed .hud .brand { font-size: 16px; line-height: 1.15; white-space: nowrap; }
+  html.dsh-embed .hud .who { display: none; }
+  html.dsh-embed .steps { flex-wrap: nowrap; gap: 4px; overflow: hidden; }
+  html.dsh-embed .steps span { font-size: 12px; padding: 3px 7px; white-space: nowrap; }
+  html.dsh-embed .scorebox { padding: 2px 8px; font-size: 12px; border-radius: 10px; white-space: nowrap; }
+  html.dsh-embed .scorebox b { font-size: 18px; }
+  html.dsh-embed .ghost { padding: 4px 9px; min-height: 32px; font-size: 12.5px; border-radius: 9px; white-space: nowrap; }
+
+  /* 主體：左內容、右 AI（矮螢幕收起 AI） */
+  html.dsh-embed body[data-device] .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+    align-items: stretch;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  html.dsh-embed aside { display: none; }
+  html.dsh-embed .main {
+    min-width: 0;
+    min-height: 0;
+    padding: 9px 11px;
+    border-radius: 16px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  html.dsh-embed .main > h2 { font-size: 17px; margin-bottom: 3px; }
+  html.dsh-embed .main .lead { font-size: 13px; line-height: 1.45; margin-bottom: 4px; }
+  html.dsh-embed .main .sub { font-size: 12px; margin: 2px 0; }
+  html.dsh-embed .main h3 { font-size: 13.5px; margin: 4px 0 2px; }
+  html.dsh-embed .legend { gap: 4px; margin: 4px 0; font-size: 12px; }
+  html.dsh-embed .legend span, html.dsh-embed .pill { padding: 2px 8px; }
+  html.dsh-embed .formula { font-size: 16px; padding: 4px 10px; margin: 4px 0; }
+  html.dsh-embed .status { font-size: 13.5px; padding: 5px 9px; margin: 4px 0; }
+  html.dsh-embed .sentence { font-size: 15px; line-height: 1.55; }
+  html.dsh-embed .words { gap: 5px; margin: 4px 0; }
+  html.dsh-embed .slot, html.dsh-embed .word {
+    min-width: 62px; min-height: 36px; padding: 2px 8px; font-size: 14px;
+  }
+  html.dsh-embed .panel-inline { padding: 8px 10px; margin: 5px 0; }
+  html.dsh-embed .panel-inline h3 { margin: 0 0 2px; }
+  html.dsh-embed .panel-inline p { font-size: 12.5px; margin: 2px 0; }
+  html.dsh-embed .kb { display: none; }
+  html.dsh-embed body[data-device="tablet"] .tools > button { min-height: 32px; font-size: 12.5px; }
+  html.dsh-embed body[data-device="tablet"] .big,
+  html.dsh-embed body[data-device="tablet"] .choice,
+  html.dsh-embed body[data-device="tablet"] .mag,
+  html.dsh-embed body[data-device="tablet"] .polebtn,
+  html.dsh-embed body[data-device="tablet"] .word,
+  html.dsh-embed body[data-device="tablet"] .card-step { min-height: 40px; font-size: 13.5px; }
+  html.dsh-embed .big { padding: 8px 14px; font-size: 14.5px; min-height: 42px; border-radius: 12px; }
+  html.dsh-embed .choice { padding: 7px 10px; font-size: 13px; min-height: 40px; border-radius: 11px; }
+  html.dsh-embed .choices { gap: 5px; margin: 4px 0; }
+  html.dsh-embed .actions { gap: 6px; margin-top: 6px; }
+  html.dsh-embed .row { gap: 6px; margin: 4px 0; }
+
+  /* 磁極站 */
+  html.dsh-embed .model { margin: 2px 0; }
+  html.dsh-embed .model .loco { width: 150px; height: 66px; }
+  html.dsh-embed .pairs { gap: 5px; margin-top: 4px; }
+  html.dsh-embed .pair { padding: 4px; border-width: 2px; border-radius: 12px; }
+  html.dsh-embed .cap { font-size: 11.5px; }
+  html.dsh-embed .mag { min-height: 40px; font-size: 14px; margin: 2px 0; border-width: 2px; }
+  html.dsh-embed .link { height: 14px; font-size: 12px; }
+  html.dsh-embed .clearbox { padding: 8px 10px; margin-top: 5px; }
+  html.dsh-embed .clearbox h3 { margin: 0 0 2px; }
+  html.dsh-embed .clearbox p { font-size: 12.5px; margin: 2px 0; }
+
+  /* 摩擦力賽道 */
+  html.dsh-embed .duel { gap: 5px; margin: 4px 0; }
+  html.dsh-embed .lane { grid-template-columns: 74px 1fr; gap: 5px; font-size: 12.5px; }
+  html.dsh-embed .lane-bar { height: 40px; }
+  html.dsh-embed .mini { width: 58px; height: 24px; top: 8px; }
+  html.dsh-embed .shape { height: 22px; }
+
+  /* 組裝工場 */
+  html.dsh-embed .build-layout { gap: 8px; grid-template-columns: 190px minmax(0, 1fr); }
+  html.dsh-embed .preview { height: 128px; }
+  html.dsh-embed .done-list { gap: 3px; margin: 3px 0; }
+  html.dsh-embed .done-list div { padding: 4px 8px; font-size: 12px; }
+  html.dsh-embed .card-step { padding: 4px 8px; font-size: 12.5px; margin-bottom: 4px; border-width: 2px; }
+
+  /* 速率站 */
+  html.dsh-embed .speed .choices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  /* 大賽 */
+  html.dsh-embed .race-hud { gap: 6px; font-size: 12.5px; }
+  html.dsh-embed .bat { width: 60px; height: 10px; }
+  html.dsh-embed .trackbox { height: 110px; }
+  html.dsh-embed .rail2 { bottom: 22px; }
+  html.dsh-embed #runner { bottom: 30px; width: 84px; }
+  html.dsh-embed #runner .loco { width: 84px; height: 44px; }
+  html.dsh-embed .segs { grid-template-columns: repeat(6, 1fr); gap: 3px; }
+  html.dsh-embed .segpole { padding: 3px 0; font-size: 11.5px; }
+  html.dsh-embed .meters { font-size: 11px; }
+  html.dsh-embed .pole-now { gap: 5px; font-size: 12.5px; flex-wrap: nowrap; white-space: nowrap; }
+  html.dsh-embed .pole-now b { min-width: 38px; min-height: 32px; font-size: 16px; }
+  html.dsh-embed .pole-now b#next-pole,
+  html.dsh-embed .pole-now b#car-pole {
+    background: #eef2f6;
+    color: var(--ink);
+    border: 2px solid var(--line);
+  }
+  html.dsh-embed .pole-btns { gap: 6px; margin-top: 5px; }
+  html.dsh-embed .polebtn { min-height: 44px; font-size: 14px; }
+
+  /* 開始畫面 */
+  html.dsh-embed .card { margin: 0 auto; }
+  html.dsh-embed .app:has(> .card.hero) { justify-content: center; }
+  html.dsh-embed .card.hero {
+    width: 100%;
+    max-width: 860px;
+    max-height: 100%;
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  html.dsh-embed .hero .badge { font-size: 12px; padding: 3px 10px; margin-bottom: 4px; }
+  html.dsh-embed .hero h1 { font-size: clamp(24px, 6vh, 40px); margin: 2px 0; }
+  html.dsh-embed .hero .sub { font-size: 12px; margin: 3px 0; }
+  html.dsh-embed .hero-track { height: 104px; margin: 6px auto; }
+  html.dsh-embed .hero label { font-size: 12.5px; margin: 6px 0 2px; }
+  html.dsh-embed .hero input[type="text"] { padding: 6px 9px; font-size: 14px; }
+  html.dsh-embed .hero .lead { font-size: 13px; margin: 5px 0 2px; }
+  html.dsh-embed .hero .swatch { padding: 5px 10px; font-size: 13px; border-width: 2px; }
+  html.dsh-embed .hero .swatch i { width: 16px; height: 16px; }
+  html.dsh-embed .hero .actions { margin-top: 6px; }
+
+  /* 完成／證書 */
+  html.dsh-embed .sum-grid { gap: 5px; }
+  html.dsh-embed .sum-grid div { padding: 5px; font-size: 12px; }
+  html.dsh-embed .sum-grid b { font-size: 16px; }
+  html.dsh-embed .eval th, html.dsh-embed .eval td { padding: 4px 6px; font-size: 12.5px; }
+  html.dsh-embed .stars { font-size: 22px; }
+  html.dsh-embed .cert-wrap { width: min(860px, 100%); }
+  /* 證書頁：工具列移到右下，避免蓋住證書內容 */
+  html.dsh-embed body:has(.cert-wrap) .tools { top: auto; bottom: 6px; }
+  html.dsh-embed .cert { padding: 14px 18px 12px; border-width: 9px; outline-offset: -13px; }
+  html.dsh-embed .cert h1 { font-size: clamp(30px, 8vh, 48px); margin: 4px 0; }
+  html.dsh-embed .cert-name { font-size: clamp(20px, 3.4vh, 30px); }
+  html.dsh-embed .cert-body, html.dsh-embed .cert-ai { font-size: 12.5px; line-height: 1.5; }
+  html.dsh-embed .cert-title { font-size: 14px; padding: 3px 12px; margin: 4px 0; }
+  html.dsh-embed .cert-stats { margin: 5px 0; gap: 5px; }
+  html.dsh-embed .cert-stats div { padding: 4px; font-size: 12px; }
+  html.dsh-embed .cert-stats b { font-size: 18px; }
+  html.dsh-embed .learned { font-size: 12.5px; margin: 2px auto; padding-left: 18px; }
+  html.dsh-embed .cert-foot { margin-top: 8px; font-size: 12.5px; }
+  html.dsh-embed .modal .panel { max-height: 92dvh; padding: 14px; font-size: 14px; }
+  html.dsh-embed .modal .panel h2 { font-size: 18px; }
+  html.dsh-embed .modal .panel li { font-size: 12.5px; margin: 3px 0; }
+
+  /* 矮螢幕 */
+  @media (max-height: 460px) {
+    html.dsh-embed .hud .steps { display: none; }
+    html.dsh-embed .hud { padding-right: 278px; }
+    html.dsh-embed .hero-track { display: none; }
+    html.dsh-embed .card.hero .sub { display: none; }
+    html.dsh-embed .card.hero { padding: 8px 12px; }
+    html.dsh-embed .card.hero h1 { font-size: clamp(22px, 7vh, 30px); }
+    html.dsh-embed .card.hero label {
+      display: inline-block;
+      margin: 0 6px 0 8px;
+    }
+    html.dsh-embed .card.hero br { display: none; }
+    html.dsh-embed .card.hero input[type="text"] {
+      display: inline-block;
+      width: 120px;
+      margin: 2px 6px 2px 0;
+    }
+    html.dsh-embed .card.hero .lead { display: none; }
+    html.dsh-embed .card.hero .swatch { padding: 4px 9px; font-size: 12.5px; }
+    html.dsh-embed .build-layout { grid-template-columns: 150px minmax(0, 1fr); }
+    html.dsh-embed .preview { height: 104px; }
+    html.dsh-embed .card-step {
+      width: 48%;
+      margin: 0 2% 4px 0;
+      display: inline-block;
+      vertical-align: top;
+    }
+    html.dsh-embed .main .lead { font-size: 12.5px; }
+    html.dsh-embed .main > h2 { font-size: 16px; }
+    html.dsh-embed .trackbox { height: 66px; }
+    /* 大賽：把出發卡壓成兩行，收起重複說明 */
+    html.dsh-embed .panel-inline { padding: 5px 8px; margin: 3px 0; }
+    html.dsh-embed .panel-inline p { display: none; }
+    html.dsh-embed .panel-inline h3 { display: none; }
+    html.dsh-embed .panel-inline .choices.two { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+    html.dsh-embed .race-hud { font-size: 12px; }
+    html.dsh-embed .meters { display: none; }
+    html.dsh-embed .status { font-size: 12.5px; padding: 4px 8px; margin: 3px 0; }
+    html.dsh-embed .segs { gap: 3px; margin-top: 3px; }
+    html.dsh-embed .segpole { padding: 2px 0; font-size: 12px; }
+    /* 完成頁：收起長清單，保留星數／總分與按鈕 */
+    html.dsh-embed .learned { display: none; }
+    html.dsh-embed .build-layout .ghost { display: none; }
+    html.dsh-embed .cert .learned,
+    html.dsh-embed .cert .cert-foot { display: none; }
+    html.dsh-embed .cert .cert-ai { display: none; }
+    html.dsh-embed .cert-wrap > .sub { display: none; }
+    html.dsh-embed .cert {
+      padding: 8px 14px 8px;
+      border-width: 6px;
+      outline-width: 3px;
+      outline-offset: -10px;
+      border-radius: 14px;
+    }
+    html.dsh-embed .cert h1 { font-size: 28px; margin: 2px 0; }
+    html.dsh-embed .cert-name { font-size: 24px; margin: 2px 0; }
+    html.dsh-embed .cert > p { margin: 1px 0; }
+    html.dsh-embed .cert-school, html.dsh-embed .cert-year { font-size: 12px; line-height: 1.3; }
+    html.dsh-embed .cert-body { font-size: 12px; line-height: 1.45; }
+    html.dsh-embed .cert-title { font-size: 13px; padding: 3px 10px; margin: 3px 0; }
+    html.dsh-embed .stars { font-size: 22px; }
+    html.dsh-embed .motto { font-size: 12px; margin: 4px 0 0; }
+    html.dsh-embed .cert-wrap .actions { margin-top: 6px !important; gap: 6px; }
+    html.dsh-embed .cert-wrap .actions .big { min-height: 40px; padding: 6px 12px; font-size: 13.5px; }
+  }
+
+  @media (max-height: 400px) {
+    html.dsh-embed .app { padding: 3px 6px 4px; gap: 3px; }
+    html.dsh-embed .hud { min-height: 30px; }
+    html.dsh-embed .hud .brand { font-size: 14px; }
+    html.dsh-embed .main { padding: 7px 9px; }
+    html.dsh-embed .main > .lead,
+    html.dsh-embed .main > .formula,
+    html.dsh-embed .main > .model { display: none; }
+    html.dsh-embed .eval { display: none; }
+    html.dsh-embed .main > h3 { display: none; }
+    /* 344px 高：提示掣先收起，讓比賽與組裝的主要操作保持可見 */
+    html.dsh-embed .main:has(.trackbox) > .ghost,
+    html.dsh-embed .main:has(.build-layout) > .ghost { display: none; }
+    html.dsh-embed .lane-bar { height: 32px; }
+    html.dsh-embed .mini { top: 6px; }
+    html.dsh-embed .trackbox { height: 56px; }
+    html.dsh-embed .panel-inline { padding: 3px 7px; margin: 2px 0; }
+    html.dsh-embed .status { margin: 1px 0; }
+    html.dsh-embed .cert {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-flow: row dense;
+      column-gap: 14px;
+      align-content: start;
+    }
+    html.dsh-embed .cert > * { grid-column: 1; }
+    html.dsh-embed .cert > *:nth-child(n + 9) { grid-column: 2; }
+    html.dsh-embed .cert-body { display: none; }
+    html.dsh-embed .cert > p:first-of-type { display: none; }
+    html.dsh-embed .cert-stats { display: none; }
+    html.dsh-embed .cert { padding: 8px 14px 10px; border-width: 6px; }
+    html.dsh-embed .cert h1 { font-size: 30px; }
+  }
+
+  /* iPad 橫屏：顯示 AI 側欄 */
+  @media (min-width: 1000px) and (min-height: 560px) {
+    html.dsh-embed body[data-device] .layout {
+      grid-template-columns: minmax(0, 1fr) 270px;
+    }
+    html.dsh-embed aside {
+      display: block;
+      padding: 10px;
+      font-size: 12.5px;
+      min-height: 0;
+      overflow-y: auto;
+    }
+    html.dsh-embed aside h3 { font-size: 14px; margin: 6px 0 3px; }
+    html.dsh-embed aside .bot { width: 42px; height: 42px; flex: 0 0 42px; border-radius: 12px; }
+    html.dsh-embed aside .bot .eyes { left: 7px; top: 13px; width: 26px; height: 12px; }
+    html.dsh-embed aside .bubble { min-height: 42px; font-size: 12.5px; padding: 5px 9px; border-radius: 12px; }
+    html.dsh-embed aside .ask button { font-size: 12px; padding: 4px 7px; }
+    html.dsh-embed aside .chip { font-size: 12px; padding: 4px 8px; margin: 4px 0; }
+  }
 </style>
 </head>
 <body>
@@ -2033,39 +2367,6 @@
 })();
 </script>
 
-<script id="phone-first">
-(function () {
-  if (!document.querySelector('meta[name="viewport"]')) {
-    var meta = document.createElement("meta");
-    meta.name = "viewport";
-    meta.content = "width=device-width, initial-scale=1, viewport-fit=cover";
-    document.head.appendChild(meta);
-  }
-  var style = document.createElement("style");
-  style.textContent = "@media (max-width:900px){html,body{max-width:100%;overflow-x:hidden;margin:0}button,input,select,textarea{font-size:16px;touch-action:manipulation}canvas,img,svg,video{max-width:100%}}";
-  document.head.appendChild(style);
-  function fit() {
-    var limit = document.documentElement.clientWidth || window.innerWidth;
-    if (limit > 900) return;
-    document.querySelectorAll("body *").forEach(function (el) {
-      var cs;
-      try { cs = getComputedStyle(el); } catch (err) { return; }
-      var cols = (cs.gridTemplateColumns || "").trim();
-      if (!cols || cols === "none") return;
-      var parts = cols.split(/\s+/).filter(Boolean);
-      if (parts.length < 2) return;
-      var wide = parts.some(function (part) { return parseFloat(part) >= 200; });
-      var box = el.getBoundingClientRect();
-      if (!wide && el.scrollWidth <= limit + 8 && box.width <= limit + 8) return;
-      el.style.gridTemplateColumns = parts.length >= 4 ? "1fr 1fr" : "1fr";
-      el.style.minWidth = "0";
-      el.style.maxWidth = "100%";
-    });
-  }
-  window.addEventListener("resize", fit);
-  window.addEventListener("load", function () { fit(); setTimeout(fit, 400); });
-  if (document.readyState !== "loading") setTimeout(fit, 50);
-})();
-</script>
+
 </body>
 </html>

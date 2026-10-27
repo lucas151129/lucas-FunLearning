@@ -2,12 +2,33 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fffdf8">
   <title>遊戲</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/style.css?v=5">
+  <link rel="stylesheet" href="../css/style.css?v=6">
+  <style>
+    /* 內建問答頁：橫放時用兩欄，矮螢幕時壓縮字級，避免出現滾動 */
+    @media (min-width: 760px) and (orientation: landscape) {
+      #quiz { max-width: 1180px; margin: 0 auto; }
+      .answers { grid-template-columns: 1fr 1fr; }
+      .prompt { font-size: 26px; }
+    }
+    @media (max-height: 460px) {
+      body.quiz { padding: 8px 12px; }
+      .prompt { font-size: 22px; margin: 4px 0 8px; }
+      .dots { margin: 6px 0; }
+      .dots i { width: 10px; height: 10px; border-width: 2px; }
+      .answers { gap: 8px; }
+      .answers button { min-height: 46px; font-size: 18px; padding: 8px 10px; }
+      .answers button span { width: 26px; height: 26px; }
+      .quiz-result { padding: 8px; }
+      .big-score { font-size: 46px; margin: 4px 0; }
+      .cheer { font-size: 22px; }
+    }
+  </style>
 </head>
 <body class="quiz">
   <div id="quiz"></div>

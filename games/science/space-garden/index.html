@@ -269,6 +269,232 @@
     #certificate { box-shadow: none !important; }
   }
   @page { size: A4; margin: 12mm; }
+  /* ============ 平台嵌入（橫屏 iframe）============ */
+  html.dsh-embed, html.dsh-embed body { height: 100%; }
+  html.dsh-embed body {
+    min-height: 0; height: 100%; overflow: hidden;
+    display: flex; flex-direction: column; font-size: 13px; line-height: 1.4;
+  }
+  html.dsh-embed #app {
+    max-width: none; width: 100%; margin: 0; padding: 4px 8px 6px;
+    flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;
+  }
+  html.dsh-embed #app::before { display: none !important; }
+  html.dsh-embed header {
+    position: static; flex: 0 0 auto; gap: 6px; padding: 4px 8px; margin-bottom: 4px; border-radius: 12px;
+  }
+  html.dsh-embed .brand { gap: 6px; }
+  html.dsh-embed .brand .logo { font-size: 20px; }
+  html.dsh-embed .brand strong { font-size: 14px; }
+  html.dsh-embed .brand small { font-size: 12px; }
+  html.dsh-embed .hud { gap: 4px; }
+  html.dsh-embed .pill { padding: 2px 8px; font-size: 12px; }
+  html.dsh-embed .pill b { font-size: 13px; }
+  html.dsh-embed .top-tools { gap: 4px; }
+  html.dsh-embed .device-switch { display: none !important; }
+  html.dsh-embed .top-tools > button {
+    padding: 4px 9px; min-height: 30px; font-size: 12px; border-radius: 999px;
+  }
+  html.dsh-embed #stage {
+    flex: 1 1 auto; min-height: 0; min-width: 0; display: flex; flex-direction: column;
+    gap: 4px; overflow: hidden;
+  }
+  html.dsh-embed .panel { padding: 7px 10px; margin: 0; border-radius: 14px; }
+  html.dsh-embed h1 { font-size: 30px; margin: 0 0 2px; line-height: 1.1; }
+  html.dsh-embed h2 { font-size: 17px; margin: 0 0 4px; line-height: 1.3; }
+  html.dsh-embed h3 { font-size: 14px; margin: 0 0 3px; }
+  html.dsh-embed p { font-size: 12px; line-height: 1.4; margin: 3px 0; }
+  html.dsh-embed .eyebrow { font-size: 12px; margin: 0 0 2px; }
+  html.dsh-embed .lead { font-size: 13px; margin: 2px 0; }
+  html.dsh-embed .muted { font-size: 12px; }
+  html.dsh-embed .name-grid { gap: 8px; margin-top: 6px; }
+  html.dsh-embed label { font-size: 12px; }
+  html.dsh-embed input { padding: 5px 9px; margin-top: 3px; font-size: 14px; border-radius: 10px; }
+  html.dsh-embed .row { gap: 6px; margin-top: 5px; }
+  html.dsh-embed .primary, html.dsh-embed .ghost { padding: 7px 14px; min-height: 40px; font-size: 13px; }
+  html.dsh-embed .choice { padding: 7px 10px; margin: 3px 0; font-size: 13px; }
+  html.dsh-embed .chip, html.dsh-embed .num button {
+    min-height: 30px; padding: 3px 8px; font-size: 12px; margin: 2px 2px 0 0;
+  }
+  html.dsh-embed .stepper { margin: 0; gap: 4px; }
+  html.dsh-embed .stepper li { font-size: 12px; padding: 2px 8px; }
+  html.dsh-embed .ai { gap: 8px; padding: 5px 8px; align-items: center; }
+  html.dsh-embed .face { width: 28px; height: 28px; font-size: 18px; border-radius: 8px; }
+  html.dsh-embed .ai-top strong, html.dsh-embed .ai-top span { font-size: 12px; }
+  html.dsh-embed .ai-bar { height: 4px; margin: 2px 0; }
+  html.dsh-embed #aiSay {
+    font-size: 12px; line-height: 1.3; margin: 0;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  html.dsh-embed .easy { font-size: 12px; }
+  html.dsh-embed .hero-grid {
+    flex: 0 0 auto; align-self: center; margin: auto 0; min-height: 0;
+    grid-template-columns: 1.2fr .8fr; gap: 10px; align-items: stretch;
+  }
+  html.dsh-embed .name-grid { grid-template-columns: 1fr 1fr; }
+  html.dsh-embed .scene { height: 100%; min-height: 140px; }
+  html.dsh-embed .moon { width: 44px; height: 44px; right: 18px; top: 14px; }
+  html.dsh-embed .bay { left: 18px; right: 60px; bottom: 18px; top: 40px; border-width: 6px; }
+  html.dsh-embed .bay .sprout { height: 44px; bottom: 24px; }
+  html.dsh-embed .soilstrip { height: 26px; }
+  html.dsh-embed .tour-grid, html.dsh-embed .care-layout { grid-template-columns: 180px minmax(0, 1fr); gap: 8px; }
+  html.dsh-embed .tour-grid .panel, html.dsh-embed .care-layout .panel { min-width: 0; }
+  html.dsh-embed .mini-box .part { padding: 6px 8px; }
+  html.dsh-embed .mini-box .part strong, html.dsh-embed .mini-box .part div { font-size: 12px; }
+  html.dsh-embed .chambers { gap: 6px; align-content: start; }
+  html.dsh-embed .chambers .chamber { display: block; }
+  html.dsh-embed body[data-screen="result"] .chambers { grid-template-columns: 1fr 1fr; }
+  html.dsh-embed .chamber-view { height: 96px; }
+  html.dsh-embed .soil { height: 22px; font-size: 12px; }
+  html.dsh-embed .controls { padding: 4px 5px; }
+  html.dsh-embed .ctrl-label { font-size: 12px; margin: 3px 0 1px; }
+  html.dsh-embed .field { height: 180px; }
+  html.dsh-embed .rootzone { width: 120px; height: 44px; bottom: 10px; }
+  html.dsh-embed table.data { font-size: 12px; }
+  html.dsh-embed table.data th, html.dsh-embed table.data td { padding: 3px 4px; }
+  html.dsh-embed .check { margin: 3px 0; }
+  html.dsh-embed .check li { font-size: 12px; line-height: 1.3; }
+  html.dsh-embed .cycle-map { gap: 4px; }
+  html.dsh-embed .slot { min-height: 38px; font-size: 12px; padding: 4px 8px; }
+  html.dsh-embed .arrow { font-size: 12px; line-height: 1; }
+  html.dsh-embed .care-plant-card { min-height: 0; }
+  html.dsh-embed .tool { min-height: 84px; }
+  html.dsh-embed .tool strong { font-size: 16px; }
+  html.dsh-embed .cert-wrap { flex: 1 1 auto; min-height: 0; overflow: auto; }
+  html.dsh-embed #certificate { padding: 18px 16px; }
+  html.dsh-embed #certificate .cert-title { font-size: 26px; }
+  html.dsh-embed #certificate .cert-name { font-size: 22px; }
+  html.dsh-embed .seal { width: 64px; height: 64px; right: 18px; bottom: 18px; font-size: 11px; }
+  html.dsh-embed #toasts {
+    left: auto; right: 6px; bottom: 4px; top: auto; transform: none;
+    align-items: flex-end; gap: 3px;
+  }
+  html.dsh-embed .toast { padding: 2px 9px; font-size: 12px; }
+  html.dsh-embed #toasts .toast:nth-child(n+2) { display: none; }
+  html.dsh-embed .chamber .chip { padding: 3px 4px; margin: 1px 1px 0 0; min-height: 32px; }
+
+  /* 內容較多的畫面：左右分欄，避免矮屏要捲動 */
+  html.dsh-embed body[data-screen="lab"] #stage,
+  html.dsh-embed body[data-screen="grow"] #stage,
+  html.dsh-embed body[data-screen="result"] #stage,
+  html.dsh-embed body[data-screen="cycle"] #stage {
+    display: grid; gap: 4px 8px;
+  }
+  html.dsh-embed body[data-screen="lab"] #stage {
+    grid-template-columns: minmax(0, .82fr) minmax(0, 1.58fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    grid-template-areas: "step step" "ai ai" "panel chambers" "pred chambers";
+  }
+  html.dsh-embed body[data-screen="lab"].lab-ready #stage {
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas: "step step" "ai ai" "pred chambers";
+  }
+  html.dsh-embed body[data-screen="lab"].lab-ready .panel:not(.pred):not(.ai) { display: none; }
+  html.dsh-embed body[data-screen="lab"] .stepper { grid-area: step; }
+  html.dsh-embed body[data-screen="lab"] .ai { grid-area: ai; }
+  html.dsh-embed body[data-screen="lab"] .panel:not(.pred):not(.ai) { grid-area: panel; align-self: start; }
+  html.dsh-embed body[data-screen="lab"] .chambers { grid-area: chambers; align-self: stretch; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  html.dsh-embed body[data-screen="lab"] .pred { grid-area: pred; align-self: start; }
+  html.dsh-embed body[data-screen="grow"] #stage {
+    grid-template-columns: minmax(0, .84fr) minmax(0, 1.16fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas: "step step" "ai ai" "panel chambers";
+  }
+  html.dsh-embed body[data-screen="grow"] .stepper { grid-area: step; }
+  html.dsh-embed body[data-screen="grow"] .ai { grid-area: ai; }
+  html.dsh-embed body[data-screen="grow"] .grow-panel { grid-area: panel; align-self: start; }
+  html.dsh-embed body[data-screen="grow"] .chambers { grid-area: chambers; align-self: stretch; }
+  html.dsh-embed body[data-screen="result"] #stage {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    grid-template-areas: "step step" "ai ai" "table chambers" "lower chambers";
+  }
+  html.dsh-embed body[data-screen="result"] .stepper { grid-area: step; }
+  html.dsh-embed body[data-screen="result"] .ai { grid-area: ai; }
+  html.dsh-embed body[data-screen="result"] .res-table { grid-area: table; align-self: start; }
+  html.dsh-embed body[data-screen="result"] .chambers { grid-area: chambers; align-self: stretch; }
+  html.dsh-embed body[data-screen="result"] .res-lower { grid-area: lower; align-self: start; }
+  html.dsh-embed body[data-screen="cycle"] #stage {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas: "step step" "ai ai" "slots cards";
+  }
+  html.dsh-embed body[data-screen="cycle"] .stepper { grid-area: step; }
+  html.dsh-embed body[data-screen="cycle"] .ai { grid-area: ai; }
+  html.dsh-embed body[data-screen="cycle"] .cycle-slots { grid-area: slots; align-self: start; }
+  html.dsh-embed body[data-screen="cycle"] .cycle-cards { grid-area: cards; align-self: start; }
+
+  @media (max-height: 520px) {
+    html.dsh-embed #app { padding: 3px 6px 4px; }
+    html.dsh-embed .name-grid { margin-top: 4px; }
+    html.dsh-embed header { padding: 3px 7px; margin-bottom: 3px; gap: 4px; }
+    html.dsh-embed .brand small { display: none; }
+    html.dsh-embed .brand .logo { font-size: 16px; }
+    html.dsh-embed .brand strong { font-size: 13px; }
+    html.dsh-embed .top-tools > button { min-height: 28px; padding: 3px 8px; }
+    html.dsh-embed #stage { gap: 3px; }
+    html.dsh-embed .panel { padding: 5px 8px; }
+    html.dsh-embed h1 { font-size: 25px; }
+    html.dsh-embed h2 { font-size: 15px; margin-bottom: 3px; }
+    html.dsh-embed h3 { font-size: 13px; }
+    html.dsh-embed .stepper li { font-size: 12px; padding: 1px 7px; }
+    html.dsh-embed .ai { padding: 4px 8px; gap: 6px; }
+    html.dsh-embed .face, html.dsh-embed .ai-top, html.dsh-embed .ai-bar { display: none; }
+    html.dsh-embed #aiSay { -webkit-line-clamp: 1; font-size: 12px; }
+    html.dsh-embed .eyebrow, html.dsh-embed .hero-grid .muted { display: none; }
+    html.dsh-embed .hero-grid { grid-template-columns: 1fr .58fr; gap: 8px; }
+    html.dsh-embed .scene { min-height: 96px; }
+    html.dsh-embed .name-grid { margin-top: 4px; }
+    html.dsh-embed .choice { padding: 6px 8px; }
+    html.dsh-embed .chip, html.dsh-embed .num button { min-height: 27px; padding: 2px 6px; }
+    html.dsh-embed .chambers { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    html.dsh-embed .chamber-view { height: 52px; }
+    html.dsh-embed .chamber-view .plant { transform: translateX(-50%) scale(.66); transform-origin: bottom center; }
+    html.dsh-embed body[data-screen="result"] .chamber-view { height: 84px; }
+    html.dsh-embed .controls .ctrl-label { display: none; }
+    html.dsh-embed .controls { padding: 3px; }
+    html.dsh-embed .seedbed { bottom: 3px; }
+    html.dsh-embed .plant { width: 60px; }
+    html.dsh-embed .soil { height: 18px; }
+    html.dsh-embed ul.check { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8px; }
+    html.dsh-embed .check li { font-size: 12px; line-height: 1.25; }
+    html.dsh-embed .pred .choice { display: inline-block; width: calc(50% - 3px); margin: 2px 0; }
+    html.dsh-embed .pred p { display: none; }
+    html.dsh-embed .tour-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
+    html.dsh-embed .tour-grid .mini-box { display: none; }
+    html.dsh-embed .tour-grid .panel > p { display: none; }
+    html.dsh-embed .fact-btn { display: inline-block; width: calc(50% - 3px); margin: 2px 0; }
+    html.dsh-embed .care-layout { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); }
+    html.dsh-embed .care-layout .panel > p { display: none; }
+    html.dsh-embed .care-layout .ctrl-label { display: inline; margin-right: 4px; }
+    html.dsh-embed .care-layout .chip { min-height: 30px; }
+    html.dsh-embed .day-title { font-size: 14px; }
+    html.dsh-embed .field { height: 150px; }
+    html.dsh-embed .cycle-map { gap: 2px; }
+    html.dsh-embed .slot { min-height: 28px; padding: 2px 6px; }
+    html.dsh-embed body[data-screen="cycle"] .cycle-slots > p { display: none; }
+    html.dsh-embed .tool { min-height: 68px; }
+    html.dsh-embed table.data th, html.dsh-embed table.data td { padding: 2px 3px; }
+    html.dsh-embed .cycle-cards .choice { padding: 4px 8px; margin: 2px 0; min-height: 30px; }
+    html.dsh-embed .cycle-cards h3 { margin-bottom: 1px; }
+    html.dsh-embed .cert-wrap { overflow: auto; }
+    html.dsh-embed #certificate { padding: 12px; }
+    html.dsh-embed #certificate .cert-title { font-size: 22px; }
+    html.dsh-embed #certificate .cert-name { font-size: 18px; }
+    html.dsh-embed .seal { display: none; }
+    html.dsh-embed .sign-row { margin-top: 8px; }
+  }
+  @media (min-height: 600px) {
+    html.dsh-embed .panel { padding: 10px 14px; }
+    html.dsh-embed h1 { font-size: 38px; }
+    html.dsh-embed h2 { font-size: 19px; }
+    html.dsh-embed p { font-size: 13px; }
+    html.dsh-embed .lead { font-size: 15px; }
+    html.dsh-embed .scene { min-height: 230px; }
+    html.dsh-embed .chamber-view { height: 120px; }
+    html.dsh-embed .primary, html.dsh-embed .ghost { min-height: 44px; font-size: 14px; }
+    html.dsh-embed .choice { padding: 9px 12px; font-size: 14px; }
+  }
 </style>
 </head>
 <body>
@@ -731,13 +957,13 @@
       return '<button type="button" class="choice' + (state.pred === i ? " on" : "") + '" data-act="pred" data-i="' + i + '">' + BOXNAME[i] + "箱 · " + LIGHTS[b.light].name + "</button>";
     }).join("");
     var runDis = state.pred === null ? " disabled" : "";
-    return '<section class="panel"><h3>先寫預測</h3><p>哪一箱的幼苗會又黃又弱？選好之後才開始觀察。</p>' + opts + '<div class="row"><button type="button" class="ghost" data-act="unlock">返回修改</button><button type="button" class="primary" data-act="run"' + runDis + ">開始 7 日觀察</button></div></section>";
+    return '<section class="panel pred"><h3>先寫預測</h3><p>哪一箱的幼苗會又黃又弱？選好之後才開始觀察。</p>' + opts + '<div class="row"><button type="button" class="ghost" data-act="unlock">返回修改</button><button type="button" class="primary" data-act="run"' + runDis + ">開始 7 日觀察</button></div></section>";
   }
   function drawGrow() {
     var cards = state.boxes.map(function (b, i) {
       return '<article class="chamber glow-' + b.light + '"><div class="chamber-view"><div class="led">' + ledDots(b.light) + "</div>" + plantHTML(i, b.light, 12, 0) + '</div><div class="soil">' + BOXNAME[i] + "箱 · " + LIGHTS[b.light].name + "</div></article>";
     }).join("");
-    return shell('<section class="panel"><h2 id="dayLabel">準備觀察</h2><p>七日裡，植物會按光線生長。黑暗對照長得差是正常的，它用來比較。</p><div class="row"><button type="button" id="skipGrow" class="ghost" data-act="skip-grow">直接看第 7 日</button><button type="button" id="afterGrow" class="primary" data-act="after-grow" disabled>查看結果</button></div></section><div class="chambers">' + cards + "</div>");
+    return shell('<section class="panel grow-panel"><h2 id="dayLabel">準備觀察</h2><p>七日裡，植物會按光線生長。黑暗對照長得差是正常的，它用來比較。</p><div class="row"><button type="button" id="skipGrow" class="ghost" data-act="skip-grow">直接看第 7 日</button><button type="button" id="afterGrow" class="primary" data-act="after-grow" disabled>查看結果</button></div></section><div class="chambers">' + cards + "</div>");
   }
   function drawResult() {
     var rows = state.boxes.map(function (b, i) {
@@ -771,7 +997,7 @@
     if (state.pred !== null) {
       predLine = "<p>你的預測是" + BOXNAME[state.pred] + "箱（" + LIGHTS[state.boxes[state.pred].light].name + "）。" + (state.predCorrect ? "預測正確，黑暗中的幼苗又黃又弱。" : "預測和結果不同也沒關係，實驗就是用來檢驗預測。") + "</p>";
     }
-    return shell('<section class="panel"><h2>七日觀察記錄</h2>' + predLine + '<table class="data"><thead><tr><th>箱子</th><th>光線</th><th>莖</th><th>葉色</th><th>豆莢</th><th>用電</th></tr></thead><tbody>' + rows + "</tbody></table></section><div class=\"chambers\">" + cards + "</div>" + lower);
+    return shell('<section class="panel res-table"><h2>七日觀察記錄</h2>' + predLine + '<table class="data"><thead><tr><th>箱子</th><th>光線</th><th>莖</th><th>葉色</th><th>豆莢</th><th>用電</th></tr></thead><tbody>' + rows + "</tbody></table></section><div class=\"chambers\">" + cards + "</div>" + lower);
   }
   function drawWater() {
     if (state.waterOver === "win") {
@@ -818,7 +1044,7 @@
       return '<button type="button" class="choice" data-act="cycle" data-id="' + p.id + '">' + p.t + "</button>";
     }).join("");
     var next = state.cycleDone ? '<div class="row"><button type="button" class="primary" data-act="goto" data-screen="quiz">回答小葵的問題</button></div>' : "";
-    return shell('<section class="panel"><h2>植物和航天員的循環</h2><p>按正確順序點擊。植物吸收二氧化碳，放出氧氣和養分。</p><div class="cycle-map">' + slots + "</div></section><section class=\"panel\"><h3>卡片</h3>" + buttons + next + "</section>");
+    return shell('<section class="panel cycle-slots"><h2>植物和航天員的循環</h2><p>按正確順序點擊。植物吸收二氧化碳，放出氧氣和養分。</p><div class="cycle-map">' + slots + "</div></section><section class=\"panel cycle-cards\"><h3>卡片</h3>" + buttons + next + "</section>");
   }
   function drawQuiz() {
     if (state.quizIndex >= state.quiz.length) return shell("<section class=\"panel\"><p>題目完成。</p></section>");
@@ -833,7 +1059,7 @@
   function drawDone() {
     var stars = "";
     for (var i = 0; i < 5; i++) stars += i < state.stars ? "★" : "☆";
-    return '<section class="panel no-print"><h2>任務完成</h2><p>' + esc(displayName()) + "，你種出了太空蕓豆，也教會了小葵。科學積分 " + state.score + "，任務星 " + stars + '。</p><div class="row"><button type="button" class="primary" data-act="print">列印或儲存證書</button><button type="button" class="ghost" data-act="restart-ask">再玩一次</button></div></section><div class="cert-wrap"><article id="certificate"><p class="eyebrow" style="text-align:center;color:#8a5a12">樂善堂梁銶琚學校</p><h2>STEAM DAY 證書</h2><p style="text-align:center;margin:0">' + schoolYear() + " 年度 · 主題：太空 · 太空菜園</p><p class=\"cert-title\">茲證明</p><p class=\"cert-name\">" + esc(displayClass()) + "　" + esc(displayName()) + '</p><p style="text-align:center">完成「太空菜園：種植箱大冒險」，<br>學會用公平測試探究光線，並認識微重力下的澆水與生態循環。</p><p class="honor">榮獲稱號：' + titleByStars() + "</p><p style=\"text-align:center\">科學積分 " + state.score + "　·　任務星 " + stars + "</p><p><strong>學習重點</strong></p><ul><li>公平測試每次只改變一個條件，其他條件保持相同。</li><li>葉子主要吸收紅光和藍光，並反射綠光；沒有光就不能做光合作用。</li><li>微重力下水要送到根部；植物能為航天員提供食物和氧氣。</li></ul><p><strong>評語</strong><br>" + comment() + '</p><div class="sign-row"><div><span>班主任簽署</span><i></i></div><div><span>日期</span><b>' + todayStr() + '</b></div></div><div class="seal"><strong>STEAM</strong><em>DAY</em><span>' + (new Date().getFullYear()) + "</span></div></article></div>";
+    return '<section class="panel done-panel no-print"><h2>任務完成</h2><p>' + esc(displayName()) + "，你種出了太空蕓豆，也教會了小葵。科學積分 " + state.score + "，任務星 " + stars + '。</p><div class="row"><button type="button" class="primary" data-act="print">列印或儲存證書</button><button type="button" class="ghost" data-act="restart-ask">再玩一次</button></div></section><div class="cert-wrap"><article id="certificate"><p class="eyebrow" style="text-align:center;color:#8a5a12">樂善堂梁銶琚學校</p><h2>STEAM DAY 證書</h2><p style="text-align:center;margin:0">' + schoolYear() + " 年度 · 主題：太空 · 太空菜園</p><p class=\"cert-title\">茲證明</p><p class=\"cert-name\">" + esc(displayClass()) + "　" + esc(displayName()) + '</p><p style="text-align:center">完成「太空菜園：種植箱大冒險」，<br>學會用公平測試探究光線，並認識微重力下的澆水與生態循環。</p><p class="honor">榮獲稱號：' + titleByStars() + "</p><p style=\"text-align:center\">科學積分 " + state.score + "　·　任務星 " + stars + "</p><p><strong>學習重點</strong></p><ul><li>公平測試每次只改變一個條件，其他條件保持相同。</li><li>葉子主要吸收紅光和藍光，並反射綠光；沒有光就不能做光合作用。</li><li>微重力下水要送到根部；植物能為航天員提供食物和氧氣。</li></ul><p><strong>評語</strong><br>" + comment() + '</p><div class="sign-row"><div><span>班主任簽署</span><i></i></div><div><span>日期</span><b>' + todayStr() + '</b></div></div><div class="seal"><strong>STEAM</strong><em>DAY</em><span>' + (new Date().getFullYear()) + "</span></div></article></div>";
   }
 
   function draw() {
@@ -847,6 +1073,8 @@
 
   var lastScreen = "";
   function render() {
+    document.body.dataset.screen = state.screen;
+    document.body.classList.toggle("lab-ready", state.screen === "lab" && state.designOk);
     var changed = lastScreen !== state.screen;
     lastScreen = state.screen;
     document.getElementById("stage").innerHTML = draw();
@@ -1417,39 +1645,6 @@
 })();
 </script>
 
-<script id="phone-first">
-(function () {
-  if (!document.querySelector('meta[name="viewport"]')) {
-    var meta = document.createElement("meta");
-    meta.name = "viewport";
-    meta.content = "width=device-width, initial-scale=1, viewport-fit=cover";
-    document.head.appendChild(meta);
-  }
-  var style = document.createElement("style");
-  style.textContent = "@media (max-width:900px){html,body{max-width:100%;overflow-x:hidden;margin:0}button,input,select,textarea{font-size:16px;touch-action:manipulation}canvas,img,svg,video{max-width:100%}}";
-  document.head.appendChild(style);
-  function fit() {
-    var limit = document.documentElement.clientWidth || window.innerWidth;
-    if (limit > 900) return;
-    document.querySelectorAll("body *").forEach(function (el) {
-      var cs;
-      try { cs = getComputedStyle(el); } catch (err) { return; }
-      var cols = (cs.gridTemplateColumns || "").trim();
-      if (!cols || cols === "none") return;
-      var parts = cols.split(/\s+/).filter(Boolean);
-      if (parts.length < 2) return;
-      var wide = parts.some(function (part) { return parseFloat(part) >= 200; });
-      var box = el.getBoundingClientRect();
-      if (!wide && el.scrollWidth <= limit + 8 && box.width <= limit + 8) return;
-      el.style.gridTemplateColumns = parts.length >= 4 ? "1fr 1fr" : "1fr";
-      el.style.minWidth = "0";
-      el.style.maxWidth = "100%";
-    });
-  }
-  window.addEventListener("resize", fit);
-  window.addEventListener("load", function () { fit(); setTimeout(fit, 400); });
-  if (document.readyState !== "loading") setTimeout(fit, 50);
-})();
-</script>
+
 </body>
 </html>
