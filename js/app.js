@@ -649,6 +649,7 @@ function renderGame(id) {
   openGameId = game.id;
   document.body.classList.add("playing");
   document.body.classList.toggle("game-any", game.orientation === "any");
+  document.body.classList.toggle("game-portrait", game.orientation === "portrait");
   syncOrientation();
   const cat = categoryById(game.category);
   const max = gameMax(game);
@@ -701,8 +702,8 @@ function renderGame(id) {
           <iframe title="${esc(gameText(game, "title"))}" src="${frameSrc}" allow="fullscreen; gamepad; autoplay"></iframe>
           <div class="rotate-tip" role="status">
             <span class="rot-icon" aria-hidden="true">&#8635;</span>
-            <p>${esc(I18n.t("play.rotate"))}</p>
-            <small>${esc(I18n.t("play.rotateHint"))}</small>
+            <p>${esc(I18n.t(game.orientation === "portrait" ? "play.rotatePortrait" : "play.rotate"))}</p>
+            <small>${esc(I18n.t(game.orientation === "portrait" ? "play.rotatePortraitHint" : "play.rotateHint"))}</small>
           </div>
           <button class="fs-exit" type="button" data-fs-exit hidden aria-label="${esc(I18n.t("play.exitFs"))}">
             <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>

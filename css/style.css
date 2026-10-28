@@ -1279,6 +1279,10 @@ body.is-short.playing #toast {
 body.playing.is-portrait .rotate-tip { display: grid; }
 body.playing.is-portrait .stage iframe { visibility: hidden; }
 
+/* 只支援直向的遊戲：橫放時提示轉直向 */
+body.playing.game-portrait:not(.is-portrait) .rotate-tip { display: grid; }
+body.playing.game-portrait:not(.is-portrait) .stage iframe { visibility: hidden; }
+
 /* Games that explicitly support portrait keep playing without the rotate tip. */
 body.playing.game-any.is-portrait .rotate-tip { display: none; }
 body.playing.game-any.is-portrait .stage iframe { visibility: visible; }
