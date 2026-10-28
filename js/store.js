@@ -5,6 +5,9 @@ const Store = (() => {
   const cloudOn = cloudUrl.startsWith("https://") && cloudKey.length > 20 && typeof supabase !== "undefined";
   const db = cloudOn ? supabase.createClient(cloudUrl, cloudKey) : null;
   let state = load();
+  /* Older Supabase projects do not have pets.care yet. Remember the miss so
+     the app does not send the same failing column on every pet interaction. */
+  let careAvailable = true;
 
   function load() {
     try {
@@ -53,7 +56,11 @@ const Store = (() => {
       at: stamp(row.at),
     }));
     state.session = sessionResult.data.session ? sessionResult.data.session.user.id : null;
-    let pets = await db.from("pets").select("user_id,species,xp,day,day_xp,coins,day_coins");
+    let pets = await db.from("pets").select("user_id,species,xp,day,day_xp,coins,day_coins,care");
+    if (pets.error) {
+      careAvailable = false;
+      pets = await db.from("pets").select("user_id,species,xp,day,day_xp,coins,day_coins");
+    }
     if (pets.error) pets = await db.from("pets").select("user_id,species,xp,day,day_xp");
     state.pets = (pets.data || []).map((row) => ({
       userId: row.user_id,
@@ -63,6 +70,7 @@ const Store = (() => {
       dayXp: row.day_xp || 0,
       coins: row.coins || 0,
       dayCoins: row.day_coins || 0,
+      care: row.care && typeof row.care === "object" ? row.care : null,
     }));
   }
 
@@ -79,10 +87,32 @@ const Store = (() => {
       day_xp: row.dayXp,
       coins: row.coins || 0,
       day_coins: row.dayCoins || 0,
+      care: row.care || null,
     };
-    let saved = await db.from("pets").upsert(full);
-    const message = String(saved.error && saved.error.message || "").toLowerCase();
-    if (saved.error && (message.includes("coin") || message.includes("column") || message.includes("schema"))) {
+    let payload = careAvailable ? full : {
+      user_id: full.user_id,
+      species: full.species,
+      xp: full.xp,
+      day: full.day,
+      day_xp: full.day_xp,
+      coins: full.coins,
+      day_coins: full.day_coins,
+    };
+    let saved = await db.from("pets").upsert(payload);
+    if (saved.error && careAvailable) {
+      careAvailable = false;
+      payload = {
+        user_id: full.user_id,
+        species: full.species,
+        xp: full.xp,
+        day: full.day,
+        day_xp: full.day_xp,
+        coins: full.coins,
+        day_coins: full.day_coins,
+      };
+      saved = await db.from("pets").upsert(payload);
+    }
+    if (saved.error) {
       saved = await db.from("pets").upsert({
         user_id: full.user_id,
         species: full.species,
@@ -381,9 +411,73 @@ const Store = (() => {
       dayXp: row.dayXp,
       daily: PET_DAILY,
       coins: row.coins || 0,
+      care: row.care || null,
       next,
       into: next == null ? 1 : (row.xp - prev) / (next - prev),
     };
+  }
+
+  function petCare() {
+    const user = current();
+    if (!user) return null;
+    const row = findPet(user);
+    return row && row.care && typeof row.care === "object" ? row.care : null;
+  }
+
+  async function setCare(care) {
+    const user = current();
+    if (!user) return { ok: false, reason: "auth" };
+    const row = petRow(user);
+    if (!row) return { ok: false, reason: "nopet" };
+    row.care = care && typeof care === "object" ? care : null;
+    const saved = await persistPet(row);
+    return saved.error ? { ok: false, reason: "save" } : { ok: true };
+  }
+
+  async function addXpCoins({ xp = 0, coins = 0 } = {}) {
+    const user = current();
+    if (!user) return { ok: false, reason: "auth" };
+    const row = petRow(user);
+    if (!row) return { ok: false, reason: "nopet" };
+    const before = stageIndex(row.xp);
+    const safeXp = Math.max(0, Math.round(Number(xp) || 0));
+    const safeCoins = Math.max(0, Math.round(Number(coins) || 0));
+    row.xp += safeXp;
+    row.coins = Math.max(0, (row.coins || 0) + safeCoins);
+    row.dayXp += safeXp;
+    row.dayCoins = (row.dayCoins || 0) + safeCoins;
+    const saved = await persistPet(row);
+    if (saved.error) return { ok: false, reason: "save" };
+    const after = stageIndex(row.xp);
+    return {
+      ok: true,
+      xp: row.xp,
+      coins: row.coins,
+      xpGain: safeXp,
+      coinGain: safeCoins,
+      evolved: after > before,
+      stage: after,
+      id: PET_IDS[after],
+    };
+  }
+
+  async function spendCoins(amount) {
+    const user = current();
+    if (!user) return { ok: false, reason: "auth" };
+    const row = petRow(user);
+    if (!row) return { ok: false, reason: "nopet" };
+    const cost = Math.max(0, Math.round(Number(amount) || 0));
+    if ((row.coins || 0) < cost) return { ok: false, reason: "coins", coins: row.coins || 0 };
+    row.coins -= cost;
+    const saved = await persistPet(row);
+    if (saved.error) return { ok: false, reason: "save" };
+    return { ok: true, coins: row.coins };
+  }
+
+  function myScores() {
+    const user = current();
+    if (!user) return [];
+    return state.scores.filter((item) => item.userId === user.id);
   }
 
   async function choosePet(species) {
@@ -480,5 +574,6 @@ const Store = (() => {
     ready: db ? pull().catch(() => {}) : Promise.resolve(),
     current, register, login, logout, submitScore, gameBoard, globalBoard, myBest, mySummary,
     ratingOf, myRating, setRating, petView, petCard, userById, choosePet, gainPetXp,
+    petCare, setCare, addXpCoins, spendCoins, myScores,
   };
 })();

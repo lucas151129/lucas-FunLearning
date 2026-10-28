@@ -17,6 +17,7 @@ const SHELL = [
   "js/i18n.js",
   "js/catalog.js",
   "js/store.js",
+  "js/pet-care.js",
   "js/app.js",
   "js/supabase-config.js",
   "assets/mascot.png",

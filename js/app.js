@@ -2,6 +2,8 @@ const app = document.querySelector("#app");
 const accountSlot = document.querySelector("#account");
 const toast = document.querySelector("#toast");
 let openGameId = null;
+let gameSessionScored = false;
+let gameSessionRewarded = false;
 let toastTimer = 0;
 
 function esc(value) {
@@ -396,7 +398,8 @@ function renderAccount() {
     return;
   }
   accountSlot.innerHTML = `
-    <span class="who">${esc(tf("who", { name: summary.username, points: summary.points }))}</span>
+    ${petAvatarSmall()}
+    <span class="who"><span class="who-name">${esc(summary.username)}</span><span class="who-points"> · ${esc(tf("who.points", { points: summary.points }))}</span></span>
     <button class="btn btn-cream btn-small" type="button" data-logout>${esc(I18n.t("nav.logout"))}</button>`;
 }
 
@@ -434,7 +437,7 @@ const PET_SPECIES = ["tabby", "fluff", "dog", "husky", "golden", "shiba", "macaw
 function petSrc(species, stage) {
   const kind = PET_SPECIES.includes(species) ? species : "dog";
   const form = PET_STAGES[stage] || "bubble";
-  return `assets/pets/${kind}/${form}.png?v=4`;
+  return `assets/pets-clean/${kind}/${form}.png?v=1`;
 }
 
 function avatarHtml(userId, name) {
@@ -444,6 +447,99 @@ function avatarHtml(userId, name) {
     ? `<img src="${petSrc(pet.species, pet.stage)}" alt="">`
     : `<span class="avatar-empty" aria-hidden="true"></span>`;
   return `<a class="avatar" href="#/u/${encodeURIComponent(userId)}" aria-label="${esc(label)}">${face}</a>`;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Pet care UI helpers                                                        */
+/* -------------------------------------------------------------------------- */
+
+function petAvatarSmall() {
+  const user = Store.current();
+  const pet = user ? Store.petCard(user.id) : null;
+  if (!pet) return "";
+  return `<a class="who-pet" href="#/pet" aria-label="${esc(I18n.t("pet.open"))}"><img src="${petSrc(pet.species, pet.stage)}" alt=""></a>`;
+}
+
+function needTone(value) {
+  if (value < 30) return "low";
+  if (value > 72) return "high";
+  return "mid";
+}
+
+function needBar(label, icon, value, compact = false) {
+  const safe = Math.max(0, Math.min(100, Math.round(value)));
+  return `<div class="need-row${compact ? " is-compact" : ""}">
+    <span class="need-name"><i aria-hidden="true">${icon}</i>${esc(label)}</span>
+    <span class="need-track"><i class="is-${needTone(safe)}" style="width:${safe}%"></i></span>
+    <b>${safe}</b>
+  </div>`;
+}
+
+function questLabel(quest) {
+  if (!quest) return "";
+  if (quest.id === "subject") return tf("quest.subject", { subject: PetCare.questSubjectName(quest) || I18n.t("quest.anySubject") });
+  if (quest.id === "explore") return I18n.t("quest.explore");
+  return I18n.t("quest.care");
+}
+
+function questRows(care, compact = false, readOnly = false) {
+  if (!care || !care.quests) return "";
+  return `<div class="quest-list${compact ? " is-compact" : ""}">
+    ${Object.values(care.quests).filter((quest) => quest && quest.id).map((quest) => {
+      const done = quest.progress >= quest.target;
+      const claimed = Boolean(quest.claimed);
+      return `<div class="quest-row${done ? " is-done" : ""}${claimed ? " is-claimed" : ""}">
+        <span class="quest-check" aria-hidden="true">${claimed ? "✓" : done ? "!" : "·"}</span>
+        <div class="quest-copy">
+          <b>${esc(questLabel(quest))}</b>
+          <small>${esc(claimed ? I18n.t("quest.claimed") : done ? I18n.t("quest.ready") : tf("quest.progress", { now: quest.progress, target: quest.target }))}</small>
+        </div>
+        ${readOnly || claimed ? "" : done
+          ? `<button type="button" class="quest-claim" data-claim="${quest.id}">${esc(I18n.t("quest.claim"))}<span>+${quest.coins}</span></button>`
+          : `<span class="quest-reward">+${quest.coins}</span>`}
+      </div>`;
+    }).join("")}
+  </div>`;
+}
+
+function questDoneCount(care) {
+  if (!care || !care.quests) return 0;
+  return Object.values(care.quests).filter((quest) => quest && quest.claimed).length;
+}
+
+function hubPetCard() {
+  const care = PetCare.view();
+  if (!care) return "";
+  const game = GAMES.find((item) => item.category === care.request?.subject) || null;
+  const startHref = game ? `#/g/${game.id}` : "#/c";
+  return `<section class="hub-pet-card panel">
+    <a class="hub-pet-art" href="#/pet" aria-label="${esc(I18n.t("pet.open"))}">
+      <img src="${petSrc(care.species, care.stage)}" alt="">
+      <span class="hub-streak">🔥 ${care.streak}</span>
+    </a>
+    <div class="hub-pet-copy">
+      <div class="hub-pet-title">
+        <div>
+          <span class="eyebrow">YOUR COMPANION</span>
+          <h2>${esc(care.displayName)}</h2>
+        </div>
+        <span class="hub-pet-stage">${esc(I18n.t("pet." + care.core.id))}</span>
+      </div>
+      <p class="hub-pet-request">${esc(care.requestText)}</p>
+      <div class="hub-needs">
+        ${needBar(I18n.t("pet.need.fullness"), "🍙", care.fullness, true)}
+        ${needBar(I18n.t("pet.need.mood"), "♡", care.mood, true)}
+      </div>
+      <div class="hub-quest-line">
+        <span>${esc(tf("quest.dailyDone", { done: questDoneCount(care), total: 3 }))}</span>
+        <span>${esc(tf("pet.bond", { n: care.bond }))}</span>
+      </div>
+    </div>
+    <div class="hub-pet-actions">
+      <a class="btn btn-cream btn-small" href="#/pet">${esc(I18n.t("pet.care"))}</a>
+      <a class="btn btn-small" href="${startHref}">${esc(I18n.t("pet.start"))}</a>
+    </div>
+  </section>`;
 }
 
 function renderPetChoice() {
@@ -463,27 +559,98 @@ function renderPetChoice() {
 
 function renderPetPage() {
   openGameId = null;
-  const pet = Store.petView();
-  if (!pet || pet.needsChoice) {
+  const care = PetCare.view();
+  if (!care) {
     renderPetChoice();
     return;
   }
+  const pet = care.core;
   const stageName = I18n.t("pet." + pet.id);
   const speciesName = I18n.t("pet.species." + pet.species);
+  const room = care.equipped.home || "plain";
+  const look = care.equipped.look || "";
+  const toy = care.equipped.toy ? PetCare.ITEMS.find((item) => item.id === care.equipped.toy) : null;
+  const foods = PetCare.careButtons();
+  const requestGame = GAMES.find((game) => game.category === care.request?.subject);
+  const startHref = requestGame ? `#/g/${requestGame.id}` : "#/c";
+  const owned = PetCare.ITEMS.filter((item) => care.owned[item.id]);
   app.innerHTML = `
-    <section class="pet-room panel">
-      <h1>${esc(tf("pet.title", { species: speciesName }))}</h1>
-      <p class="pet-stage">${esc(stageName)} · ${esc(tf("pet.xp", { n: pet.xp }))}</p>
-      <div class="pet-bar" role="progressbar" aria-valuenow="${pet.xp}" aria-valuemin="0" aria-valuemax="${pet.next || pet.xp}" aria-label="${esc(stageName)}"><span style="width:${Math.max(0, Math.min(100, Math.round(pet.into * 100)))}%"></span></div>
-      <p>${esc(pet.next == null ? I18n.t("pet.max") : tf("pet.next", { left: pet.next - pet.xp }))}</p>
-      <p class="pet-today">${esc(tf("pet.today", { got: pet.dayXp, cap: pet.daily }))}</p>
-      <p class="coin-line">${esc(tf("shop.coins", { n: pet.coins || 0 }))}</p>
-      <div class="pet-stage-wrap">
-        <img class="pet-still" data-species="${esc(pet.species)}" data-stage="${pet.stage}"
-             src="${petSrc(pet.species, pet.stage)}" alt="${esc(speciesName)}">
+    <a class="btn btn-cream btn-small back" href="#/c">${iconBack()} ${esc(I18n.t("nav.all"))}</a>
+    <section class="pet-home panel">
+      <header class="pet-home-head">
+        <div>
+          <span class="eyebrow">YOUR COMPANION</span>
+          <h1>${esc(care.displayName)}</h1>
+          <p>${esc(stageName)} · ${esc(speciesName)} · <span class="pet-streak">🔥 ${care.streak}</span></p>
+        </div>
+        <div class="pet-head-actions">
+          <a class="pet-start-top" href="${startHref}">${esc(I18n.t("pet.start"))}</a>
+          <button class="pet-rename" type="button" data-rename>${esc(I18n.t("pet.rename"))}</button>
+        </div>
+      </header>
+
+      <div class="pet-room-scene room-${esc(room)}" data-room="${esc(room)}">
+        ${room === "starwall" ? `<span class="room-stars" aria-hidden="true">✦ · ✧ · ✦ · ✧</span>` : ""}
+        ${room === "rug" ? `<span class="floor-rug" aria-hidden="true"></span>` : ""}
+        <span class="pet-speech">${esc(care.reaction)}</span>
+        <span class="pet-ground" aria-hidden="true"></span>
+        <span class="pet-figure">
+          <img class="pet-still" data-species="${esc(pet.species)}" data-stage="${pet.stage}"
+               src="${petSrc(pet.species, pet.stage)}" alt="${esc(speciesName)}">
+        </span>
+        ${look === "hat" ? `<span class="pet-accessory pet-hat" aria-hidden="true">🎩</span>` : ""}
+        ${look === "scarf" ? `<span class="pet-accessory pet-scarf" aria-hidden="true">🧣</span>` : ""}
+        ${toy ? `<span class="pet-toy" aria-hidden="true">${toy.icon}</span>` : ""}
       </div>
-      <a class="btn btn-mint shop-open" href="#/shop">${esc(I18n.t("shop.open"))}</a>
-      <a class="btn pet-go" href="#/c">${esc(I18n.t("pet.go"))}</a>
+
+      <div class="pet-xp-card">
+        <div class="pet-xp-top">
+          <span>${esc(I18n.t("pet.growth"))}</span>
+          <b>${esc(tf("pet.xp", { n: pet.xp }))}</b>
+        </div>
+        <div class="pet-bar" role="progressbar" aria-valuenow="${pet.xp}" aria-valuemin="0" aria-valuemax="${pet.next || pet.xp}" aria-label="${esc(stageName)}"><span style="width:${Math.max(0, Math.min(100, Math.round(pet.into * 100)))}%"></span></div>
+        <p>${esc(pet.next == null ? I18n.t("pet.max") : tf("pet.next", { left: pet.next - pet.xp }))}</p>
+        <p class="pet-reward-count">${esc(tf("pet.rewardedToday", { n: care.rewardedGames.length, max: PetCare.MAX_REWARDED_GAMES }))}</p>
+      </div>
+
+      <div class="pet-needs">
+        ${needBar(I18n.t("pet.need.fullness"), "🍙", care.fullness)}
+        ${needBar(I18n.t("pet.need.mood"), "♡", care.mood)}
+        ${needBar(I18n.t("pet.need.curiosity"), "✦", care.curiosity)}
+      </div>
+
+      <div class="pet-actions">
+        <button type="button" data-care="pet">${esc(I18n.t("pet.care.pet"))}</button>
+        <button type="button" data-care="play">${esc(I18n.t("pet.care.play"))}</button>
+        <a href="#/shop">${esc(I18n.t("pet.care.decor"))}</a>
+        <a class="is-primary" href="${startHref}">${esc(I18n.t("pet.start"))}</a>
+      </div>
+
+      <div class="pet-food-tray">
+        <div class="pet-section-head">
+          <span>${esc(I18n.t("pet.food.title"))}</span>
+          <a href="#/shop/food">${esc(I18n.t("shop.open"))}</a>
+        </div>
+        ${foods.length
+          ? `<div class="pet-food-list">${foods.map((food) => `<button type="button" data-feed="${food.id}">${food.item.icon} ${esc(food.item.name)} <b>×${food.count}</b></button>`).join("")}</div>`
+          : `<a class="pet-food-empty" href="#/shop/food">${esc(I18n.t("pet.food.empty"))}</a>`}
+      </div>
+
+      <div class="pet-quests">
+        <div class="pet-section-head">
+          <span>${esc(I18n.t("quest.daily"))}</span>
+          <b>${esc(tf("quest.dailyDone", { done: questDoneCount(care), total: 3 }))}</b>
+        </div>
+        ${questRows(care)}
+      </div>
+
+      <div class="pet-bottom-row">
+        <span>${esc(tf("pet.bond", { n: care.bond }))}</span>
+        <span>${esc(tf("shop.coins", { n: care.coins || 0 }))}</span>
+        <a href="#/shop">${esc(I18n.t("shop.open"))}</a>
+      </div>
+
+      ${owned.length ? `<div class="pet-inventory"><span>${esc(I18n.t("pet.collection"))}</span>${owned.map((item) => `<span class="pet-inventory-item">${item.icon} ${esc(item.name)}</span>`).join("")}</div>` : ""}
     </section>`;
 }
 
@@ -572,6 +739,7 @@ function renderHub() {
           <h1>${esc(I18n.t("hub.title"))}</h1>
           <p>${esc(I18n.t("hub.lead"))}</p>
         </header>
+        ${hubPetCard()}
         <a class="btn shop-open" href="#/shop">${esc(I18n.t("shop.open"))}</a>
         <div class="cat-grid">${catCards()}</div>
         <p class="foot-links"><a href="#/guide">${esc(I18n.t("home.guide"))}</a></p>
@@ -648,6 +816,8 @@ function renderGame(id) {
     return;
   }
   openGameId = game.id;
+  gameSessionScored = false;
+  gameSessionRewarded = false;
   document.body.classList.add("playing");
   document.body.classList.toggle("game-any", game.orientation === "any");
   document.body.classList.toggle("game-portrait", game.orientation === "portrait");
@@ -784,19 +954,52 @@ function renderUserPet(id) {
 
 function renderShop(cat) {
   openGameId = null;
-  const pet = Store.petView();
-  const active = cat === "home" || cat === "food" ? cat : "look";
-  const tabs = ["look", "home", "food"].map((id) => `
+  const care = PetCare.view();
+  if (!care) {
+    app.innerHTML = missing(I18n.t("pet.guest"));
+    return;
+  }
+  const active = PetCare.SHOP_CATS.includes(cat) ? cat : "food";
+  const tabs = PetCare.SHOP_CATS.map((id) => `
     <a class="shop-cat${id === active ? " on" : ""}" href="#/shop/${id}"${id === active ? ' aria-current="page"' : ""}>${esc(I18n.t("shop." + id))}</a>`).join("");
-  const note = active === "look" ? I18n.t("shop.soon") : I18n.t("shop.later");
+  const items = PetCare.ITEMS.filter((item) => item.cat === active);
+  const cards = items.map((item) => {
+    const state = PetCare.itemState(item.id);
+    const affordable = (care.coins || 0) >= item.price;
+    let action = `<button type="button" class="shop-buy" data-buy="${item.id}"${affordable ? "" : " disabled"}>${esc(I18n.t("shop.buy"))}<small>${item.price} ${I18n.t("shop.coinUnit")}</small></button>`;
+    if (item.kind === "food") {
+      action = `<div class="shop-food-actions">
+        <button type="button" class="shop-buy" data-buy="${item.id}"${affordable ? "" : " disabled"}>${esc(I18n.t("shop.buy"))}<small>${item.price} ${I18n.t("shop.coinUnit")}</small></button>
+        ${state.count > 0 ? `<button type="button" class="shop-use" data-feed="${item.id}">${esc(I18n.t("shop.feed"))} · ${state.count}</button>` : ""}
+      </div>`;
+    } else if (state.owned) {
+      action = state.equipped
+        ? `<span class="shop-owned">${esc(I18n.t("shop.equipped"))}</span>`
+        : `<button type="button" class="shop-equip" data-equip="${item.id}">${esc(I18n.t("shop.equip"))}</button>`;
+    }
+    return `<article class="shop-item">
+      <span class="shop-item-icon" aria-hidden="true">${item.icon}</span>
+      <div class="shop-item-copy">
+        <h2>${esc(item.name)}</h2>
+        <p>${esc(item.desc)}</p>
+        ${state.owned ? `<span class="shop-tag">${esc(I18n.t("shop.owned"))}</span>` : ""}
+      </div>
+      ${action}
+    </article>`;
+  }).join("");
   app.innerHTML = `
-    <a class="btn btn-cream btn-small back" href="#/c">${iconBack()} ${esc(I18n.t("nav.all"))}</a>
-    <section class="pet-room panel">
-      <h1>${esc(I18n.t("shop.title"))}</h1>
-      <p class="coin-line">${esc(tf("shop.coins", { n: pet && pet.coins ? pet.coins : 0 }))}</p>
-      <p>${esc(I18n.t("shop.lead"))}</p>
+    <a class="btn btn-cream btn-small back" href="#/pet">${iconBack()} ${esc(I18n.t("pet.care"))}</a>
+    <section class="shop-page panel">
+      <header class="shop-head">
+        <div>
+          <span class="eyebrow">PET SUPPLY</span>
+          <h1>${esc(I18n.t("shop.title"))}</h1>
+          <p>${esc(I18n.t("shop.lead"))}</p>
+        </div>
+        <div class="shop-wallet"><span>${esc(I18n.t("shop.wallet"))}</span><b>${esc(tf("shop.coins", { n: care.coins || 0 }))}</b></div>
+      </header>
       <div class="shop-cats">${tabs}</div>
-      <p class="shop-empty">${esc(note)}</p>
+      <div class="shop-items">${cards}</div>
     </section>`;
 }
 
@@ -859,6 +1062,7 @@ function render() {
   const parts = (location.hash || "#/").replace(/^#\/?/, "").split("/").filter(Boolean);
   const [head, id] = parts;
   const user = Store.current();
+  if (user) PetCare.ensure();
   if (user && (head === "login" || head === "register")) {
     location.hash = "#/";
     return;
@@ -931,6 +1135,79 @@ document.body.addEventListener("click", async (event) => {
   }
   if (event.target.closest(".sheet-veil")) {
     toggleSheet(false);
+    return;
+  }
+  const buyButton = event.target.closest("[data-buy]");
+  if (buyButton) {
+    const bought = await PetCare.buy(buyButton.dataset.buy);
+    if (!bought.ok) {
+      showToast(I18n.t(bought.reason === "coins" ? "shop.notEnough" : "shop.buyFail"));
+      return;
+    }
+    showToast(tf("shop.bought", { name: bought.item.name }));
+    render();
+    return;
+  }
+  const feedButton = event.target.closest("[data-feed]");
+  if (feedButton) {
+    const fed = await PetCare.feed(feedButton.dataset.feed);
+    if (!fed.ok) {
+      showToast(I18n.t("pet.food.emptyShort"));
+      return;
+    }
+    showToast(tf("pet.fed", { name: fed.item.name }));
+    render();
+    return;
+  }
+  const equipButton = event.target.closest("[data-equip]");
+  if (equipButton) {
+    const equipped = await PetCare.equip(equipButton.dataset.equip);
+    if (!equipped.ok) {
+      showToast(I18n.t("shop.equipFail"));
+      return;
+    }
+    showToast(tf("shop.equippedToast", { name: equipped.item.name }));
+    render();
+    return;
+  }
+  const careButton = event.target.closest("[data-care]");
+  if (careButton) {
+    const action = careButton.dataset.care;
+    const result = action === "play" ? await PetCare.play() : await PetCare.pet();
+    if (!result.ok && result.reason === "cooldown") {
+      showToast(I18n.t("pet.cooldown"));
+      return;
+    }
+    if (!result.ok) {
+      showToast(I18n.t("pet.careFail"));
+      return;
+    }
+    showToast(I18n.t(action === "play" ? "pet.played" : "pet.petted"));
+    render();
+    return;
+  }
+  const claimButton = event.target.closest("[data-claim]");
+  if (claimButton) {
+    const claimed = await PetCare.claim(claimButton.dataset.claim);
+    if (!claimed.ok) {
+      showToast(I18n.t("quest.claimFail"));
+      return;
+    }
+    showToast(tf("quest.claimedToast", { n: claimed.quest.coins }));
+    render();
+    return;
+  }
+  const renameButton = event.target.closest("[data-rename]");
+  if (renameButton) {
+    const current = PetCare.view();
+    const next = window.prompt(I18n.t("pet.renamePrompt"), current ? current.displayName : "");
+    if (next == null) return;
+    const renamed = await PetCare.rename(next);
+    if (!renamed.ok) {
+      showToast(I18n.t("pet.renameFail"));
+      return;
+    }
+    render();
     return;
   }
   const petStill = event.target.closest(".pet-still");
@@ -1058,6 +1335,73 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
+function closeReward() {
+  const layer = document.querySelector("#reward-layer");
+  if (!layer) return;
+  layer.classList.remove("show");
+  document.body.classList.remove("reward-open");
+  window.setTimeout(() => layer.remove(), 180);
+}
+
+function showReward({ game, raw, max, result, reward }) {
+  const care = PetCare.view();
+  if (!care || !reward) return;
+  const pet = reward.pet || care.core;
+  const practice = Boolean(reward.practice);
+  const pct = Math.round((Number(raw) / Math.max(1, Number(max))) * 100);
+  const score = `${raw}/${max}`;
+  const reason = reward.reason === "low"
+    ? I18n.t("reward.low")
+    : reward.reason === "repeat"
+      ? I18n.t("reward.repeat")
+      : I18n.t("reward.daily");
+  const breakdown = (reward.breakdown || []).filter((row) => row.value > 0).map((row) => `
+    <div class="reward-breakdown-row"><span>${esc(I18n.t("reward." + row.key))}</span><b>+${row.value} XP</b></div>`).join("");
+  const header = practice
+    ? `<span class="reward-kicker">${esc(I18n.t("reward.practiceKicker"))}</span>
+       <h2 id="reward-title">${esc(I18n.t("reward.practice"))}</h2>
+       <p class="reward-score">${esc(score)} · ${pct}%</p>
+       <p class="reward-practice-note">${esc(reason)}</p>`
+    : `<span class="reward-kicker">${esc(I18n.t("reward.kicker"))}</span>
+       <h2 id="reward-title">+${reward.xp} XP</h2>
+       <p class="reward-score">${esc(score)} · ${pct}%</p>
+       ${breakdown ? `<div class="reward-breakdown">${breakdown}</div>` : ""}`;
+  const stageName = I18n.t("pet." + pet.id);
+  const questBlock = care.quests ? `<div class="reward-quests">
+    <div class="reward-quests-head"><span>${esc(I18n.t("quest.daily"))}</span><b>${esc(tf("quest.dailyDone", { done: questDoneCount(care), total: 3 }))}</b></div>
+    ${questRows(care, true, true)}
+    <a href="#/pet" data-reward-close>${esc(I18n.t("reward.claimInPet"))}</a>
+  </div>` : "";
+  const layer = document.createElement("div");
+  layer.id = "reward-layer";
+  layer.className = "reward-layer";
+  layer.innerHTML = `<section class="reward-card" role="dialog" aria-modal="true" aria-labelledby="reward-title">
+    <button class="reward-x" type="button" data-reward-close aria-label="${esc(I18n.t("reward.close"))}">×</button>
+    <div class="reward-head">
+      <div class="reward-copy">${header}</div>
+      <div class="reward-pet">
+        <img src="${petSrc(care.species, care.stage)}" alt="">
+        <span>${esc(care.reaction)}</span>
+      </div>
+    </div>
+    ${practice ? "" : `<div class="reward-coins"><span>${esc(I18n.t("reward.coinLabel"))}</span><b>+${reward.coins}</b><small>${esc(tf("shop.coins", { n: care.coins }))}</small></div>`}
+    ${reward.evolved ? `<div class="reward-evolved">✦ ${esc(tf("reward.evolved", { stage: stageName }))}</div>` : ""}
+    ${questBlock}
+    <button class="reward-continue" type="button" data-reward-close>${esc(practice ? I18n.t("reward.keepPlaying") : I18n.t("reward.continue"))}</button>
+  </section>`;
+  document.body.append(layer);
+  document.body.classList.add("reward-open");
+  requestAnimationFrame(() => layer.classList.add("show"));
+  layer.addEventListener("click", (event) => {
+    if (event.target === layer || event.target.closest("[data-reward-close]")) {
+      event.preventDefault();
+      closeReward();
+      const href = event.target.closest("a")?.getAttribute("href");
+      if (href) location.hash = href;
+    }
+  });
+}
+
 window.addEventListener("message", async (event) => {
   if (event.origin !== location.origin) return;
   if (!event.data) return;
@@ -1075,24 +1419,50 @@ window.addEventListener("message", async (event) => {
   const game = gameById(openGameId);
   if (!game) return;
   const max = gameMax(game);
+  const beforeBest = Store.myBest(game.id);
+  /* Snapshot before submitScore mutates the stored row in place. */
+  const previousBest = beforeBest ? { raw: beforeBest.raw, points: beforeBest.points } : null;
+  const newSubject = !Store.myScores().some((row) => {
+    const item = gameById(row.gameId);
+    return item && item.category === game.category && Number(row.points) >= 60;
+  });
   const result = await Store.submitScore(game.id, event.data.score, max);
   const board = document.querySelector("#game-board");
   if (board) board.innerHTML = boardRows(Store.gameBoard(game.id), "game", max);
   const rate = document.querySelector("#rate-box");
   if (rate) rate.outerHTML = rateMarkup(game);
   renderAccount();
-  const pet = result.ok ? await Store.gainPetXp() : null;
-  const extra = petToast(pet) + coinToast(pet);
   if (!result.ok && result.reason === "auth") {
     showToast(tf("toast.guest", { raw: result.raw, max }));
     return;
   }
-  if (result.ok && result.improved) {
-    showToast(tf("toast.best", result) + extra);
+  if (!result.ok) {
+    showToast(I18n.t("toast.saveFail"));
     return;
   }
-  if (result.ok) {
-    showToast(tf("toast.kept", result) + extra);
+  const reward = await PetCare.recordGame({
+    game,
+    raw: result.raw,
+    max,
+    previousBest,
+    newSubject,
+  });
+  renderAccount();
+  if (reward && reward.ok && !reward.practice && !gameSessionRewarded) {
+    gameSessionRewarded = true;
+    gameSessionScored = true;
+    showReward({ game, raw: result.raw, max, result, reward });
+    return;
+  }
+  if (!gameSessionScored && reward && reward.ok) {
+    gameSessionScored = true;
+    showReward({ game, raw: result.raw, max, result, reward });
+    return;
+  }
+  if (result.improved) {
+    showToast(tf("toast.best", result));
+  } else {
+    showToast(tf("toast.kept", result));
   }
 });
 
