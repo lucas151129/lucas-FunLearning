@@ -507,6 +507,17 @@
 
         /* Short frames: drop the "Discoveries" list and the +500 bonus line
            so score / level / next ion / target all stay visible. */
+        /* 超矮螢幕（iPhone Safari 橫向只剩 ~290px）：只留分數、等級、目標與結束鍵 */
+        @media (max-height: 340px) {
+            html.dsh-embed .sidebar { gap: 6px; flex-basis: clamp(210px, 30%, 260px); }
+            html.dsh-embed .sidebar .info-panel { padding: 5px 9px; }
+            html.dsh-embed .sidebar .info-panel h3 { font-size: .72rem; margin-bottom: 1px; }
+            html.dsh-embed .sidebar .info-panel p,
+            html.dsh-embed .sidebar .info-panel span { font-size: .78rem; line-height: 1.15; }
+            html.dsh-embed .sidebar .end-game-btn { padding: 7px 10px; font-size: .78rem; margin-top: 2px; }
+            html.dsh-embed .level-bar { height: 7px; }
+        }
+
         @media (max-height: 460px) {
             html.dsh-embed .sidebar .info-panel:nth-child(5) { display: none; }
             html.dsh-embed .sidebar { overflow-y: hidden; }

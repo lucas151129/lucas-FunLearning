@@ -289,6 +289,19 @@
 
         /* Short phone frames: the "how to play" card is the least important
            block on the start screen, so drop it below 470px of height. */
+        /* 超矮螢幕（iPhone Safari 橫向只剩 ~290px）再收一級 */
+        @media (max-height: 340px) {
+          html.dsh-embed #screen-start .py-3\.5 { padding-top: .5rem; padding-bottom: .5rem; }
+          html.dsh-embed #screen-start h1 { font-size: 1.25rem !important; }
+          html.dsh-embed #screen-start .mb-2,
+          html.dsh-embed #screen-start .mb-3,
+          html.dsh-embed #screen-start .mb-4 { margin-bottom: .35rem !important; }
+          html.dsh-embed #screen-start .gap-3,
+          html.dsh-embed #screen-start .gap-4 { gap: .4rem !important; }
+          html.dsh-embed #screen-start p { font-size: 11px !important; line-height: 1.3 !important; }
+          html.dsh-embed #screen-start .btn-press { padding: .45rem 1.6rem !important; }
+        }
+
         @media (max-height: 470px) {
             html.dsh-embed #screen-start > div:nth-child(2) > div:nth-of-type(2) {
                 display: none;

@@ -664,6 +664,13 @@ function renderGame(id) {
            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 2v7m0 0 3-3m-3 3L5 6M3 11v2h10v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></svg>
          </button>`
       : "";
+  /* 矮螢幕時平台工具列會收起，iOS 就沒有地方顯示「加到主畫面」提示，補到浮動鈕上 */
+  const miniInstall =
+    !FS_SUPPORTED && IS_IOS && !IS_STANDALONE
+      ? `<button class="mini-btn" type="button" data-ios-install aria-label="${esc(I18n.t("play.install"))}">
+           <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 2v7m0 0 3-3m-3 3L5 6M3 11v2h10v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></svg>
+         </button>`
+      : "";
   app.innerHTML = `
     <a class="btn btn-cream btn-small back play-back" href="#/c/${game.category}">${iconBack()} ${esc(catName(cat))}</a>
     <div class="play-layout">
@@ -671,6 +678,7 @@ function renderGame(id) {
         <div class="mini-nav">
           <button class="mini-btn" type="button" data-mini-back aria-label="${esc(catName(cat))}">${iconBack()}</button>
           <button class="mini-btn" type="button" data-play-more aria-pressed="false" aria-label="${esc(I18n.t("play.board"))}">${iconTrophy()}</button>
+          ${miniInstall}
         </div>
         <div class="play-bar">
           <a class="btn btn-cream btn-small" href="#/c/${game.category}">${iconBack()} ${esc(catName(cat))}</a>

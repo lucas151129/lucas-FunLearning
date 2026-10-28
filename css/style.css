@@ -1168,17 +1168,17 @@ body.is-short.playing .play-bar { display: none; }
 
 body.is-short.playing .mini-nav {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  gap: 6px;
   position: absolute;
   z-index: 8;
-  top: calc(8px + env(safe-area-inset-top));
-  left: calc(8px + env(safe-area-inset-left));
+  top: calc(6px + env(safe-area-inset-top));
+  left: calc(6px + env(safe-area-inset-left));
 }
 
 body.is-short.playing .mini-nav .mini-btn {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
   padding: 0;
@@ -1236,6 +1236,14 @@ body.is-fs .rotate-tip { border-radius: 0; }
 
 /* 全螢幕時系統列／瀏海高度會變，提示氣泡跟著重算 */
 body.is-fs #toast { top: calc(16px + env(safe-area-inset-top)); }
+
+body.is-short.playing #toast {
+  top: auto;
+  bottom: calc(8px + env(safe-area-inset-bottom));
+  font-size: 14px;
+  padding: 8px 12px;
+  max-width: calc(100% - 24px);
+}
 
 /* ---------- 橫屏提示（遊戲一律以橫向遊玩） ---------- */
 .rotate-tip {

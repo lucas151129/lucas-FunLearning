@@ -1,0 +1,50 @@
+{
+  "name": "星際工坊 · Three.js 互動學院",
+  "short_name": "星際工坊",
+  "description": "用 Three.js 修復漂浮天文台的五件展品：座標、旋轉、縮放、燈光與動畫。",
+  "lang": "zh-Hant",
+  "dir": "ltr",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "fullscreen"],
+  "orientation": "landscape",
+  "background_color": "#02060c",
+  "theme_color": "#03070e",
+  "categories": ["education", "games"],
+  "screenshots": [
+    {
+      "src": "./preview-mobile.png",
+      "sizes": "844x390",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "./preview-ipad.png",
+      "sizes": "1024x768",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
