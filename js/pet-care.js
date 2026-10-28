@@ -302,12 +302,22 @@ const PetCare = (() => {
     quest.progress = 1;
   }
 
-  async function recordGame({ game, raw, max, previousBest, newSubject }) {
+  async function recordGame({ game, raw, max, previousBest, newSubject, priorQualifiedToday = 0 }) {
     const care = ensure();
     if (!care) return { ok: false, reason: "nopet" };
     const safeMax = Math.max(1, Number(max) || 1);
     const value = Math.max(0, Math.min(safeMax, Math.round(Number(raw) || 0)));
     const pct = value / safeMax;
+    const today = todayKey();
+    const sameToday = (stamp) => {
+      const date = new Date(stamp);
+      return date.getFullYear() + "-"
+        + String(date.getMonth() + 1).padStart(2, "0") + "-"
+        + String(date.getDate()).padStart(2, "0") === today;
+    };
+    const alreadyQualifiedToday = Boolean(previousBest
+      && Number(previousBest.points) >= 60
+      && sameToday(previousBest.at));
 
     if (pct < 0.6) {
       return {
@@ -315,13 +325,14 @@ const PetCare = (() => {
         xp: 0, coins: 0, pet: Store.petView(), care,
       };
     }
-    if (care.rewardedGames.includes(game.id)) {
+    if (alreadyQualifiedToday || care.rewardedGames.includes(game.id)) {
       return {
         ok: true, practice: true, reason: "repeat", pct,
         xp: 0, coins: 0, pet: Store.petView(), care,
       };
     }
-    if (care.rewardedGames.length >= MAX_REWARDED_GAMES) {
+    if (care.rewardedGames.length >= MAX_REWARDED_GAMES
+      || Number(priorQualifiedToday) >= MAX_REWARDED_GAMES) {
       return {
         ok: true, practice: true, reason: "daily", pct,
         xp: 0, coins: 0, pet: Store.petView(), care,
@@ -352,7 +363,6 @@ const PetCare = (() => {
     care.mood = clamp(care.mood + 2);
     care.curiosity = clamp(care.curiosity + (newSubject ? 7 : 1));
     care.bond = Math.max(0, care.bond + 1);
-    const today = todayKey();
     if (care.lastStudyDay !== today) {
       care.streak = care.lastStudyDay === yesterdayKey() ? care.streak + 1 : 1;
       care.lastStudyDay = today;

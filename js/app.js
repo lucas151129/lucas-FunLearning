@@ -1420,12 +1420,25 @@ window.addEventListener("message", async (event) => {
   if (!game) return;
   const max = gameMax(game);
   const beforeBest = Store.myBest(game.id);
+  const beforeScores = Store.myScores();
   /* Snapshot before submitScore mutates the stored row in place. */
-  const previousBest = beforeBest ? { raw: beforeBest.raw, points: beforeBest.points } : null;
-  const newSubject = !Store.myScores().some((row) => {
+  const previousBest = beforeBest
+    ? { raw: beforeBest.raw, points: beforeBest.points, at: beforeBest.at }
+    : null;
+  const newSubject = !beforeScores.some((row) => {
     const item = gameById(row.gameId);
     return item && item.category === game.category && Number(row.points) >= 60;
   });
+  const today = new Date();
+  const sameToday = (stamp) => {
+    const date = new Date(stamp);
+    return date.getFullYear() === today.getFullYear()
+      && date.getMonth() === today.getMonth()
+      && date.getDate() === today.getDate();
+  };
+  const priorQualifiedToday = new Set(beforeScores
+    .filter((row) => Number(row.points) >= 60 && sameToday(row.at))
+    .map((row) => row.gameId)).size;
   const result = await Store.submitScore(game.id, event.data.score, max);
   const board = document.querySelector("#game-board");
   if (board) board.innerHTML = boardRows(Store.gameBoard(game.id), "game", max);
@@ -1446,6 +1459,7 @@ window.addEventListener("message", async (event) => {
     max,
     previousBest,
     newSubject,
+    priorQualifiedToday,
   });
   renderAccount();
   if (reward && reward.ok && !reward.practice && !gameSessionRewarded) {
