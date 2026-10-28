@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#06111a" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2306111a'/%3E%3Cellipse cx='16' cy='16' rx='7' ry='12' fill='none' stroke='%235ff3ff' stroke-width='2'/%3E%3Cpath d='M2 16h28' stroke='%23ffb21c' stroke-width='1.5'/%3E%3C/svg%3E" />
+  <title>凸透鏡成像實驗室 · Convex Lens Lab</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"><i></i></span>
+        <span class="brand-copy">
+          <span class="brand-kicker">CONVEX LENS · RAY OPTICS</span>
+          <strong>凸透鏡成像實驗室</strong>
+        </span>
+      </div>
+      <nav class="mode-tabs" aria-label="模式">
+        <button type="button" id="exploreTab" class="mode-tab is-active" aria-pressed="true">探索</button>
+        <button type="button" id="taskTab" class="mode-tab" aria-pressed="false">任務</button>
+      </nav>
+      <div class="top-actions">
+        <span class="score-chip" id="scoreChip"><span>任務積分</span><b id="scoreValue">0</b><em>/500</em></span>
+        <button class="round-btn" id="resetBtn" type="button" aria-label="重設">↺</button>
+      </div>
+    </header>
+
+    <main class="stage">
+      <section class="scene-wrap" id="sceneWrap" aria-label="凸透鏡光學實驗台">
+        <canvas id="scene"></canvas>
+        <div class="hud-top">
+          <span class="hud-chip">f <b id="hudF">10.0 cm</b></span>
+          <span class="hud-chip">u <b id="hudU">30.0 cm</b></span>
+          <span class="hud-chip" id="hudCase">u > 2f</span>
+          <span class="hud-chip hud-nature" id="hudNature">實像</span>
+          <button type="button" class="scene-help" id="helpBtn" aria-label="操作提示">?</button>
+        </div>
+        <div class="hud-bottom">
+          <span class="legend"><i class="l1"></i>平行主光線 <i class="l2"></i>中心光線 <i class="l3"></i>焦點光線</span>
+          <span class="drag-hint">拖動物體可改變物距</span>
+        </div>
+        <div class="help-pop" id="helpPop" hidden>
+          <b>操作提示</b>
+          <p>拖動黃色物體，或調整右側的物距與焦距。虛線代表光線的反向延長線。</p>
+          <button type="button" id="helpClose">知道了</button>
+        </div>
+      </section>
+
+      <aside class="panel" id="panel">
+        <section id="explorePanel">
+          <div class="panel-eyebrow"><span>OPTICAL BENCH</span><span class="live-dot">LIVE</span></div>
+
+          <div class="control-block">
+            <label class="slider-label" for="fInput">焦距 f<output id="fValue">10.0 cm</output></label>
+            <input id="fInput" type="range" min="8" max="25" step="0.5" value="10" />
+            <div class="range-labels"><span>8 cm</span><span>25 cm</span></div>
+          </div>
+
+          <div class="control-block">
+            <label class="slider-label" for="uInput">物距 u<output id="uValue">30.0 cm</output></label>
+            <input id="uInput" type="range" min="3" max="70" step="0.5" value="30" />
+            <div class="range-labels"><span>3 cm</span><span>70 cm</span></div>
+          </div>
+
+          <div class="control-block compact">
+            <label class="slider-label" for="hInput">物高 h<output id="hValue">4.0 cm</output></label>
+            <input id="hInput" type="range" min="2" max="5" step="0.2" value="4" />
+          </div>
+
+          <div class="preset-head">快速情境</div>
+          <div class="presets" id="presets">
+            <button type="button" data-case="beyond2f">u &gt; 2f</button>
+            <button type="button" data-case="at2f">u = 2f</button>
+            <button type="button" data-case="between">f &lt; u &lt; 2f</button>
+            <button type="button" data-case="atf">u = f</button>
+            <button type="button" data-case="inside">u &lt; f</button>
+          </div>
+
+          <div class="switch-row">
+            <label class="switch"><input type="checkbox" id="screenToggle" checked /><span></span>光屏</label>
+            <label class="switch"><input type="checkbox" id="fanToggle" /><span></span>光線扇</label>
+            <label class="switch"><input type="checkbox" id="labelToggle" checked /><span></span>標註</label>
+          </div>
+
+          <div class="formula-card">
+            <span>THIN LENS EQUATION</span>
+            <p class="formula">1/f = 1/u + 1/v</p>
+            <p class="formula-sub" id="formulaText">1/10 = 1/30 + 1/15</p>
+          </div>
+
+          <div class="data-grid">
+            <div><span>像距 v</span><b id="vValue">15.0 cm</b></div>
+            <div><span>放大率 m</span><b id="mValue">−0.50×</b></div>
+            <div><span>像高 h′</span><b id="hiValue">−2.0 cm</b></div>
+            <div><span>性質</span><b id="natureValue">實像</b></div>
+          </div>
+
+          <div class="image-card" id="imageCard">
+            <div class="image-card-top">
+              <span id="caseTitle">u &gt; 2f</span>
+              <span class="nature-badge" id="natureBadge">倒立 · 縮小 · 實像</span>
+            </div>
+            <p id="caseText">像落在 f 與 2f 之間，光線實際會聚，光屏上可以接到清晰的像。</p>
+          </div>
+
+          <div class="screen-card" id="screenCard">
+            <span>SCREEN</span>
+            <p id="screenText">光屏在像的位置，清晰。</p>
+          </div>
+        </section>
+
+        <section id="taskPanel" hidden>
+          <div class="panel-eyebrow"><span>TASK MODE</span><span id="taskCounter">01 / 05</span></div>
+          <div class="task-progress"><i id="taskProgress"></i></div>
+          <h2 id="taskTitle">物體在 2f 外</h2>
+          <div class="task-setup" id="taskSetup">f = 10 cm · u = 30 cm</div>
+          <p class="task-question" id="taskQuestion"></p>
+          <div class="task-options" id="taskOptions"></div>
+          <p class="task-feedback" id="taskFeedback"></p>
+          <div class="task-actions">
+            <button type="button" class="primary-btn" id="taskNext" disabled>下一題</button>
+          </div>
+          <div class="task-score-note" id="taskScoreNote"></div>
+        </section>
+      </aside>
+
+      <div class="final-overlay" id="finalOverlay" hidden>
+        <section class="final-card" role="dialog" aria-modal="true" aria-labelledby="finalTitle">
+          <span class="final-kicker">OPTICS CHALLENGE COMPLETE</span>
+          <h2 id="finalTitle">五個成像規律</h2>
+          <p id="finalSummary"></p>
+          <div class="final-score"><b id="finalScore">0</b><span>/ 500</span></div>
+          <p class="final-note">每題 100 分。回到探索模式，可以繼續拖動透鏡與物體。</p>
+          <button type="button" class="primary-btn" id="finalRestart">再挑戰一次</button>
+        </section>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </main>
+  </div>
+
+  <script src="./src/boot.js"></script>
+</body>
+</html>

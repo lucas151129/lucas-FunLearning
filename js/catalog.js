@@ -48,6 +48,16 @@ const GAMES = [
     entry: "games/physics/water-rocket/index.html",
   },
   {
+    id: "phy-lens",
+    category: "physics",
+    title: "凸透鏡成像實驗室",
+    level: "upper",
+    blurb: "拖動物體、改變焦距，觀察實像與虛像、放大率與三條主光線。",
+    maxScore: 500,
+    icon: "assets/games/phy-lens.png?v=1",
+    entry: "games/physics/convex-lens/index.html",
+  },
+  {
     id: "phy-momentum",
     category: "physics",
     title: "動量碰撞模擬器",
