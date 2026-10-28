@@ -380,9 +380,11 @@
     html.dsh-embed .equation { font-size: clamp(18px, 4.2vh, 34px); }
     html.dsh-embed .question-badge { padding: 5px 9px; font-size: 11px; }
     html.dsh-embed .board-wrap {
-      flex: 1;
+      flex: 1 1 auto;
+      align-self: stretch;
       min-height: 0;
-      height: 100%;
+      height: auto;
+      max-height: none;
       width: 100%;
       max-width: none;
       aspect-ratio: auto;
@@ -396,6 +398,24 @@
       html.dsh-embed .side-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
       html.dsh-embed .controls-card { grid-column: span 2; }
     }
+
+    /* 題目卡搬進右欄：盤面因此可以吃滿整個左欄高度 */
+    .side-panel .question-card {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 3px;
+      padding: 9px 11px;
+      min-height: 0;
+      margin-bottom: 0;
+      flex: none;
+    }
+    .side-panel .question-card .equation {
+      font-size: clamp(17px, 2.1vw, 26px);
+      letter-spacing: .01em;
+      white-space: nowrap;
+    }
+    .side-panel .question-badge { align-self: flex-start; padding: 3px 8px; font-size: 11px; transform: none; }
+    .side-panel .question-label { font-size: 10px; }
 
     html.dsh-embed .side-panel { min-height: 0; gap: 8px; }
     html.dsh-embed .hud-card { padding: 9px 10px; }
@@ -432,6 +452,44 @@
       html.dsh-embed .game-grid { grid-template-columns: minmax(0, 1fr) 190px; }
       html.dsh-embed .rank-row { display: none; }
       html.dsh-embed .controls { grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(2, 32px); }
+    }
+
+    /* 中等高度（iPad）：右欄多了題目卡，把小錦囊與段位再收一點 */
+    @media (min-height: 471px) {
+      html.dsh-embed .power-legend { display: none; }
+      html.dsh-embed .rank-row { display: none; }
+      html.dsh-embed .tip-text { font-size: 12px; line-height: 1.35; }
+      html.dsh-embed .side-panel .question-card { padding: 8px 10px; min-height: 0; }
+      html.dsh-embed .hud-card { padding: 8px 10px; }
+      html.dsh-embed .hearts { font-size: 18px; min-height: 0; }
+    }
+
+    /* 矮螢幕：右欄要同時放題目、分數、愛心、按鈕、方向鍵，全部壓小 */
+    @media (max-height: 470px) {
+      html.dsh-embed .side-panel { gap: 4px; }
+      html.dsh-embed .side-panel .question-card { padding: 4px 8px; gap: 1px; }
+      html.dsh-embed .side-panel .question-card .equation { font-size: 15px; }
+      html.dsh-embed .side-panel .question-label { font-size: 9px; }
+      html.dsh-embed .question-badge,
+      html.dsh-embed .hud-card h3,
+      html.dsh-embed .progress-label,
+      html.dsh-embed .progress-track,
+      html.dsh-embed .rank-row { display: none !important; }
+      html.dsh-embed .hud-card { padding: 3px 8px; }
+      html.dsh-embed .score-row { gap: 4px; align-items: center; }
+      html.dsh-embed .score-number { font-size: 18px; }
+      html.dsh-embed .combo { font-size: 10px; padding: 2px 5px; }
+      html.dsh-embed .hearts { font-size: 13px; letter-spacing: 0; min-height: 0; }
+      html.dsh-embed .controls-card { padding: 3px 6px; }
+      html.dsh-embed .controls { grid-template-columns: repeat(3, 30px); grid-template-rows: repeat(2, 26px); gap: 3px; }
+      html.dsh-embed .control-btn { font-size: 13px; }
+      html.dsh-embed .game-actions { gap: 4px; }
+      html.dsh-embed .game-actions .small-btn { padding: 4px 6px; font-size: 11px; }
+    }
+
+    /* 更矮（iPhone 橫向 ~290px）：連暫停/返回都收起，暫停改由點遊戲畫面觸發 */
+    @media (max-height: 340px) {
+      html.dsh-embed .game-actions { display: none !important; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -501,10 +559,6 @@
       <section class="screen" id="gameScreen">
         <div class="game-grid">
           <div class="game-main">
-            <div class="question-card">
-              <div><span class="question-label">本题任务</span><strong class="equation" id="equation">−3 + (+5) = ?</strong></div>
-              <span class="question-badge" id="levelBadge">🌱 基础关</span>
-            </div>
             <div class="board-wrap" id="boardWrap">
               <canvas id="gameCanvas" width="600" height="600" aria-label="贪食蛇游戏区域"></canvas>
               <div class="feedback-toast" id="feedback" role="status" aria-live="polite"></div>
@@ -515,6 +569,10 @@
           </div>
 
           <aside class="side-panel">
+            <div class="question-card">
+              <div><span class="question-label">本题任务</span><strong class="equation" id="equation">−3 + (+5) = ?</strong></div>
+              <span class="question-badge" id="levelBadge">🌱 基础关</span>
+            </div>
             <div class="hud-card">
               <h3>冒险得分</h3>
               <div class="score-row"><span class="score-number" id="score">0</span><span class="combo" id="combo">连对 ×0</span></div>
@@ -620,7 +678,7 @@
         const w = Math.max(240, Math.round(rect.width));
         const h = Math.max(160, Math.round(rect.height));
         /* 每格邊長同時受寬與高限制，格子才會是正方形；橫屏時盤面自然變寬扁。 */
-        CELL = Math.max(14, Math.min(34, Math.floor(Math.min(w / 20, h / 8))));
+        CELL = Math.max(14, Math.min(34, Math.floor(Math.min(w / 24, h / 10))));
         COLS = Math.max(10, Math.floor(w / CELL));
         ROWS = Math.max(6, Math.floor(h / CELL));
         SIZE = COLS * CELL;
