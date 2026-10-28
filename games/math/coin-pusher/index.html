@@ -476,7 +476,7 @@
   .opt-key { border-radius: 0; box-shadow: 2px 2px 0 #2a1600; }
 
   /* =====================================================================
-     平台橫屏 iframe（html.dsh-embed）— 328–368px 高也要完整顯示、不滾動
+     平台橫屏 iframe（html.dsh-embed）— 292px 高也要完整顯示、不滾動
      只有在平台上才會生效，獨立開頁面維持原本外觀。
      ===================================================================== */
   html.dsh-embed, html.dsh-embed body { height: 100%; min-height: 0; }
@@ -515,6 +515,19 @@
   html.dsh-embed #screen-rules .row.center { margin-top: 0; }
   html.dsh-embed #screen-clear .row.center { margin-top: 0; }
 
+  /* 通關頁：成就清單自己捲動，三個返回鍵永遠留在畫面內 */
+  html.dsh-embed #screen-clear .wrap { padding: 8px 12px; gap: 6px; }
+  html.dsh-embed #clear-root { flex: 1; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch; }
+  html.dsh-embed #clear-root .title { font-size: 22px; }
+  html.dsh-embed #clear-root .lead { margin: 2px 0 8px; font-size: 13px; line-height: 1.45; }
+  html.dsh-embed #clear-root .goals { gap: 6px; }
+  html.dsh-embed #clear-root .goal-top { font-size: 12px; }
+  html.dsh-embed #clear-root h3 { margin: 8px 0 4px; font-size: 16px; }
+  html.dsh-embed #clear-root .ach-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+  html.dsh-embed #clear-root .ach { padding: 8px 10px; font-size: 13px; }
+  html.dsh-embed #clear-root .ach p { margin: 3px 0 0; font-size: 12px; }
+  html.dsh-embed #screen-clear .row.center { flex: none; }
+
   /* ---------------- 遊戲畫面 ---------------- */
   html.dsh-embed #screen-game .wrap {
     display: flex;
@@ -527,16 +540,19 @@
   html.dsh-embed .top-row h1 { display: none; }
   html.dsh-embed .wallet-box { padding: 3px 10px; font-size: 13px; }
   html.dsh-embed .top-actions { display: flex; flex-wrap: nowrap; gap: 6px; margin-left: auto; }
-  html.dsh-embed .top-actions button { min-height: 36px; padding: 4px 10px; font-size: 12px; }
+  html.dsh-embed .top-actions button { min-height: 40px; padding: 4px 10px; font-size: 12px; }
   html.dsh-embed .hint,
   html.dsh-embed #screen-game .stat-list,
   html.dsh-embed #screen-game .goals { display: none; }
 
+  /* 機台欄寬＝機台畫面維持 400:600 的比例，由 layoutCabinet() 寫入 --cab-w。
+     這樣玻璃區不會再出現左右兩大條深褐色留白。 */
   html.dsh-embed .stage {
     flex: 1;
     min-height: 0;
     margin-top: 0;
-    grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
+    display: grid;
+    grid-template-columns: var(--cab-w, calc((var(--app-h, 100dvh) - 74px) * 0.6667 + 16px)) minmax(0, 1fr);
     gap: 8px;
     align-items: stretch;
   }
@@ -544,46 +560,78 @@
     display: flex;
     flex-direction: column;
     min-height: 0;
-    padding: 6px;
-    box-shadow: 0 0 0 3px #3a1d6e, 0 0 0 5px #ffd76a, 0 10px 24px rgba(0, 0, 0, .4), inset 0 0 30px rgba(0, 0, 0, .35);
+    min-width: 0;
+    padding: 5px;
+    border-width: 3px;
+    box-shadow: 0 0 0 3px #241048, 0 5px 0 #000;
   }
   html.dsh-embed .marquee,
   html.dsh-embed .bulbs,
   html.dsh-embed .machine-foot { display: none; }
-  html.dsh-embed .glass { flex: 1; min-height: 0; height: auto; }
+  html.dsh-embed .glass { flex: 1 1 auto; min-height: 0; height: auto; }
+  html.dsh-embed #machine { display: block; width: 100%; height: 100%; }
+
   html.dsh-embed .quiz {
     display: flex;
     flex-direction: column;
     justify-content: center;
     min-height: 0;
-    padding: 6px;
+    padding: 6px 8px 8px;
     overflow: hidden;
   }
-  html.dsh-embed .quiz-head { font-size: 12px; }
-  html.dsh-embed .round-note { min-height: 0; margin: 2px 0 0; font-size: 12px; }
-  html.dsh-embed #q-text { margin: 4px 0 6px; font-size: clamp(16px, 3.8vh, 28px); }
-  html.dsh-embed .options { flex: 1 1 auto; max-height: 200px; gap: 6px; }
-  html.dsh-embed button.opt { min-height: 40px; padding: 3px 8px; font-size: 15px; }
+  html.dsh-embed .quiz-head { flex: none; font-size: 12px; line-height: 1.3; }
+  html.dsh-embed .round-note { flex: none; min-height: 0; margin: 0; font-size: 12px; line-height: 1.3; }
+  /* 落點軌放在題目下方、選項上方：平台的通知條固定在畫面底部中央，
+     軌道留在最下面會被「新紀錄／經驗」提示蓋住，往上移才永遠看得到。 */
+  html.dsh-embed #q-text { flex: none; margin: 2px 0 4px; font-size: clamp(17px, 4.4vh, 30px); line-height: 1.2; }
+  html.dsh-embed .q-actions { flex: none; order: 3; margin: 4px 0 8px; }
+  html.dsh-embed .track-label { font-size: 12px; line-height: 1.3; margin-bottom: 2px; }
+  html.dsh-embed .track { height: 26px; }
+  html.dsh-embed .track-zones { top: 30px; font-size: 12px; }
+  html.dsh-embed .options {
+    flex: 1 1 auto;
+    order: 4;
+    min-height: 0;
+    max-height: min(200px, 42vh);
+    align-content: stretch;
+    gap: 6px;
+  }
+  html.dsh-embed button.opt { min-height: 40px; padding: 2px 8px; font-size: 15px; }
   html.dsh-embed .opt-key { width: 20px; height: 20px; font-size: 12px; }
   html.dsh-embed .opt-val { font-size: 18px; }
-  html.dsh-embed .q-actions { margin-top: 6px; }
-  html.dsh-embed .track-label { font-size: 12px; margin-bottom: 2px; }
-  html.dsh-embed .track { height: 22px; }
-  html.dsh-embed .track-zones { top: 32px; font-size: 12px; }
-  html.dsh-embed .result { margin-top: 4px; padding: 3px 6px; font-size: 12px; }
+  html.dsh-embed .result { flex: none; order: 5; margin: 6px 0 0; padding: 3px 6px; font-size: 12px; }
 
   /* ---------------- 浮層 ---------------- */
   html.dsh-embed .modal { padding: 10px; }
   html.dsh-embed .modal-card,
   html.dsh-embed .shot-card { max-height: calc(var(--app-h, 100dvh) - 20px); overflow: auto; padding: 14px 16px; }
+  /* 成績單卡片：內容自己捲動，儲存／關閉鍵固定在卡片底部 */
+  html.dsh-embed .shot-card { display: flex; flex-direction: column; overflow: hidden; }
+  html.dsh-embed .shot-card #shot-body { flex: 1 1 auto; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch; }
+  html.dsh-embed .shot-card .row { flex: none; margin-top: 8px; }
+  html.dsh-embed .shot-card img { max-width: 100%; }
   html.dsh-embed .modal-card h3 { margin: 4px 0 6px; font-size: 18px; }
   html.dsh-embed .modal-card .note { font-size: 12px; }
   html.dsh-embed .shot-list li { padding: 2px 0; font-size: 12px; }
   html.dsh-embed .modal .row { margin-top: 8px; gap: 8px; }
   html.dsh-embed .modal .row button { min-height: 40px; font-size: 14px; }
 
+  /* 矮屏（874×292 / 932×384）：平台會把工具列收成左上角兩顆 34px 浮動鈕，
+     佔左邊約 92px。頂部列整個往右讓開，金幣數字才不會被蓋住。 */
+  @media (max-height: 400px) {
+    html.dsh-embed #screen-game .topbar { padding-left: 92px; }
+    html.dsh-embed .wallet-box { padding: 2px 9px; font-size: 12px; }
+    html.dsh-embed .top-actions button { min-height: 40px; padding: 3px 9px; font-size: 12px; }
+    html.dsh-embed #q-text { font-size: clamp(16px, 5.4vh, 26px); }
+    html.dsh-embed .options { max-height: min(150px, 46vh); gap: 5px; }
+    html.dsh-embed button.opt { min-height: 40px; font-size: 14px; }
+    html.dsh-embed .opt-val { font-size: 17px; }
+    html.dsh-embed .q-actions { margin: 3px 0 6px; }
+    html.dsh-embed .track { height: 24px; }
+  }
+
   @media (max-height: 470px) {
-    /* 矮屏：把畫面盡量留給機台與選項 */
+    /* 開始畫面：把高度留給四個金幣卡與開始鍵 */
     html.dsh-embed #screen-start .wrap { gap: 4px; }
     html.dsh-embed .subtitle { font-size: 12px; }
     html.dsh-embed .title { font-size: clamp(20px, 6vh, 32px); }
@@ -591,12 +639,6 @@
     html.dsh-embed .preview em { font-size: 11px; }
     html.dsh-embed .preview b { font-size: 12px; }
     html.dsh-embed .coin-face { width: clamp(22px, 6vh, 40px); height: clamp(22px, 6vh, 40px); }
-    html.dsh-embed .top-actions button { min-height: 34px; }
-    html.dsh-embed .options { flex: 1; max-height: 132px; align-content: stretch; }
-    html.dsh-embed button.opt { min-height: 36px; }
-    html.dsh-embed .q-actions { margin-top: 4px; }
-    html.dsh-embed .track { height: 18px; }
-    html.dsh-embed .track-zones { top: 28px; font-size: 11px; }
     html.dsh-embed .result { font-size: 11px; }
   }
 </style>
@@ -1443,7 +1485,28 @@
     }
   }
 
+  /* 平台 iframe 內：機台欄寬跟著 400:600 的機台畫面走，
+     玻璃區剛好等於世界比例，左右不會再留兩大條深褐色空白。 */
+  var cabFit = { h: -1 };
+  function layoutCabinet() {
+    if (!document.documentElement.classList.contains("dsh-embed")) return;
+    var stage = document.querySelector("#screen-game .stage");
+    var cab = document.getElementById("cabinet");
+    if (!stage || !cab) return;
+    var h = stage.clientHeight;
+    if (h < 80 || h === cabFit.h) return;
+    cabFit.h = h;
+    var cs = window.getComputedStyle(cab);
+    var px = function (v) { return parseFloat(v) || 0; };
+    var chromeV = px(cs.borderTopWidth) + px(cs.borderBottomWidth) + px(cs.paddingTop) + px(cs.paddingBottom);
+    var chromeH = px(cs.borderLeftWidth) + px(cs.borderRightWidth) + px(cs.paddingLeft) + px(cs.paddingRight);
+    var glassH = Math.max(60, h - chromeV);
+    var w = Math.round(glassH * F.w / F.h + chromeH);
+    stage.style.setProperty("--cab-w", w + "px");
+  }
+
   function fit() {
+    layoutCabinet();
     var rect = canvas.getBoundingClientRect();
     var dpr = Math.min(2, window.devicePixelRatio || 1);
     var w = Math.max(1, Math.round(rect.width * dpr));
@@ -2224,7 +2287,10 @@
     showScreen("clear");
   });
   document.addEventListener("keydown", onKey);
-  window.addEventListener("resize", sizeConfetti);
+  window.addEventListener("resize", function () {
+    cabFit.h = -1;
+    sizeConfetti();
+  });
   document.addEventListener("visibilitychange", function () { lastTs = 0; });
   var modals = document.querySelectorAll(".modal");
   for (var m = 0; m < modals.length; m++) {
