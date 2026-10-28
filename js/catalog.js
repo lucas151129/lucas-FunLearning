@@ -58,6 +58,16 @@ const GAMES = [
     entry: "games/physics/convex-lens/index.html",
   },
   {
+    id: "phy-ripple",
+    category: "physics",
+    title: "水波槽實驗室",
+    level: "upper",
+    blurb: "調頻率、拖障礙物，觀察反射、折射、衍射與雙源干涉；可切換真實水波與波陣面／射線圖。",
+    maxScore: 500,
+    icon: "assets/games/phy-ripple.png?v=1",
+    entry: "games/physics/ripple-tank/index.html",
+  },
+  {
     id: "phy-momentum",
     category: "physics",
     title: "動量碰撞模擬器",

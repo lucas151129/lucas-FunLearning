@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#04121b" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2304121b'/%3E%3Cpath d='M3 20c5-6 9 6 14 0s9-6 12 0' fill='none' stroke='%235ff3ff' stroke-width='2'/%3E%3Cpath d='M3 25c5-6 9 6 14 0s9-6 12 0' fill='none' stroke='%23ffb21c' stroke-width='1.5'/%3E%3C/svg%3E" />
+  <title>水波槽實驗室 · Ripple Tank Lab</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"><i></i></span>
+        <span class="brand-copy">
+          <span class="brand-kicker">RIPPLE TANK · WAVE PHENOMENA</span>
+          <strong>水波槽實驗室</strong>
+        </span>
+      </div>
+      <nav class="view-toggle" aria-label="顯示模式">
+        <button type="button" id="waterTab" class="view-tab is-active" aria-pressed="true">真實水波</button>
+        <button type="button" id="diagramTab" class="view-tab" aria-pressed="false">波陣面・射線</button>
+      </nav>
+      <div class="top-actions">
+        <button type="button" class="round-btn" id="playBtn" aria-label="暫停">Ⅱ</button>
+        <button type="button" class="round-btn" id="resetBtn" aria-label="重設">↺</button>
+      </div>
+    </header>
+
+    <main class="stage">
+      <section class="scene-wrap" id="sceneWrap" aria-label="水波槽">
+        <canvas id="scene"></canvas>
+        <div class="hud-top">
+          <span class="hud-chip">f <b id="hudF">1.5 Hz</b></span>
+          <span class="hud-chip">λ <b id="hudLambda">8.0 cm</b></span>
+          <span class="hud-chip">v <b id="hudV">12.0 cm/s</b></span>
+          <span class="hud-chip hud-scene" id="hudScene">自由水波</span>
+          <button type="button" class="scene-help" id="helpBtn" aria-label="操作提示">?</button>
+        </div>
+        <div class="hud-bottom">
+          <span id="statusText">拖動量度工具，讀出波長與角度</span>
+          <span class="scale-hint">TANK 40 × 30 cm</span>
+        </div>
+        <div class="measure-card" id="measureCard" hidden>
+          <button type="button" class="measure-close" id="measureClose" aria-label="關閉量度">×</button>
+          <span>MEASUREMENT</span>
+          <b id="measureDistance">--</b>
+          <p id="measureSecondary"></p>
+        </div>
+        <div class="help-pop" id="helpPop" hidden>
+          <b>操作提示</b>
+          <p>選一個情境，調校頻率與幾何條件。開啟「量度」後在畫面上點兩點，可量度波長；在干涉模式點一點，可看該點的程差。</p>
+          <button type="button" id="helpClose">知道了</button>
+        </div>
+      </section>
+
+      <aside class="panel" id="panel">
+        <div class="panel-eyebrow"><span>WAVE BENCH</span><span class="live-dot">LIVE FIELD</span></div>
+
+        <div class="scenario-head">實驗情境</div>
+        <div class="scenarios" id="scenarios">
+          <button type="button" data-scene="free" class="is-active">自由水波</button>
+          <button type="button" data-scene="reflection">反射</button>
+          <button type="button" data-scene="refraction">折射</button>
+          <button type="button" data-scene="diffraction">衍射</button>
+          <button type="button" data-scene="interference">雙源干涉</button>
+        </div>
+
+        <div class="control-block">
+          <label class="slider-label" for="freqInput">頻率 f<output id="freqValue">1.5 Hz</output></label>
+          <input id="freqInput" type="range" min="0.8" max="3" step="0.05" value="1.5" />
+          <div class="range-labels"><span>0.8 Hz</span><span>3.0 Hz</span></div>
+        </div>
+
+        <div class="control-block">
+          <label class="slider-label" for="ampInput">振幅 A<output id="ampValue">0.8</output></label>
+          <input id="ampInput" type="range" min="0.3" max="1.2" step="0.05" value="0.8" />
+        </div>
+
+        <div id="contextControls">
+          <div class="control-block context-block" id="barrierBlock" hidden>
+            <label class="slider-label" for="barrierInput">障礙物角度<output id="barrierValue">32°</output></label>
+            <input id="barrierInput" type="range" min="-60" max="60" step="1" value="32" />
+            <div class="range-labels"><span>−60°</span><span>0°</span><span>60°</span></div>
+          </div>
+
+          <div class="control-block context-block" id="refractionBlock" hidden>
+            <label class="slider-label" for="tiltInput">界面傾角<output id="tiltValue">18°</output></label>
+            <input id="tiltInput" type="range" min="0" max="35" step="1" value="18" />
+            <label class="slider-label" for="shallowInput" style="margin-top:6px">淺水區波速<output id="shallowValue">6.0 cm/s</output></label>
+            <input id="shallowInput" type="range" min="3" max="10" step="0.5" value="6" />
+          </div>
+
+          <div class="control-block context-block" id="gapBlock" hidden>
+            <label class="slider-label" for="gapInput">狹縫寬度<output id="gapValue">4.0 cm</output></label>
+            <input id="gapInput" type="range" min="1" max="12" step="0.5" value="4" />
+            <div class="range-labels"><span>1 cm</span><span>12 cm</span></div>
+          </div>
+
+          <div class="control-block context-block" id="sepBlock" hidden>
+            <label class="slider-label" for="sepInput">波源距離<output id="sepValue">12.0 cm</output></label>
+            <input id="sepInput" type="range" min="4" max="20" step="0.5" value="12" />
+          </div>
+
+          <div class="control-block context-block" id="sourceBlock">
+            <div class="source-type-label">波源</div>
+            <div class="source-type">
+              <button type="button" data-source="plane" class="is-active">平面波</button>
+              <button type="button" data-source="circular">圓形波</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool-row">
+          <button type="button" class="tool-btn" id="measureBtn">量度</button>
+          <button type="button" class="tool-btn" id="clearMeasureBtn">清除量度</button>
+        </div>
+        <div class="tool-row diagram-tools" id="diagramTools">
+          <label class="switch"><input type="checkbox" id="wavefrontToggle" checked /><span></span>波陣面</label>
+          <label class="switch"><input type="checkbox" id="rayToggle" checked /><span></span>射線</label>
+          <label class="switch"><input type="checkbox" id="nodalToggle" /><span></span>節線</label>
+        </div>
+
+        <div class="formula-card">
+          <span>WAVE RELATION</span>
+          <p class="formula">v = f λ</p>
+          <p class="formula-sub" id="formulaText">12.0 = 1.5 × 8.0</p>
+        </div>
+
+        <div class="info-card">
+          <div class="info-head">
+            <span id="sceneLabel">自由水波</span>
+            <span id="sceneFormula">v = f λ</span>
+          </div>
+          <p id="sceneDescription">觀察平面波或圓形波。波陣面之間的距離就是波長 λ。</p>
+        </div>
+
+        <div class="measure-readout" id="measureReadout">
+          <span>量度數據</span>
+          <div><b id="readoutLambda">λ = 8.0 cm</b><b id="readoutSpeed">v = 12.0 cm/s</b></div>
+          <p id="readoutExtra">在畫面上點兩點，可核對波長。</p>
+        </div>
+
+        <div class="tip-card">
+          <span>觀察重點</span>
+          <p id="tipText">波峰與波峰之間的距離是一個波長。</p>
+        </div>
+
+        <button type="button" class="task-launch" id="taskBtn">
+          <span>知識任務</span>
+          <b id="taskBadge">0 / 5 · 0 分</b>
+        </button>
+      </aside>
+
+      <div class="task-overlay" id="taskOverlay" hidden>
+        <section class="task-card" role="dialog" aria-modal="true" aria-labelledby="taskTitle">
+          <div class="task-card-top">
+            <span class="task-kicker">WAVE CHECK</span>
+            <button type="button" class="task-close" id="taskClose" aria-label="關閉">×</button>
+          </div>
+          <div class="task-meter"><i id="taskMeter"></i></div>
+          <span class="task-number" id="taskNumber">01 / 05</span>
+          <h2 id="taskTitle">讀出波長</h2>
+          <p class="task-copy" id="taskQuestion"></p>
+          <div class="task-options" id="taskOptions"></div>
+          <p class="task-feedback" id="taskFeedback"></p>
+          <button type="button" class="task-next" id="taskNext" disabled>先選答案</button>
+        </section>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </main>
+  </div>
+
+  <script src="./src/boot.js"></script>
+</body>
+</html>
