@@ -1560,6 +1560,8 @@
   var pusherArt = new Image();
   var feltArt = new Image();
   var railArt = new Image();
+  var exitArt = new Image();
+  var exitArtReady = false;
   var feltArtReady = false;
   var railArtReady = false;
   var feltPattern = null;
@@ -1570,6 +1572,8 @@
   pusherArt.onload = function () { pusherArtReady = true; };
   feltArt.onload = function () { feltArtReady = true; };
   railArt.onload = function () { railArtReady = true; };
+  exitArt.onload = function () { exitArtReady = true; };
+  exitArt.src = "exit.png";
   feltArt.src = "felt.png";
   railArt.src = "rail.png";
   coinArt.src = "coins.png";
@@ -1646,7 +1650,10 @@
 
   function drawWorld() {
     ctx.imageSmoothingEnabled = false;
-    if (false) {
+    if (feltArtReady) {
+      if (!feltPattern) feltPattern = ctx.createPattern(feltArt, "repeat");
+      ctx.fillStyle = feltPattern || "#16924a";
+      ctx.fillRect(0, 0, F.w, F.h);
     } else {
       ctx.fillStyle = "#16924a";
       ctx.fillRect(0, 0, F.w, F.h);
@@ -1655,10 +1662,14 @@
         for (var x = ((y / 8) % 2) ? 0 : 4; x < F.w; x += 8) ctx.fillRect(x, y, 4, 4);
       }
     }
-    ctx.fillStyle = "#10141c";
-    ctx.fillRect(0, F.exitY, F.w, F.h - F.exitY);
-    ctx.fillStyle = "#ffd24a";
-    ctx.fillRect(F.wall, F.exitY, F.w - F.wall * 2, 4);
+    if (false) {
+      ctx.drawImage(exitArt, 0, 0, exitArt.width, exitArt.height, 0, F.exitY, F.w, F.h - F.exitY);
+    } else {
+      ctx.fillStyle = "#10141c";
+      ctx.fillRect(0, F.exitY, F.w, F.h - F.exitY);
+      ctx.fillStyle = "#ffd24a";
+      ctx.fillRect(F.wall, F.exitY, F.w - F.wall * 2, 4);
+    }
     ctx.fillStyle = "#ffe9a0";
     ctx.font = "700 20px Microsoft JhengHei, sans-serif";
     ctx.textAlign = "center";
