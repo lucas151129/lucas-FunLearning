@@ -139,6 +139,16 @@ const GAMES = [
     entry: "games/math/fish/index.html",
   },
   {
+    id: "math-forge",
+    category: "math",
+    title: "算式鍛造所",
+    level: "middle",
+    blurb: "你是鍛造師，算式就是武器：把數字與運算子排進鐵砧，打出剛好破甲的一擊。",
+    maxScore: 750,
+    icon: "assets/games/math-forge.png?v=1",
+    entry: "games/math/forge/index.html",
+  },
+  {
     id: "sci-starforge",
     category: "science",
     title: "星際工坊",

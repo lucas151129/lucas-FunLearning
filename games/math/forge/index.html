@@ -1,0 +1,2571 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#141a30">
+<title>算式鍛造所</title>
+<link rel="preload" as="image" href="art/golem.png">
+<link rel="preload" as="image" href="art/card-frame.png">
+<link rel="preload" as="image" href="art/anvil.png">
+<link rel="preload" as="image" href="art/hit.png">
+<style>
+  :root {
+    --ink: #f4e7c8;
+    --dim: #a9b8d4;
+    --gold: #ffd06a;
+    --gold2: #ff9d2e;
+    --ember: #ff6b2b;
+    --cyan: #74e8ff;
+    --steel: #9fb4d4;
+    --navy: #1c2340;
+    --navy2: #10152a;
+    --card-w: 80px;
+    --card-h: 112px;
+    --slot-h: 56px;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: #070a14;
+    color: var(--ink);
+    font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", "Heiti TC", system-ui, sans-serif;
+    overflow: hidden;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button { font: inherit; touch-action: manipulation; }
+  img { -webkit-user-drag: none; }
+  #app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    isolation: isolate;
+    background: #0a0f1f;
+  }
+  html:not(.dsh-embed) #app { height: 100dvh; }
+  .screen { position: absolute; inset: 0; display: none; flex-direction: column; min-height: 0; }
+  .screen.active { display: flex; }
+  .pix { image-rendering: pixelated; image-rendering: crisp-edges; }
+
+  /* ---------------- 背景 ---------------- */
+  #bg {
+    position: absolute;
+    inset: -2%;
+    background: url("art/forge-bg.png") center / cover no-repeat;
+    image-rendering: pixelated;
+    filter: brightness(.92) saturate(.95);
+    z-index: -3;
+  }
+  #bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(55% 55% at 20% 42%, rgba(255, 120, 40, .18), transparent 68%),
+      radial-gradient(45% 60% at 78% 10%, rgba(255, 160, 60, .10), transparent 70%),
+      linear-gradient(180deg, rgba(7, 10, 20, .42) 0%, rgba(7, 10, 20, .30) 55%, rgba(7, 10, 20, .62) 100%);
+  }
+  #embers { position: absolute; inset: 0; pointer-events: none; z-index: -2; overflow: hidden; }
+  #embers i {
+    position: absolute;
+    bottom: -8px;
+    width: 3px;
+    height: 3px;
+    background: #ffbd5c;
+    box-shadow: 0 0 7px #ff7a2f;
+    opacity: 0;
+    animation: rise linear infinite;
+  }
+  @keyframes rise {
+    0% { opacity: 0; transform: translate(0, 0) scale(.6); }
+    12% { opacity: .85; }
+    70% { opacity: .55; }
+    100% { opacity: 0; transform: translate(var(--dx, 18px), -105vh) scale(.2); }
+  }
+
+  /* ---------------- 共用零件 ---------------- */
+  .panel {
+    position: relative;
+    background:
+      linear-gradient(180deg, rgba(30, 40, 70, .88) 0%, rgba(13, 18, 34, .93) 62%, rgba(9, 13, 26, .95) 100%);
+    border: 2px solid #46578a;
+    border-radius: 9px;
+    box-shadow:
+      0 0 0 2px #0a0f1d,
+      inset 0 1px 0 rgba(255, 235, 190, .13),
+      inset 0 -14px 26px rgba(0, 0, 0, .45),
+      0 8px 22px rgba(0, 0, 0, .45);
+  }
+  .panel::before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: 1px solid rgba(255, 208, 106, .12);
+    border-radius: 5px;
+    pointer-events: none;
+  }
+  .rivet { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #9aaecc; box-shadow: inset 0 -1px 0 #3d4a6c; }
+  .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 40px;
+    min-width: 40px;
+    padding: 0 14px;
+    border: 2px solid #10152a;
+    border-radius: 7px;
+    background: linear-gradient(180deg, #3b4a72 0%, #263253 55%, #1c2542 100%);
+    color: #e8eefc;
+    font-weight: 800;
+    letter-spacing: .04em;
+    box-shadow: 0 3px 0 #0a0e1c, inset 0 1px 0 rgba(255, 255, 255, .16);
+    cursor: pointer;
+    transition: transform .08s ease, filter .12s ease;
+  }
+  .btn:hover { filter: brightness(1.12); }
+  .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a0e1c, inset 0 1px 0 rgba(255, 255, 255, .12); }
+  .btn:disabled { filter: saturate(.4) brightness(.7); cursor: default; }
+  .btn.ghost {
+    background: linear-gradient(180deg, rgba(52, 66, 102, .75), rgba(24, 32, 56, .88));
+    color: #cfe0ff;
+    border-color: #0d1222;
+  }
+  .btn.forge {
+    background: linear-gradient(180deg, #ffe08a 0%, #ffb43f 45%, #e1771a 100%);
+    color: #2b1503;
+    border-color: #1a1206;
+    text-shadow: 0 1px 0 rgba(255, 245, 205, .75);
+    box-shadow: 0 3px 0 #7f3d05, 0 0 18px rgba(255, 150, 50, .35), inset 0 1px 0 #fff4c8;
+    font-size: 17px;
+    letter-spacing: .12em;
+  }
+  .btn.forge img { width: 30px; height: 30px; filter: drop-shadow(0 1px 0 #5d2c00); }
+  .btn.forge.hot { animation: forgeHot 1.2s ease-in-out infinite; }
+  @keyframes forgeHot {
+    0%, 100% { box-shadow: 0 3px 0 #7f3d05, 0 0 14px rgba(255, 150, 50, .35), inset 0 1px 0 #fff4c8; }
+    50% { box-shadow: 0 3px 0 #7f3d05, 0 0 26px rgba(255, 190, 80, .8), inset 0 1px 0 #fff4c8; }
+  }
+
+  /* ---------------- 開始畫面 ---------------- */
+  #scr-start { justify-content: center; padding: 8px 18px; }
+  .start-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(150px, 22%) 1fr minmax(110px, 19%);
+    align-items: center;
+    gap: clamp(6px, 2vw, 22px);
+    width: 100%;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+  .start-hero { position: relative; display: flex; align-items: flex-end; justify-content: center; min-width: 0; }
+  .start-hero::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 6px;
+    width: 92%;
+    height: 26%;
+    transform: translateX(-50%);
+    background: radial-gradient(ellipse at 50% 100%, rgba(255, 140, 50, .38), rgba(255, 90, 30, .08) 52%, transparent 74%);
+    filter: blur(3px);
+    pointer-events: none;
+  }
+  .start-hero img {
+    position: relative;
+    width: clamp(140px, 51vh, 232px);
+    height: auto;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 12px 20px rgba(0, 0, 0, .62)) drop-shadow(0 0 26px rgba(255, 130, 40, .28));
+    animation: heroBob 3.4s ease-in-out infinite;
+  }
+  .start-foe {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2px;
+    min-width: 0;
+    align-self: end;
+    padding-bottom: 2px;
+  }
+  .start-foe img {
+    width: min(100%, 180px);
+    max-height: 46vh;
+    object-fit: contain;
+    image-rendering: pixelated;
+    opacity: .82;
+    filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .7)) saturate(.9) brightness(.88) hue-rotate(-8deg);
+    animation: golemBob 4.6s ease-in-out infinite;
+  }
+  .start-foe span {
+    font-size: 8.5px;
+    letter-spacing: .12em;
+    color: #93a7c9;
+    white-space: nowrap;
+    padding: 2px 6px;
+    border: 1px solid rgba(140, 160, 200, .22);
+    border-radius: 999px;
+    background: rgba(10, 15, 30, .6);
+  }
+  @keyframes heroBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  .start-copy { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+  .eyebrow {
+    margin: 0;
+    font-size: 10px;
+    letter-spacing: .38em;
+    color: var(--cyan);
+    opacity: .9;
+    font-weight: 700;
+  }
+  .logo {
+    margin: 0;
+    font-size: clamp(34px, 12vh, 56px);
+    line-height: 1.05;
+    letter-spacing: .1em;
+    color: #ffe6a6;
+    text-shadow:
+      0 2px 0 #7a3d05,
+      0 4px 0 #2a1402,
+      0 0 24px rgba(255, 160, 60, .5);
+  }
+  .logo em { font-style: normal; color: #ffb14d; }
+  .tagline {
+    margin: 0;
+    max-width: 620px;
+    font-size: clamp(11px, 2.9vh, 15px);
+    line-height: 1.4;
+    color: #d8e2f5;
+    text-shadow: 0 1px 0 #000;
+  }
+  .tagline b { color: #ffd06a; }
+  .rules { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
+  .rule {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px 3px 6px;
+    border: 1px solid rgba(255, 208, 106, .32);
+    border-radius: 999px;
+    background: rgba(16, 22, 42, .74);
+    font-size: 10.5px;
+    color: #cfe0ff;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .rule b { color: #ffd06a; }
+  .rule i {
+    font-style: normal;
+    display: inline-grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #27334f;
+    color: var(--gold);
+    font-size: 10px;
+    font-weight: 900;
+  }
+  .start-actions { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
+  #btn-start {
+    min-height: 46px;
+    min-width: 168px;
+    font-size: 17px;
+    letter-spacing: .14em;
+    background: linear-gradient(180deg, #ffe293 0%, #ffb342 46%, #e37a19 100%);
+    color: #2b1603;
+    box-shadow: 0 4px 0 #7f3d05, 0 0 26px rgba(255, 160, 60, .38), inset 0 1px 0 #fff6cf;
+    border-color: #1a1206;
+  }
+  #btn-start::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 190, 90, .25);
+    animation: pulseRing 2.4s ease-out infinite;
+    pointer-events: none;
+  }
+  @keyframes pulseRing {
+    0% { opacity: .55; transform: scale(.98); }
+    60%, 100% { opacity: 0; transform: scale(1.06); }
+  }
+  .best-chip {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+    color: #93a8cc;
+    font-size: 10px;
+  }
+  .best-chip b { color: #ffd06a; font-size: 15px; }
+  .start-foe .foe-tag { color: #ffc07a; border-color: rgba(255, 170, 80, .32); }
+  .start-foe .foe-tag b { color: #ffd06a; }
+  .start-foot {
+    position: absolute;
+    right: 16px;
+    bottom: 7px;
+    font-size: 10px;
+    letter-spacing: .08em;
+    color: #7f92b5;
+  }
+  .start-foot b { color: #c9d8f2; }
+
+  /* ---------------- 戰鬥 HUD ---------------- */
+  #scr-battle { padding: 5px 9px 7px; gap: 4px; }
+  #hud {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    height: 27px;
+    padding: 0 10px;
+    border: 1px solid rgba(88, 108, 158, .55);
+    border-radius: 6px;
+    background: linear-gradient(180deg, rgba(18, 25, 46, .9), rgba(10, 15, 30, .86));
+    box-shadow: inset 0 1px 0 rgba(255, 235, 190, .08);
+    font-size: 11px;
+    color: #b7c7e4;
+  }
+  .hud-left, .hud-right { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .hud-left b, .hud-right b { color: #ffd88a; font-weight: 800; }
+  .hud-sep { width: 1px; height: 12px; background: rgba(140, 160, 200, .28); }
+  .hearts { display: flex; align-items: center; gap: 2px; }
+  .heart {
+    position: relative;
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    line-height: 15px;
+    font-size: 15px;
+    color: #3a4260;
+    text-shadow: 0 1px 0 #000;
+  }
+  .heart::before { content: "\2665"; position: absolute; inset: 0; }
+  .heart .fill {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    color: #ff5c72;
+    filter: drop-shadow(0 0 4px rgba(255, 70, 90, .7));
+  }
+  .heart .fill::before { content: "\2665"; }
+  .heart.full .fill { width: 100%; }
+  .heart.half .fill { width: 50%; }
+  .heart.empty .fill { width: 0; }
+  .heart.loss { animation: heartPop .5s ease; }
+  @keyframes heartPop {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.5) rotate(-8deg); filter: brightness(2); }
+    100% { transform: scale(1); }
+  }
+  .deck-chip { display: inline-flex; align-items: center; gap: 4px; }
+  .deck-chip::before {
+    content: "";
+    width: 9px; height: 11px;
+    border: 1px solid #7d90b4;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #3d4c74, #242e4c);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, .5);
+  }
+
+  .field {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(240px, 35%) 1fr;
+    gap: 8px;
+  }
+
+  /* ---------------- 敵人 ---------------- */
+  .enemy-pane {
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 7px 8px 6px;
+    overflow: hidden;
+  }
+  .enemy-stage {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 53% 47%;
+    align-items: center;
+    gap: 2px;
+  }
+  .rune-ring {
+    position: absolute;
+    left: 26.5%;
+    top: 50%;
+    width: min(74%, 220px);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background:
+      repeating-conic-gradient(from 0deg, rgba(116, 232, 255, .22) 0deg 2deg, transparent 2deg 18deg),
+      radial-gradient(circle, transparent 55%, rgba(255, 130, 40, .12) 56%, transparent 70%);
+    opacity: .8;
+    animation: ringSpin 26s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes ringSpin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+  .golem-wrap {
+    position: relative;
+    align-self: stretch;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    min-width: 0;
+    min-height: 0;
+    padding-bottom: 2px;
+  }
+  .golem-wrap::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 62%;
+    height: 9px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(0, 0, 0, .75), transparent 72%);
+    z-index: 0;
+  }
+  #golem {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+    image-rendering: pixelated;
+    filter: var(--tint, saturate(1)) drop-shadow(0 6px 10px rgba(0, 0, 0, .55)) drop-shadow(0 0 18px rgba(255, 120, 40, .18));
+    animation: golemBob 3.8s ease-in-out infinite;
+  }
+  @keyframes golemBob {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-3px) scale(1.005); }
+  }
+  .golem-wrap.hurt #golem { animation: golemHurt .42s ease; filter: brightness(1.6) saturate(1.3) sepia(.3) drop-shadow(0 0 16px #ff9a3c); }
+  @keyframes golemHurt {
+    0% { transform: translate(0, 0); }
+    18% { transform: translate(-7px, 2px) rotate(-1deg); }
+    38% { transform: translate(6px, -2px) rotate(1deg); }
+    58% { transform: translate(-4px, 1px); }
+    80% { transform: translate(3px, 0); }
+    100% { transform: translate(0, 0); }
+  }
+  .golem-wrap.charge #golem { animation: golemCharge .55s ease; }
+  @keyframes golemCharge {
+    0%, 100% { transform: translateY(0) scale(1); }
+    40% { transform: translateY(-8px) scale(1.05); filter: brightness(1.25) drop-shadow(0 0 22px #ff6b2b); }
+  }
+  .enemy-info { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .enemy-name {
+    margin: 0;
+    font-size: 12.5px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    color: #ffd9a0;
+    text-shadow: 0 1px 0 #000, 0 0 12px rgba(255, 140, 50, .35);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .enemy-name small { display: block; font-size: 9px; letter-spacing: .2em; color: #8fa2c6; font-weight: 600; }
+  .armor-plate {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 1px 9px 2px 8px;
+    border: 2px solid #0c1122;
+    border-radius: 6px;
+    background:
+      linear-gradient(180deg, #7488aa 0%, #465878 18%, #2c3856 60%, #1c2540 100%);
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, .28),
+      inset 0 -6px 12px rgba(0, 0, 0, .45),
+      0 3px 0 #080c18,
+      0 0 16px rgba(120, 170, 255, .10);
+    max-width: 100%;
+  }
+  .armor-plate::before, .armor-plate::after {
+    content: "";
+    position: absolute;
+    top: 4px;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: #b9c8e2;
+    box-shadow: inset 0 -1px 0 #4a5878;
+  }
+  .armor-plate::before { left: 4px; }
+  .armor-plate::after { right: 4px; }
+  .armor-lbl { font-size: 9px; font-weight: 800; letter-spacing: .18em; color: #bcd0ec; writing-mode: horizontal-tb; }
+  .armor-val {
+    font-size: clamp(22px, 7.4vh, 40px);
+    font-weight: 900;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: #eaf4ff;
+    text-shadow: 0 2px 0 #10182c, 0 0 14px rgba(120, 200, 255, .5);
+    letter-spacing: -.02em;
+    transition: transform .12s ease;
+  }
+  .armor-val.pop { animation: armorPop .4s ease; }
+  @keyframes armorPop {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.28); color: #fff2a8; }
+    100% { transform: scale(1); }
+  }
+  .armor-plate.cracked { animation: plateCrack .5s ease; }
+  @keyframes plateCrack {
+    0%, 100% { filter: none; }
+    30% { filter: brightness(2.2) saturate(.4); transform: translateX(-3px); }
+    60% { transform: translateX(3px); }
+  }
+  .enemy-hp { display: flex; align-items: center; gap: 4px; }
+  .hp-label { font-size: 9px; letter-spacing: .16em; color: #8fa2c6; font-weight: 700; }
+  .pip {
+    width: 13px; height: 15px;
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    background: #2b3350;
+    box-shadow: inset 0 0 0 1px #0b0f1e;
+    transition: background .2s ease, filter .2s ease;
+  }
+  .pip.on { background: linear-gradient(180deg, #ffd98a 0%, #ff9c34 55%, #c9541a 100%); filter: drop-shadow(0 0 4px rgba(255, 140, 50, .75)); }
+  .pip.hit { animation: pipHit .45s ease; }
+  @keyframes pipHit { 0% { transform: scale(1); } 40% { transform: scale(1.5) rotate(10deg); filter: brightness(3); } 100% { transform: scale(1); } }
+  .intent {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    align-self: flex-start;
+    max-width: 100%;
+    padding: 3px 7px;
+    border: 1px solid rgba(255, 122, 60, .38);
+    border-radius: 5px;
+    background: rgba(48, 20, 16, .68);
+    color: #ffc9a2;
+    font-size: 10px;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .intent .sword { color: #ff8a4c; font-size: 11px; }
+  .intent.safe {
+    border-color: rgba(110, 240, 170, .38);
+    background: rgba(16, 52, 38, .66);
+    color: #a8f5cf;
+  }
+  .relic-row {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding-top: 5px;
+    border-top: 1px solid rgba(120, 140, 190, .18);
+    min-height: 33px;
+  }
+  .relic-row .cap { font-size: 8.5px; letter-spacing: .18em; color: #7f92b5; margin-right: 1px; writing-mode: initial; }
+  .relic {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 26px;
+    padding: 0 6px 0 3px;
+    border: 1px solid #52648f;
+    border-radius: 5px;
+    background: linear-gradient(180deg, rgba(58, 74, 112, .7), rgba(22, 30, 52, .9));
+    color: #ffe0a8;
+    font-size: 9.5px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    box-shadow: inset 0 1px 0 rgba(255, 235, 190, .14);
+  }
+  .relic img { width: 20px; height: 20px; image-rendering: pixelated; }
+  .relic .glyph {
+    display: grid;
+    place-items: center;
+    width: 20px; height: 20px;
+    border-radius: 4px;
+    background: rgba(10, 16, 32, .7);
+    color: var(--cyan);
+    font-size: 12px;
+    font-weight: 900;
+  }
+  .relic.empty {
+    width: 26px;
+    padding: 0;
+    justify-content: center;
+    border-style: dashed;
+    border-color: rgba(110, 130, 175, .3);
+    background: rgba(12, 18, 34, .4);
+    color: #4d5c80;
+    font-size: 14px;
+  }
+
+  /* ---------------- 右側：手牌 / 算式槽 ---------------- */
+  .play-pane { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 5px; }
+  .hand-row { flex: 1 1 auto; min-height: 0; display: flex; align-items: flex-end; justify-content: center; }
+  .hand {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 5px;
+    width: 100%;
+    min-height: 0;
+    padding: 0 2px;
+  }
+  .hand.dense { gap: 3px; }
+  .hand.dense .card { --cw: 68px; --ch: 95px; }
+  .card {
+    --cw: var(--card-w);
+    --ch: var(--card-h);
+    position: relative;
+    flex: 0 0 auto;
+    width: var(--cw);
+    height: var(--ch);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: transform .1s ease, filter .12s ease;
+    filter: drop-shadow(0 5px 5px rgba(0, 0, 0, .45));
+  }
+  .card .cf {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    pointer-events: none;
+  }
+  .face {
+    position: absolute;
+    inset: 11% 12% 15% 12%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    pointer-events: none;
+  }
+  .card .big {
+    font-size: calc(var(--cw) * .5);
+    font-weight: 900;
+    line-height: .98;
+    font-variant-numeric: tabular-nums;
+    color: #fff1c4;
+    text-shadow: 0 2px 0 #3d2508, 0 0 12px rgba(255, 190, 90, .55);
+  }
+  .card .sub {
+    display: none;
+  }
+  .card[data-kind="num"] .big { color: #fff0bd; }
+  .card[data-kind="op"] .big { color: #9fe9ff; text-shadow: 0 2px 0 #0b2a38, 0 0 14px rgba(90, 220, 255, .6); }
+  .card[data-kind="op"] .face { gap: 0; }
+  .card[data-kind="rune"] .big { font-size: calc(var(--cw) * .33); color: #ffd2ff; text-shadow: 0 2px 0 #341033, 0 0 16px rgba(240, 120, 255, .7); }
+  .card[data-kind="rune"] .cf { filter: drop-shadow(0 0 5px rgba(220, 110, 255, .55)); }
+  .card[data-kind="util"] .big { font-size: calc(var(--cw) * .3); color: #b6ffe0; text-shadow: 0 2px 0 #07352a, 0 0 14px rgba(80, 255, 190, .55); }
+  .card[data-kind="util"] .cf { filter: drop-shadow(0 0 5px rgba(80, 255, 200, .45)); }
+  .card[data-kind="util"] .sub { color: #9fe9d4; }
+  .card .tag {
+    position: absolute;
+    left: 50%;
+    bottom: 3.5%;
+    transform: translateX(-50%);
+    font-size: max(6.5px, calc(var(--cw) * .08));
+    letter-spacing: .1em;
+    color: #c9b98e;
+    font-weight: 700;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .card:hover { transform: translateY(-5px); filter: drop-shadow(0 8px 8px rgba(0, 0, 0, .5)) brightness(1.08); }
+  .card:active { transform: translateY(-1px) scale(.97); }
+  .card.hint { animation: cardHint 1s ease-in-out infinite; }
+  @keyframes cardHint {
+    0%, 100% { filter: drop-shadow(0 0 4px #74e8ff) brightness(1.05); transform: translateY(0); }
+    50% { filter: drop-shadow(0 0 14px #74e8ff) brightness(1.3); transform: translateY(-6px); }
+  }
+  .card.mirror-pick { animation: cardHint .8s ease-in-out infinite; cursor: crosshair; }
+  .card.dim { filter: grayscale(.75) brightness(.62); }
+  .card.deal { animation: dealIn .24s cubic-bezier(.2, .8, .3, 1) both; }
+  @keyframes dealIn {
+    from { opacity: 0; transform: translateY(18px) scale(.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .card.fly {
+    position: fixed;
+    z-index: 60;
+    margin: 0;
+    pointer-events: none;
+    transition: transform .19s cubic-bezier(.3, .8, .4, 1), opacity .19s ease;
+    transform-origin: top left;
+  }
+
+  .slot-row { flex: none; display: flex; align-items: stretch; gap: 6px; height: var(--slot-h); }
+  .slot-box {
+    position: relative;
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 4px 7px;
+    border: 2px solid #3a4870;
+    border-radius: 7px;
+    background:
+      repeating-linear-gradient(90deg, rgba(110, 140, 190, .05) 0 2px, transparent 2px 12px),
+      linear-gradient(180deg, rgba(12, 18, 36, .92), rgba(7, 11, 22, .95));
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, .65), 0 0 0 1px #090d1b;
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .slot-box.ready { border-color: #6ee9a0; box-shadow: inset 0 2px 10px rgba(0, 0, 0, .6), 0 0 14px rgba(110, 233, 160, .35); }
+  .slot-box.over { border-color: #ff6a5a; box-shadow: inset 0 2px 10px rgba(0, 0, 0, .6), 0 0 16px rgba(255, 90, 80, .45); }
+  .slot-box.bad { animation: slotShake .34s ease; border-color: #ffb15c; }
+  @keyframes slotShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    45% { transform: translateX(5px); }
+    70% { transform: translateX(-3px); }
+  }
+  .slot-tag {
+    flex: none;
+    font-size: 8.5px;
+    letter-spacing: .18em;
+    color: #7f92b5;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    line-height: 1;
+  }
+  .slot {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+  .slot:empty::after {
+    content: "點手牌，把數字與運算子排成算式";
+    font-size: 10px;
+    color: #5f7196;
+    letter-spacing: .05em;
+    white-space: nowrap;
+  }
+  .slot .card { --cw: 34px; --ch: 47px; }
+  .slot .card:hover { transform: translateY(-2px); }
+  .slot .card .tag { display: none; }
+  .slot-val {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0;
+    min-width: 56px;
+    font-variant-numeric: tabular-nums;
+  }
+  .slot-val .eq { color: #8499bd; font-size: 8px; letter-spacing: .1em; line-height: 1.1; white-space: nowrap; }
+  .slot-val b { font-size: clamp(16px, 4.6vh, 24px); line-height: 1; color: #ffe08a; text-shadow: 0 0 10px rgba(255, 190, 90, .4); }
+  .slot-val b.ready { color: #8bf7b8; text-shadow: 0 0 12px rgba(110, 240, 160, .7); }
+  .slot-val b.over { color: #ff7f6b; text-shadow: 0 0 12px rgba(255, 90, 70, .7); }
+  .slot-val b.invalid { color: #ffb15c; }
+
+  .controls { flex: none; display: flex; align-items: center; justify-content: flex-end; gap: 6px; min-height: 40px; }
+  .controls .spacer { flex: 1 1 auto; }
+  #btn-forge { min-width: 126px; }
+  #btn-end { min-width: 92px; font-size: 12px; }
+  #btn-hint { min-width: 64px; font-size: 12px; }
+  #btn-hint img { width: 18px; height: 18px; image-rendering: pixelated; }
+
+  /* ---------------- 卡片飛行 / 命中 ---------------- */
+  #fx { position: absolute; inset: 0; pointer-events: none; z-index: 30; overflow: hidden; }
+  .spark {
+    position: absolute;
+    width: 130px;
+    height: 130px;
+    margin: -65px 0 0 -65px;
+    image-rendering: pixelated;
+    opacity: 0;
+    transform: scale(.4) rotate(-12deg);
+  }
+  .spark.on { animation: sparkHit .46s ease-out both; }
+  @keyframes sparkHit {
+    0% { opacity: 0; transform: scale(.3) rotate(-18deg); }
+    28% { opacity: 1; transform: scale(1.12) rotate(2deg); }
+    100% { opacity: 0; transform: scale(1.5) rotate(12deg); }
+  }
+  .slash {
+    position: absolute;
+    width: 3px;
+    height: 90px;
+    margin: -45px 0 0;
+    background: linear-gradient(180deg, transparent, #fff6cf, #ffb347, transparent);
+    box-shadow: 0 0 12px #ffb347;
+    transform: rotate(38deg) scaleY(.3);
+    opacity: 0;
+  }
+  .slash.on { animation: slashCut .34s ease-out both; }
+  @keyframes slashCut {
+    0% { opacity: 0; transform: rotate(38deg) scaleY(.2) translateY(-20px); }
+    35% { opacity: 1; }
+    100% { opacity: 0; transform: rotate(38deg) scaleY(1.25) translateY(18px); }
+  }
+  .float-num {
+    position: absolute;
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff2b8;
+    text-shadow: 0 2px 0 #632a00, 0 0 12px #ff9d2e;
+    animation: floatUp .85s ease-out both;
+    white-space: nowrap;
+  }
+  .float-num.bad { color: #ff9a8a; text-shadow: 0 2px 0 #3a0000, 0 0 12px #ff3b2f; }
+  @keyframes floatUp {
+    0% { opacity: 0; transform: translateY(4px) scale(.8); }
+    18% { opacity: 1; transform: translateY(-6px) scale(1.08); }
+    100% { opacity: 0; transform: translateY(-44px) scale(1); }
+  }
+
+  /* ---------------- 橫幅 ---------------- */
+  #banner {
+    position: absolute;
+    left: 50%;
+    top: 16%;
+    z-index: 35;
+    transform: translate(-50%, -50%);
+    padding: 7px 20px;
+    border: 2px solid #1a1206;
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(58, 40, 18, .96), rgba(28, 19, 10, .97));
+    color: #ffe7ae;
+    font-size: clamp(15px, 4.4vh, 26px);
+    font-weight: 900;
+    letter-spacing: .08em;
+    white-space: nowrap;
+    text-shadow: 0 2px 0 #3a1c00;
+    box-shadow: 0 0 0 2px rgba(255, 180, 70, .45), 0 8px 24px rgba(0, 0, 0, .6), 0 0 34px rgba(255, 150, 50, .28);
+    pointer-events: none;
+    opacity: 0;
+  }
+  #banner.show { animation: bannerPop 1.5s ease both; }
+  #banner.good { border-color: #0c2a1c; box-shadow: 0 0 0 2px rgba(110, 240, 160, .55), 0 8px 24px rgba(0, 0, 0, .6), 0 0 34px rgba(90, 240, 150, .3); color: #b7ffd6; background: linear-gradient(180deg, rgba(16, 48, 34, .96), rgba(8, 26, 20, .97)); }
+  #banner.bad { border-color: #2a0c0c; box-shadow: 0 0 0 2px rgba(255, 100, 80, .55), 0 8px 24px rgba(0, 0, 0, .6), 0 0 34px rgba(255, 80, 60, .32); color: #ffc0b4; background: linear-gradient(180deg, rgba(58, 18, 16, .96), rgba(30, 8, 8, .97)); }
+  #banner.hint { border-color: #0a2430; box-shadow: 0 0 0 2px rgba(116, 232, 255, .5), 0 8px 24px rgba(0, 0, 0, .6); color: #c8f5ff; background: linear-gradient(180deg, rgba(12, 34, 48, .96), rgba(6, 20, 30, .97)); }
+  @keyframes bannerPop {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.86); }
+    9% { opacity: 1; transform: translate(-50%, -50%) scale(1.04); }
+    16% { transform: translate(-50%, -50%) scale(1); }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -55%) scale(1); }
+  }
+  #toast {
+    position: absolute;
+    left: 50%;
+    bottom: 18%;
+    z-index: 40;
+    transform: translateX(-50%);
+    padding: 5px 12px;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 180, 90, .4);
+    background: rgba(20, 13, 6, .92);
+    color: #ffd9a0;
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0;
+    pointer-events: none;
+  }
+  #toast.show { animation: toastIn 1.3s ease both; }
+  @keyframes toastIn {
+    0% { opacity: 0; transform: translateX(-50%) translateY(6px); }
+    15%, 75% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; }
+  }
+
+  /* ---------------- 覆蓋層 ---------------- */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    padding: 8px;
+    background:
+      radial-gradient(60% 70% at 50% 40%, rgba(40, 24, 10, .55), transparent 75%),
+      rgba(5, 8, 17, .8);
+    backdrop-filter: blur(3px) saturate(.9);
+  }
+  .sheet {
+    position: relative;
+    width: min(94%, 660px);
+    max-height: 100%;
+    padding: 10px 14px 12px;
+    border: 2px solid #6b5230;
+    border-radius: 10px;
+    background:
+      linear-gradient(180deg, rgba(38, 30, 24, .98), rgba(20, 17, 18, .99)),
+      url("art/forge-bg.png") center / cover;
+    box-shadow: 0 0 0 2px #0a0c14, 0 18px 40px rgba(0, 0, 0, .7), inset 0 1px 0 rgba(255, 220, 150, .16);
+    text-align: center;
+  }
+  .sheet::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(255, 200, 110, .18);
+    border-radius: 6px;
+    pointer-events: none;
+  }
+  .sheet h2 {
+    margin: 0 0 1px;
+    font-size: clamp(19px, 5.2vh, 30px);
+    letter-spacing: .12em;
+    color: #ffe1a1;
+    text-shadow: 0 2px 0 #3c1f00, 0 0 18px rgba(255, 160, 60, .4);
+  }
+  .sheet .sub { margin: 0 0 7px; font-size: 10.5px; color: #b9c7e2; }
+  .offer-row { display: flex; justify-content: center; gap: 7px; }
+  .offer {
+    position: relative;
+    flex: 1 1 0;
+    max-width: 152px;
+    min-height: 40px;
+    padding: 5px 4px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    border: 2px solid #4b3f32;
+    border-radius: 7px;
+    background: linear-gradient(180deg, rgba(34, 40, 60, .92), rgba(16, 20, 34, .95));
+    color: #e8eefc;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: transform .1s ease, border-color .12s ease, box-shadow .12s ease;
+  }
+  .offer:hover { transform: translateY(-3px); border-color: #ffd06a; box-shadow: 0 0 18px rgba(255, 180, 70, .3); }
+  .offer:active { transform: translateY(0); }
+  .offer .mini {
+    position: relative;
+    width: 54px;
+    height: 74px;
+    flex: none;
+  }
+  .offer .mini .cf { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+  .offer .mini .face {
+    position: absolute;
+    inset: 11% 12% 15% 12%;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff0bd;
+    text-shadow: 0 2px 0 #3d2508, 0 0 10px rgba(255, 190, 90, .6);
+  }
+  .offer .mini .face.op { color: #9fe9ff; text-shadow: 0 2px 0 #0b2a38, 0 0 10px rgba(90, 220, 255, .6); }
+  .offer .mini .face.rune { color: #ffd2ff; text-shadow: 0 2px 0 #341033, 0 0 12px rgba(240, 120, 255, .7); font-size: 17px; }
+  .offer .mini .face.util { color: #b6ffe0; text-shadow: 0 2px 0 #07352a, 0 0 12px rgba(80, 255, 190, .6); font-size: 15px; }
+  .offer .mini .relic-art {
+    position: absolute;
+    inset: 8% 12% 12%;
+    display: grid;
+    place-items: center;
+    border: 2px solid #6c7ea8;
+    border-radius: 6px;
+    background: radial-gradient(circle at 50% 40%, rgba(60, 82, 120, .9), rgba(14, 20, 36, .95));
+  }
+  .offer .mini .relic-art img { width: 44px; height: 44px; image-rendering: pixelated; filter: drop-shadow(0 0 10px rgba(255, 180, 90, .5)); }
+  .offer .mini .relic-art span { font-size: 24px; color: var(--cyan); text-shadow: 0 0 12px #74e8ff; }
+  .offer b { font-size: 11px; letter-spacing: .05em; }
+  .offer small { font-size: 9px; line-height: 1.25; color: #9fb0cf; }
+  .offer .kind-tag {
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    color: #241504;
+    background: linear-gradient(180deg, #ffe08a, #f0a537);
+    white-space: nowrap;
+  }
+  .offer .kind-tag.relic { background: linear-gradient(180deg, #a8f0ff, #48b9d8); color: #06222b; }
+  .sheet .escape { margin-top: 5px; font-size: 9.5px; color: #8a9ab8; }
+
+  #over .sheet { max-width: 560px; }
+  .end-score-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 2px 0 4px; }
+  .end-score {
+    font-size: clamp(34px, 10vh, 62px);
+    font-weight: 900;
+    line-height: 1;
+    color: #ffe08a;
+    text-shadow: 0 3px 0 #6b3700, 0 0 28px rgba(255, 170, 60, .55);
+    font-variant-numeric: tabular-nums;
+  }
+  .end-score em { font-style: normal; font-size: 13px; color: #9fb0cf; margin-left: 3px; }
+  .end-breakdown { display: flex; justify-content: center; gap: 8px; margin-bottom: 6px; }
+  .end-breakdown span {
+    padding: 3px 8px;
+    border: 1px solid rgba(255, 205, 120, .25);
+    border-radius: 5px;
+    background: rgba(10, 14, 26, .65);
+    font-size: 10px;
+    color: #c8d7ef;
+  }
+  .end-breakdown b { color: #ffd06a; }
+  .end-smith { width: 92px; height: 92px; image-rendering: pixelated; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .6)); }
+  .end-actions { display: flex; justify-content: center; gap: 8px; margin-top: 3px; }
+  #btn-again {
+    min-width: 160px;
+    min-height: 42px;
+    background: linear-gradient(180deg, #ffe293 0%, #ffb342 46%, #e37a19 100%);
+    color: #2b1603;
+    box-shadow: 0 3px 0 #7f3d05, inset 0 1px 0 #fff6cf;
+  }
+
+  /* ---------------- 矮螢幕 ---------------- */
+  @media (max-height: 400px) {
+    #scr-battle { padding: 4px 7px 5px; gap: 3px; }
+    #hud { height: 24px; font-size: 10.5px; padding: 0 8px; }
+    .field { gap: 6px; grid-template-columns: minmax(230px, 36%) 1fr; }
+    .enemy-pane { padding: 5px 6px 4px; }
+    .enemy-stage { grid-template-columns: 52% 48%; }
+    .enemy-name { font-size: 11.5px; }
+    .enemy-name small { font-size: 8px; }
+    .armor-plate { gap: 5px; padding: 0 7px 1px 6px; }
+    .armor-lbl { font-size: 8px; }
+    .armor-val { font-size: clamp(22px, 8.4vh, 32px); }
+    .intent { font-size: 9px; padding: 2px 5px; }
+    .relic-row { min-height: 29px; padding-top: 3px; gap: 4px; }
+    .relic { height: 23px; font-size: 8.5px; }
+    .relic img, .relic .glyph { width: 17px; height: 17px; }
+    .relic.empty { width: 23px; }
+    .slot-row { height: 62px; }
+    .slot-box { padding: 2px 6px; }
+    .slot .card { --cw: 40px; --ch: 54px; }
+    .slot-tag { font-size: 8px; }
+    .slot:empty::after { font-size: 9px; }
+    .slot-val { min-width: 44px; }
+    .slot-val .eq { font-size: 7.5px; }
+    .slot-val b { font-size: 16px; }
+    .hand { gap: 4px; }
+    .card { --cw: 86px; --ch: 120px; }
+    .hand.dense .card { --cw: 68px; --ch: 95px; }
+    .controls { min-height: 40px; gap: 5px; }
+    #btn-forge { min-height: 40px; min-width: 118px; font-size: 15px; }
+    #btn-end { min-height: 40px; min-width: 84px; font-size: 11px; }
+    #btn-hint { min-height: 40px; min-width: 58px; font-size: 11px; }
+    .btn.forge img { width: 26px; height: 26px; }
+    .sheet { padding: 7px 10px 8px; }
+    .sheet h2 { font-size: 19px; }
+    .sheet .sub { font-size: 9.5px; margin-bottom: 4px; }
+    .offer-row { gap: 6px; }
+    .offer .mini { width: 46px; height: 63px; }
+    .offer b { font-size: 10px; }
+    .offer small { font-size: 8.5px; }
+    .offer { padding: 3px 3px 4px; }
+    .end-score { font-size: 40px; }
+    .end-smith { width: 70px; height: 70px; }
+    .start-foot { display: none; }
+    .logo { font-size: clamp(26px, 9.6vh, 40px); }
+  }
+  @media (max-height: 330px) {
+    .card { --cw: 86px; --ch: 120px; }
+    .hand.dense .card { --cw: 64px; --ch: 90px; }
+    .slot-row { height: 62px; }
+    .slot .card { --cw: 40px; --ch: 54px; }
+    .enemy-name small { display: none; }
+    .relic-row .cap { display: none; }
+    .rule { font-size: 9.5px; padding: 2px 7px 2px 5px; }
+    .tagline { font-size: 11px; }
+    .start-hero img { width: clamp(110px, 27vh, 190px); }
+  }
+  @media (min-height: 520px) {
+    :root { --card-w: 120px; --card-h: 168px; --slot-h: 78px; }
+    .start-grid { max-width: 1080px; grid-template-columns: minmax(190px, 28%) 1fr minmax(150px, 20%); gap: 24px; }
+    .start-hero img { width: min(100%, 300px); }
+    .start-foe img { width: 100%; max-width: 240px; max-height: 50vh; }
+    .logo { font-size: clamp(46px, 9.4vh, 76px); }
+    .tagline { font-size: 16px; max-width: 640px; }
+    .rule { font-size: 12px; padding: 4px 10px 4px 8px; }
+    .start-actions { gap: 16px; margin-top: 8px; }
+    #btn-start { min-height: 52px; min-width: 190px; font-size: 19px; }
+    .start-foot { font-size: 11px; right: 22px; bottom: 12px; }
+    .best-chip { font-size: 11px; }
+    .best-chip b { font-size: 17px; }
+    .field { grid-template-columns: minmax(280px, 34%) 1fr; gap: 14px; }
+    #scr-battle { padding: 8px 14px 10px; gap: 7px; }
+    #hud { height: 34px; font-size: 13px; }
+    .enemy-pane { padding: 12px 12px 10px; }
+    .enemy-stage { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; align-items: stretch; gap: 5px; }
+    .rune-ring { left: 50%; top: 40%; width: min(68%, 300px); }
+    .enemy-info {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 3px 8px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(120, 140, 190, .18);
+    }
+    .enemy-name { grid-column: 1 / -1; font-size: 15px; }
+    .enemy-name small { font-size: 10px; }
+    .armor-plate { grid-column: 1; justify-self: start; }
+    .enemy-hp { grid-column: 2; justify-self: end; }
+    .intent { grid-column: 1 / -1; justify-self: start; }
+    .armor-val { font-size: clamp(30px, 6.4vh, 48px); }
+    .intent { font-size: 12px; padding: 4px 9px; }
+    .relic-row { min-height: 40px; }
+    .relic { height: 31px; font-size: 11px; }
+    .relic img, .relic .glyph { width: 24px; height: 24px; }
+    .slot .card { --cw: 48px; --ch: 66px; }
+    .slot:empty::after { font-size: 12px; }
+    .slot-val b { font-size: 26px; }
+    .slot-val .eq { font-size: 10px; }
+    .hand { gap: 9px; }
+    .hand.dense { gap: 6px; }
+    .hand.dense .card { --cw: 88px; --ch: 123px; }
+    .controls { min-height: 52px; gap: 10px; }
+    #btn-forge { min-width: 176px; min-height: 50px; font-size: 20px; }
+    #btn-end { min-width: 118px; min-height: 50px; font-size: 14px; }
+    #btn-hint { min-width: 82px; min-height: 50px; font-size: 14px; }
+    .sheet { padding: 16px 20px 18px; }
+    .offer .mini { width: 72px; height: 98px; }
+    .offer .mini .face { font-size: 30px; }
+    .offer b { font-size: 13px; }
+    .offer small { font-size: 10.5px; }
+    .rule { font-size: 12px; padding: 4px 10px; }
+    .tagline { font-size: 15px; }
+    #btn-start { min-height: 52px; font-size: 19px; }
+    .end-smith { width: 120px; height: 120px; }
+  }
+  @media (max-height: 400px) and (min-width: 700px) {
+    .card { --cw: 78px; --ch: 109px; }
+  }
+  @media (max-height: 330px) and (min-width: 700px) {
+    .card { --cw: 72px; --ch: 101px; }
+  }
+  @media (max-height: 300px) {
+    .card { --cw: 86px; --ch: 120px; }
+    .hand.dense .card { --cw: 64px; --ch: 89px; }
+    .slot-row { height: 62px; }
+    .slot .card { --cw: 40px; --ch: 54px; }
+    #hud { height: 24px; }
+    .rules { display: flex; flex-wrap: wrap; gap: 3px; }
+    .rule { font-size: 9px; padding: 2px 6px 2px 4px; gap: 4px; }
+    .rule i { width: 13px; height: 13px; font-size: 8px; }
+    .logo { font-size: 34px; }
+  }
+
+  /* 平台 iframe：矮螢幕要避開左上角浮動鈕 */
+  html.dsh-embed { height: 100%; }
+  html.dsh-embed body { height: 100%; overscroll-behavior: none; }
+  @media (max-height: 420px) {
+    html.dsh-embed #hud { padding-left: 92px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="bg"></div>
+  <div id="embers"></div>
+
+  <!-- ================= 開始 ================= -->
+  <section id="scr-start" class="screen active">
+    <div class="start-grid">
+      <div class="start-hero">
+        <img src="art/smith.png" alt="鍛造師" class="pix">
+      </div>
+      <div class="start-copy">
+        <p class="eyebrow">MATH FORGE · 算式就是你的武器</p>
+        <h1 class="logo">算式<em>鍛造</em>所</h1>
+        <p class="tagline">把數字與運算子排進鐵砧（先乘除後加減），<b>算式值就是這一擊的傷害</b>。敲碎魔像的護甲，一路打到鍛造廠主。</p>
+        <div class="rules">
+          <span class="rule"><i>盾</i>算式 ≤ 護甲：削甲；剛好歸零 <b>破甲</b></span>
+          <span class="rule"><i>焰</i>超過護甲：<b>超載</b>，破甲但 −1 心</span>
+          <span class="rule"><i>÷</i>除不盡：算式無效，<b>退回手牌</b></span>
+        </div>
+        <div class="start-actions">
+          <button id="btn-start" class="btn" type="button">開始鍛造</button>
+          <span class="best-chip">一輪 6 場<b>5–7 分鐘</b></span>
+        </div>
+      </div>
+      <div class="start-foe" aria-hidden="true">
+        <img src="art/golem.png" alt="" class="pix">
+        <span class="foe-tag">6 座魔像把關 · 護甲 <b>24 → 120</b></span>
+      </div>
+    </div>
+    <p class="start-foot">每回合抽 5 張 · 出 1–5 張牌 · 算式值就是傷害</p>
+  </section>
+
+  <!-- ================= 戰鬥 ================= -->
+  <section id="scr-battle" class="screen">
+    <header id="hud">
+      <div class="hud-left">
+        <span>第 <b id="hud-stage">1</b>/6 場</span>
+        <span class="hud-sep"></span>
+        <span class="deck-chip">牌庫 <b id="hud-deck">12</b> 張</span>
+        <span class="hud-sep"></span>
+        <span class="hud-turn">回合 <b id="hud-turn">1</b></span>
+        <span class="hud-sep"></span>
+        <span class="hud-turn">手牌 <b id="hud-hand">5</b></span>
+      </div>
+      <div class="hud-right">
+        <span class="hearts" id="hud-hearts" aria-label="生命"></span>
+        <span class="hud-sep"></span>
+        <span id="hud-foe">魔像</span>
+      </div>
+    </header>
+
+    <div class="field">
+      <aside class="enemy-pane panel">
+        <span class="rivet" style="left:4px;top:4px"></span>
+        <span class="rivet" style="right:4px;top:4px"></span>
+        <span class="rivet" style="left:4px;bottom:4px"></span>
+        <span class="rivet" style="right:4px;bottom:4px"></span>
+        <div class="enemy-stage">
+          <div class="rune-ring"></div>
+          <div class="golem-wrap" id="golem-wrap">
+            <img id="golem" src="art/golem.png" alt="鍛造廠魔像" class="pix">
+          </div>
+          <div class="enemy-info">
+            <h2 class="enemy-name" id="enemy-name">鏽鐵崗哨<small>RUST SENTINEL</small></h2>
+            <div class="armor-plate" id="armor-plate">
+              <span class="armor-lbl">護甲</span>
+              <span class="armor-val" id="armor-val">24</span>
+            </div>
+            <div class="enemy-hp">
+              <span class="hp-label">HP</span>
+              <span id="enemy-pips" style="display:flex;gap:4px"></span>
+            </div>
+            <div class="intent" id="intent"><span class="sword">⚔</span><span id="intent-text">下回合 −1 心</span></div>
+          </div>
+        </div>
+        <div class="relic-row" id="relic-row">
+          <span class="cap">遺物</span>
+        </div>
+      </aside>
+
+      <section class="play-pane">
+        <div class="hand-row"><div class="hand" id="hand"></div></div>
+        <div class="slot-row">
+          <div class="slot-box" id="slot-box">
+            <span class="slot-tag">算式槽</span>
+            <div class="slot" id="slot"></div>
+            <div class="slot-val"><span class="eq" id="slot-eq">算式值</span><b id="slot-val">—</b></div>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="btn-hint" class="btn ghost" type="button" hidden>提示</button>
+          <span class="spacer"></span>
+          <button id="btn-end" class="btn ghost" type="button">結束回合</button>
+          <button id="btn-forge" class="btn forge" type="button"><img src="art/anvil.png" alt="" class="pix">鍛造！</button>
+        </div>
+      </section>
+    </div>
+
+    <div id="fx"></div>
+    <div id="banner"></div>
+    <div id="toast"></div>
+  </section>
+
+  <!-- ================= 升級三選一 ================= -->
+  <div id="reward" class="overlay" hidden>
+    <div class="sheet">
+      <h2>破敵！擇一鍛入</h2>
+      <p class="sub" id="reward-sub">擊碎 <b>鏽鐵崗哨</b> · 選一張牌或一件遺物</p>
+      <div class="offer-row" id="offer-row"></div>
+      <p class="escape">選了就會自動進入下一場</p>
+    </div>
+  </div>
+
+  <!-- ================= 結算 ================= -->
+  <div id="over" class="overlay" hidden>
+    <div class="sheet">
+      <img class="end-smith" src="art/smith.png" alt="" class="pix">
+      <h2 id="end-title">鍛造完成</h2>
+      <p class="sub" id="end-sub">通過 6 / 6 場</p>
+      <div class="end-score-row"><span class="end-score" id="end-score">750</span><em>分</em></div>
+      <div class="end-breakdown" id="end-breakdown"></div>
+      <div class="end-actions"><button id="btn-again" class="btn" type="button">再鍛一次</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ================= 基本 ================= */
+  var $ = function (id) { return document.getElementById(id); };
+  var EMBED = /[?&]embed=1/.test(location.search);
+  if (EMBED) document.documentElement.classList.add("dsh-embed");
+  var BATTLE_COUNT = 6;
+  var HEART_UNITS = 6;
+  var OPCH = { "+": "+", "-": "−", "*": "×", "/": "÷" };
+  var OPNM = { "+": "加", "-": "減", "*": "乘", "/": "除" };
+
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+  /* ================= 音效（WebAudio，無外部檔案） ================= */
+  var AC = null;
+  function initAudio() {
+    if (AC) return;
+    try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { AC = null; }
+  }
+  document.addEventListener("pointerdown", initAudio, { once: true });
+  function tone(freq, dur, type, vol, slide) {
+    if (!AC) return;
+    try {
+      var o = AC.createOscillator(), g = AC.createGain();
+      o.type = type || "square";
+      o.frequency.value = freq;
+      if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, slide), AC.currentTime + dur);
+      g.gain.setValueAtTime(0.0001, AC.currentTime);
+      g.gain.exponentialRampToValueAtTime(vol || 0.045, AC.currentTime + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + dur);
+      o.connect(g); g.connect(AC.destination);
+      o.start(); o.stop(AC.currentTime + dur + 0.02);
+    } catch (e) { /* ignore */ }
+  }
+  function noise(dur, vol) {
+    if (!AC) return;
+    try {
+      var n = Math.floor(AC.sampleRate * dur), buf = AC.createBuffer(1, n, AC.sampleRate), d = buf.getChannelData(0);
+      for (var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+      var src = AC.createBufferSource(), g = AC.createGain();
+      src.buffer = buf; g.gain.value = vol || 0.06;
+      src.connect(g); g.connect(AC.destination); src.start();
+    } catch (e) { /* ignore */ }
+  }
+  var SFX = {
+    tap: function () { tone(620, 0.05, "square", 0.028, 520); },
+    forge: function () { noise(0.16, 0.07); tone(120, 0.18, "sawtooth", 0.05, 60); tone(880, 0.08, "square", 0.02, 700); },
+    break: function () { noise(0.4, 0.1); tone(180, 0.36, "sawtooth", 0.06, 45); },
+    over: function () { tone(140, 0.4, "square", 0.06, 60); noise(0.3, 0.08); },
+    win: function () { [523, 659, 784, 1046].forEach(function (f, i) { setTimeout(function () { tone(f, 0.16, "square", 0.04); }, i * 90); }); },
+    lose: function () { [392, 330, 262, 196].forEach(function (f, i) { setTimeout(function () { tone(f, 0.22, "triangle", 0.05); }, i * 120); }); },
+    heart: function () { tone(90, 0.22, "sine", 0.07, 55); },
+    hint: function () { tone(1046, 0.08, "sine", 0.035); }
+  };
+
+  /* ================= 卡片 ================= */
+  var uidSeq = 0;
+  function card(o) { o.uid = "c" + (++uidSeq); return o; }
+  function cNum(v) { return card({ kind: "num", v: v }); }
+  function cOp(v) { return card({ kind: "op", v: v }); }
+  function cRune(op, v) { return card({ kind: "rune", op: op, v: v }); }
+  function cUtil(k) { return card({ kind: "util", k: k }); }
+
+  function cloneCard(c) {
+    var o = { kind: c.kind };
+    if (c.kind === "num") o.v = c.v;
+    if (c.kind === "op") o.v = c.v;
+    if (c.kind === "rune") { o.op = c.op; o.v = c.v; }
+    if (c.kind === "util") o.k = c.k;
+    o.name = c.name; o.desc = c.desc; o.tmp = c.tmp;
+    return card(o);
+  }
+  function sig(c) {
+    if (c.kind === "num") return "num:" + c.v;
+    if (c.kind === "op") return "op:" + c.v;
+    if (c.kind === "rune") return "rune:" + c.op + c.v;
+    if (c.kind === "util") return "util:" + c.k;
+    return "?";
+  }
+  function cardGlyph(c) {
+    if (c.kind === "num") return c.v;
+    if (c.kind === "op") return OPCH[c.v];
+    if (c.kind === "rune") return OPCH[c.op] + c.v;
+    if (c.kind === "util") return c.k === "swap" ? "交換" : "鏡像";
+    return "?";
+  }
+  function cardSub(c) {
+    if (c.kind === "num") return "數字";
+    if (c.kind === "op") return OPNM[c.v];
+    if (c.kind === "rune") return "符文";
+    if (c.kind === "util") return c.k === "swap" ? "交換" : "鏡像";
+    return "";
+  }
+  function cardExpr(c) { return cardGlyph(c); }
+
+  function baseDeck() {
+    var d = [];
+    for (var i = 1; i <= 9; i++) d.push(cNum(i));
+    d.push(cOp("+"), cOp("-"), cOp("*"));
+    return d;
+  }
+
+  /* ================= 算式解析 ================= */
+  function evalSeq(seq) {
+    var terms = [], ops = [], cur = null, i, c;
+    for (i = 0; i < seq.length; i++) {
+      c = seq[i];
+      if (c.kind === "num") {
+        if (cur !== null) return { ok: false };
+        cur = c.v;
+      } else if (c.kind === "rune") {
+        if (cur === null) return { ok: false };
+        if (c.op === "×") { cur *= c.v; }
+        else if (c.op === "+") { cur += c.v; }
+        else if (c.op === "÷") {
+          if (cur % c.v !== 0) return { ok: false, div: true };
+          cur /= c.v;
+        }
+      } else if (c.kind === "op") {
+        if (cur === null) return { ok: false };
+        terms.push(cur); ops.push(c.v); cur = null;
+      } else {
+        return { ok: false };
+      }
+    }
+    if (cur === null || !terms.length && seq.length === 0) return { ok: false };
+    terms.push(cur);
+
+    var vals = [terms[0]], plus = [];
+    for (i = 0; i < ops.length; i++) {
+      var op = ops[i], rhs = terms[i + 1];
+      if (op === "*") vals[vals.length - 1] *= rhs;
+      else if (op === "/") {
+        if (rhs === 0 || vals[vals.length - 1] % rhs !== 0) return { ok: false, div: true };
+        vals[vals.length - 1] /= rhs;
+      } else { plus.push(op); vals.push(rhs); }
+    }
+    var v = vals[0];
+    for (i = 0; i < plus.length; i++) v = plus[i] === "+" ? v + vals[i + 1] : v - vals[i + 1];
+    if (!isFinite(v)) return { ok: false };
+    return { ok: true, value: v };
+  }
+  function exprString(seq) {
+    var s = "";
+    for (var i = 0; i < seq.length; i++) {
+      var c = seq[i];
+      if (c.kind === "op") s += " " + OPCH[c.v] + " ";
+      else if (c.kind === "rune") s += OPCH[c.op] + c.v;
+      else s += cardGlyph(c);
+    }
+    return s.replace(/\s+/g, " ").trim();
+  }
+
+  /* 枚舉手牌中所有不溢出的解 */
+  function allSolutions(hand, target, cap) {
+    cap = cap || 240;
+    var cards = [], i;
+    for (i = 0; i < hand.length; i++) if (hand[i].kind !== "util") cards.push(hand[i]);
+    var out = [], seen = {}, used = new Array(cards.length);
+    var seq = [];
+    function record() {
+      if (!seq.length) return;
+      var ev = evalSeq(seq);
+      if (ev.ok && ev.value === target) {
+        var s = exprString(seq);
+        if (!seen[s]) {
+          seen[s] = 1;
+          out.push({
+            expr: s,
+            uids: seq.map(function (c) { return c.uid; }),
+            len: seq.length,
+            div: seq.some(function (c) { return (c.kind === "op" || c.kind === "rune") && (c.v === "/" || c.op === "÷"); })
+          });
+        }
+      }
+    }
+    function dfs(needTerm, start) {
+      if (out.length >= cap) return;
+      if (!needTerm) record();
+      if (seq.length >= 5) return;
+      for (var k = 0; k < cards.length; k++) {
+        if (used[k]) continue;
+        var c = cards[k];
+        var ok = false;
+        if (needTerm) ok = c.kind === "num";
+        else ok = c.kind === "rune" || c.kind === "op";
+        if (!ok) continue;
+        var bad = false;
+        if (!needTerm && c.kind === "op" && seq.length + 1 > 5) bad = true;
+        if (bad) continue;
+        used[k] = true; seq.push(c);
+        // 先遞迴延伸，再記錄目前這個完整算式
+        dfs(c.kind === "op", k);
+        seq.pop(); used[k] = false;
+      }
+    }
+    dfs(true, 0);
+    out.sort(function (a, b) {
+      if (a.len !== b.len) return a.len - b.len;
+      return (a.div ? 1 : 0) - (b.div ? 1 : 0);
+    });
+    return out;
+  }
+  function findSolution(hand, target) {
+    var s = allSolutions(hand, target, 200);
+    return s.length ? s[0] : null;
+  }
+
+  /* 保底解法：直接窮舉 3 張與 5 張的基礎算式（數字 1–9、四則運算子，可重複使用）。
+     每個護甲值都一定找得到解，而且只會用到牌組裡真的有的卡型。 */
+  var COMBO_CACHE = {};
+  var COMBO_OPS = ["+", "-", "*", "/"];
+  function combosFor(target) {
+    if (COMBO_CACHE[target]) return COMBO_CACHE[target];
+    var seen = {}, out = [];
+    function add(parts) {
+      var ev = evalSeq(parts);
+      if (!ev.ok || ev.value !== target) return;
+      var s = exprString(parts);
+      if (seen[s]) return;
+      seen[s] = 1;
+      out.push(parts.map(function (p) { return { kind: p.kind, v: p.v }; }));
+    }
+    var a, b, c, i, j, k;
+    for (a = 1; a <= 9; a++) {
+      for (i = 0; i < 4; i++) {
+        for (b = 1; b <= 9; b++) {
+          add([{ kind: "num", v: a }, { kind: "op", v: COMBO_OPS[i] }, { kind: "num", v: b }]);
+        }
+      }
+    }
+    for (a = 1; a <= 9; a++) {
+      for (i = 0; i < 4; i++) {
+        for (b = 1; b <= 9; b++) {
+          for (j = 0; j < 4; j++) {
+            for (c = 1; c <= 9; c++) {
+              add([{ kind: "num", v: a }, { kind: "op", v: COMBO_OPS[i] },
+                   { kind: "num", v: b }, { kind: "op", v: COMBO_OPS[j] },
+                   { kind: "num", v: c }]);
+            }
+          }
+        }
+      }
+    }
+    out.sort(function (x, y) {
+      if (x.length !== y.length) return x.length - y.length;
+      var xd = x.some(function (p) { return p.kind === "op" && p.v === "/"; }) ? 1 : 0;
+      var yd = y.some(function (p) { return p.kind === "op" && p.v === "/"; }) ? 1 : 0;
+      if (xd !== yd) return xd - yd;
+      return exprString(x).length - exprString(y).length;
+    });
+    COMBO_CACHE[target] = out;
+    return out;
+  }
+  function overlapCount(seq, hand) {
+    var pool = hand.slice(), n = 0;
+    for (var i = 0; i < seq.length; i++) {
+      for (var j = 0; j < pool.length; j++) {
+        if (pool[j].kind !== "util" && sig(pool[j]) === sig(seq[i])) { n++; pool.splice(j, 1); break; }
+      }
+    }
+    return n;
+  }
+  function deckCount(tok) {
+    var n = 0;
+    if (!G.run) return 0;
+    for (var i = 0; i < G.run.deck.length; i++) if (sig(G.run.deck[i]) === sig(tok)) n++;
+    return n;
+  }
+  function extraCopies(seq) {
+    var need = {}, extra = 0, i;
+    for (i = 0; i < seq.length; i++) {
+      var s = sig(seq[i]);
+      need[s] = (need[s] || 0) + 1;
+    }
+    for (var key in need) {
+      if (!Object.prototype.hasOwnProperty.call(need, key)) continue;
+      var have = 0;
+      if (G.run) {
+        for (i = 0; i < G.run.deck.length; i++) if (sig(G.run.deck[i]) === key) have++;
+      }
+      extra += Math.max(0, need[key] - have);
+    }
+    return extra;
+  }
+  function pickCombo(target, hand) {
+    var list = combosFor(target);
+    if (!list.length) return null;
+    var best = null, bestScore = -1e9;
+    for (var i = 0; i < Math.min(list.length, 120); i++) {
+      var seq = list[i];
+      var ov = overlapCount(seq, hand);
+      var decky = 0;
+      for (var k = 0; k < seq.length; k++) if (deckCount(seq[k]) > 0) decky++;
+      var clones = extraCopies(seq);
+      var divvy = seq.some(function (c) { return c.kind === "op" && c.v === "/"; });
+      var score = ov * 26 + decky * 8 - clones * 42 - seq.length * 4 - (divvy ? 18 : 0);
+      if (score > bestScore) { bestScore = score; best = seq; }
+    }
+    return best;
+  }
+
+  /* ================= 關卡資料 ================= */
+  var BATTLES = [
+    { name: "鏽鐵崗哨", en: "RUST SENTINEL", hp: 3, armor: [24, 28, 32], tint: "none", scale: 1.0 },
+    { name: "煤渣衛兵", en: "CINDER GUARD", hp: 3, armor: [32, 36, 40], tint: "hue-rotate(-12deg) saturate(1.08)", scale: 1.02 },
+    { name: "熔渣巨像", en: "SLAG COLOSSUS", hp: 4, armor: [40, 44, 48, 54], tint: "hue-rotate(16deg) saturate(1.15)", scale: 1.04 },
+    { name: "鐵砧守衛", en: "ANVIL WARDEN", hp: 4, armor: [48, 54, 60, 64], tint: "hue-rotate(-28deg) saturate(.9)", scale: 1.06 },
+    { name: "爐心魔像", en: "CORE GOLEM", hp: 4, armor: [60, 64, 72, 81], tint: "hue-rotate(30deg) saturate(1.2) brightness(1.04)", scale: 1.08 },
+    { name: "鍛造廠主", en: "THE FORGEMASTER", hp: 5, armor: [72, 84, 96, 108, 120], tint: "hue-rotate(48deg) saturate(1.28) brightness(1.05)", scale: 1.12 }
+  ];
+
+  var RELICS = {
+    calc: { name: "計算機", desc: "每回合可看一次提示", glyph: "⊞" },
+    anvil: { name: "鐵砧", desc: "破甲後下一層護甲 −1", img: "art/anvil.png" },
+    fuse: { name: "保險絲", desc: "超載只扣半顆心", glyph: "⌁" }
+  };
+
+  var CARD_POOL = [
+    { key: "rune-x3", title: "×3 符文", desc: "接在數字後，把該數字乘 3", make: function () { return cRune("*", 3); } },
+    { key: "rune-p15", title: "+15 符文", desc: "接在數字後，把該數字加 15", make: function () { return cRune("+", 15); } },
+    { key: "rune-d2", title: "÷2 符文", desc: "接在數字後，把該數字除以 2", make: function () { return cRune("/", 2); } },
+    { key: "op-div", title: "÷ 運算子", desc: "除法卡：除不盡時算式無效", make: function () { return cOp("/"); } },
+    { key: "util-swap", title: "交換", desc: "打出後棄掉，抽 2 張牌", make: function () { return cUtil("swap"); } },
+    { key: "util-mirror", title: "鏡像", desc: "複製手牌中一張數字卡", make: function () { return cUtil("mirror"); } },
+    { key: "num-7", title: "數字 7", desc: "再多一張 7", make: function () { return cNum(7); } },
+    { key: "num-8", title: "數字 8", desc: "再多一張 8", make: function () { return cNum(8); } },
+    { key: "num-9", title: "數字 9", desc: "再多一張 9", make: function () { return cNum(9); } },
+    { key: "num-6", title: "數字 6", desc: "再多一張 6", make: function () { return cNum(6); } },
+    { key: "rune-x2", title: "×2 符文", desc: "接在數字後，把該數字乘 2", make: function () { return cRune("*", 2); } },
+    { key: "rune-p9", title: "+9 符文", desc: "接在數字後，把該數字加 9", make: function () { return cRune("+", 9); } }
+  ];
+
+  /* ================= 狀態 ================= */
+  var G = {
+    screen: "start",
+    fast: false,
+    busy: false,
+    run: null,
+    battleIdx: 0,
+    enemy: null,
+    hand: [],
+    slot: [],
+    draw: [],
+    discard: [],
+    turn: 1,
+    usedHint: false,
+    mirrorMode: false,
+    rewardOpen: false,
+    offers: [],
+    over: false
+  };
+
+  function resetRun() {
+    G.run = {
+      deck: baseDeck(),
+      units: HEART_UNITS,
+      relics: {},
+      wins: 0,
+      score: 0,
+      over: false
+    };
+    G.battleIdx = 0;
+    G.over = false;
+  }
+
+  /* ================= 繪製 ================= */
+  function heartMarkup(units) {
+    var out = "", i;
+    for (i = 0; i < 3; i++) {
+      var u = clamp(units - i * 2, 0, 2);
+      var cls = u === 2 ? "full" : u === 1 ? "half" : "empty";
+      out += '<span class="heart ' + cls + '"><i class="fill"></i></span>';
+    }
+    return out;
+  }
+  function renderHud() {
+    $("hud-stage").textContent = G.battleIdx + 1;
+    $("hud-deck").textContent = G.run ? G.run.deck.length : 12;
+    $("hud-turn").textContent = G.turn;
+    $("hud-hand").textContent = G.hand.length;
+    $("hud-hearts").innerHTML = heartMarkup(G.run ? G.run.units : HEART_UNITS);
+    $("hud-foe").textContent = G.enemy ? G.enemy.cfg.name : "魔像";
+  }
+  function renderEnemy() {
+    if (!G.enemy) return;
+    var e = G.enemy;
+    $("enemy-name").innerHTML = e.cfg.name + "<small>" + e.cfg.en + "</small>";
+    $("armor-val").textContent = e.armor;
+    $("hud-foe").textContent = e.cfg.name;
+    var pips = "";
+    for (var i = 0; i < e.cfg.hp; i++) pips += '<span class="pip' + (i < e.hp ? " on" : "") + '"></span>';
+    $("enemy-pips").innerHTML = pips;
+    var it = $("intent");
+    if (e.brokeThisTurn) {
+      it.classList.add("safe");
+      $("intent-text").textContent = "護甲已破 · 本回合不反擊";
+      it.firstElementChild.textContent = "✓";
+    } else {
+      it.classList.remove("safe");
+      $("intent-text").textContent = "下回合 −1 心";
+      it.firstElementChild.textContent = "⚔";
+    }
+    var img = $("golem");
+    var tint = e.cfg.tint === "none" ? "saturate(1)" : e.cfg.tint;
+    img.style.setProperty("--tint", tint);
+  }
+  function renderRelics() {
+    var row = $("relic-row");
+    var html = '<span class="cap">遺物</span>';
+    var keys = ["calc", "anvil", "fuse"];
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i], owned = G.run && G.run.relics[k], info = RELICS[k];
+      if (owned) {
+        html += '<span class="relic" title="' + info.desc + '">' +
+          (info.img ? '<img src="' + info.img + '" alt="">' : '<span class="glyph">' + info.glyph + "</span>") +
+          info.name + "</span>";
+      } else {
+        html += '<span class="relic empty" title="尚未取得">·</span>';
+      }
+    }
+    row.innerHTML = html;
+  }
+  function cardFaceHTML(c) {
+    var glyph = cardGlyph(c);
+    return '<span class="face"><b class="big">' + glyph + "</b></span>";
+  }
+  function cardButton(c, extra, inSlot) {
+    return '<button class="card' + (extra ? " " + extra : "") + '" type="button" data-uid="' + c.uid + '" data-kind="' + c.kind + '"' +
+      (inSlot ? ' data-slot="1"' : "") + ' aria-label="' + cardSub(c) + " " + cardGlyph(c) + '">' +
+      '<img class="cf" src="art/card-frame.png" alt="">' + cardFaceHTML(c) + "</button>";
+  }
+  function renderHand() {
+    var hand = $("hand");
+    var hh = $("hud-hand");
+    if (hh) hh.textContent = G.hand.length;
+    hand.classList.toggle("dense", G.hand.length > 5);
+    var html = "";
+    for (var i = 0; i < G.hand.length; i++) {
+      var c = G.hand[i];
+      var extra = "deal";
+      if (G.mirrorMode && c.kind === "num") extra += " mirror-pick";
+      else if (G.mirrorMode) extra += " dim";
+      html += cardButton(c, extra, false);
+    }
+    hand.innerHTML = html;
+    if (G.hand.length === 0) hand.innerHTML = "";
+  }
+  function renderSlot() {
+    var slot = $("slot");
+    var html = "";
+    for (var i = 0; i < G.slot.length; i++) html += cardButton(G.slot[i], "", true);
+    slot.innerHTML = html;
+    var box = $("slot-box"), val = $("slot-val"), lbl = $("slot-eq");
+    box.classList.remove("ready", "over", "bad");
+    if (!G.slot.length) {
+      lbl.textContent = "算式值";
+      val.textContent = "—";
+      val.className = "";
+      setForgeState();
+      return;
+    }
+    var ev = evalSeq(G.slot);
+    if (!ev.ok) {
+      lbl.textContent = ev.div ? "除不盡" : "算式不完整";
+      val.textContent = "!";
+      val.className = "invalid";
+      setForgeState();
+      return;
+    }
+    lbl.textContent = "算式值";
+    val.textContent = ev.value;
+    var A = G.enemy ? G.enemy.armor : 0;
+    if (ev.value === A) { val.className = "ready"; box.classList.add("ready"); }
+    else if (ev.value > A) { val.className = "over"; box.classList.add("over"); }
+    else { val.className = ""; }
+    setForgeState();
+  }
+  function setForgeState() {
+    var btn = $("btn-forge");
+    var ready = G.slot.length > 0 && !G.busy;
+    btn.classList.toggle("hot", ready);
+    btn.disabled = G.busy || G.slot.length === 0;
+    $("btn-end").disabled = G.busy;
+    var hint = $("btn-hint");
+    if (G.run && G.run.relics.calc) {
+      hint.hidden = false;
+      hint.disabled = G.busy || G.usedHint || G.screen !== "battle";
+      hint.textContent = G.usedHint ? "提示 ✓" : "提示";
+    } else {
+      hint.hidden = true;
+    }
+  }
+  function renderAll() {
+    renderHud();
+    renderEnemy();
+    renderHand();
+    renderSlot();
+    renderRelics();
+    setForgeState();
+  }
+
+  /* ================= 抽牌 / 保證有解 ================= */
+  function drawOne() {
+    if (!G.draw.length) {
+      if (!G.discard.length) return null;
+      G.draw = shuffle(G.discard.slice());
+      G.discard = [];
+    }
+    return G.draw.pop() || null;
+  }
+  function takeFromPiles(tok) {
+    var i;
+    for (i = G.draw.length - 1; i >= 0; i--) {
+      if (sig(G.draw[i]) === sig(tok)) return G.draw.splice(i, 1)[0];
+    }
+    for (i = G.discard.length - 1; i >= 0; i--) {
+      if (sig(G.discard[i]) === sig(tok)) return G.discard.splice(i, 1)[0];
+    }
+    return null;
+  }
+  function ensureSolvable(hand, target) {
+    if (!hand.length) return;
+    if (findSolution(hand, target)) return;
+    var combo = pickCombo(target, hand);
+    if (!combo || combo.length > hand.length) return;
+    var used = {}, missing = [], i, j;
+    for (i = 0; i < combo.length; i++) {
+      var found = -1;
+      for (j = 0; j < hand.length; j++) {
+        if (used[j]) continue;
+        if (hand[j].kind !== "util" && sig(hand[j]) === sig(combo[i])) { found = j; break; }
+      }
+      if (found >= 0) used[found] = true;
+      else missing.push(combo[i]);
+    }
+    if (!missing.length) return;
+    var spare = [];
+    for (i = 0; i < hand.length; i++) if (!used[i]) spare.push(i);
+    spare.sort(function (a, b) {
+      var ca = hand[a], cb = hand[b];
+      var sa = ca.kind === "util" ? 0 : 1, sb = cb.kind === "util" ? 0 : 1;
+      if (sa !== sb) return sa - sb;
+      return b - a;
+    });
+    for (i = 0; i < missing.length; i++) {
+      var slot = spare[i];
+      if (slot === undefined) break;
+      var repl = takeFromPiles(missing[i]);
+      if (!repl) { repl = cloneCard(missing[i]); repl.tmp = true; }
+      G.draw.push(hand[slot]);
+      hand[slot] = repl;
+    }
+    shuffle(hand);
+  }
+  function dealHand() {
+    G.hand = [];
+    for (var i = 0; i < 5; i++) {
+      var c = drawOne();
+      if (c) G.hand.push(c);
+    }
+    ensureSolvable(G.hand, G.enemy.armor);
+    G.usedHint = false;
+    G.mirrorMode = false;
+    renderAll();
+  }
+
+  /* ================= 戰鬥流程 ================= */
+  function startRun() {
+    resetRun();
+    G.over = false;
+    $("reward").hidden = true;
+    $("over").hidden = true;
+    G.rewardOpen = false;
+    G.screen = "battle";
+    $("scr-start").classList.remove("active");
+    $("scr-battle").classList.add("active");
+    startBattle(0);
+  }
+  function startBattle(idx) {
+    G.battleIdx = idx;
+    var cfg = BATTLES[idx];
+    G.enemy = {
+      cfg: cfg,
+      hp: cfg.hp,
+      armor: cfg.armor[0],
+      queue: cfg.armor.slice(1),
+      brokeThisTurn: false
+    };
+    G.turn = 1;
+    G.draw = shuffle(G.run.deck.slice());
+    G.discard = [];
+    G.slot = [];
+    G.busy = false;
+    G.usedHint = false;
+    G.mirrorMode = false;
+    G.screen = "battle";
+    G.enemy.brokeThisTurn = false;
+    $("golem-wrap").classList.remove("hurt", "charge");
+    renderEnemy();
+    dealHand();
+    banner("第 " + (idx + 1) + " 場 · " + cfg.name, "", 1.1);
+    SFX.tap();
+  }
+  function nextArmor() {
+    var e = G.enemy;
+    var raw = e.queue.length ? e.queue.shift() : 1;
+    var reduce = G.run.relics.anvil ? 1 : 0;
+    var next = Math.max(1, raw - reduce);
+    // 鐵砧偶爾會把護甲削成無解的數字（例如 120→119），這時就保留原值
+    if (!combosFor(next).length) next = raw;
+    e.armor = next;
+    e.brokeThisTurn = true;
+  }
+  function loseUnits(n, silent) {
+    G.run.units = Math.max(0, G.run.units - n);
+    renderHud();
+    var hearts = $("hud-hearts").children;
+    for (var i = 0; i < hearts.length; i++) {
+      hearts[i].classList.remove("loss");
+    }
+    void $("hud-hearts").offsetWidth;
+    if (hearts.length) hearts[Math.min(2, Math.floor((G.run.units) / 2))].classList.add("loss");
+    if (!silent) SFX.heart();
+  }
+  function banner(text, kind, dur) {
+    var el = $("banner");
+    el.textContent = text;
+    el.className = "";
+    if (kind) el.className = kind;
+    void el.offsetWidth;
+    el.classList.add("show");
+    if (dur) el.style.animationDuration = dur + "s";
+    else el.style.animationDuration = "";
+  }
+  function toast(text) {
+    var el = $("toast");
+    el.textContent = text;
+    el.classList.remove("show");
+    void el.offsetWidth;
+    el.classList.add("show");
+  }
+  function sparkAt(x, y, size) {
+    var fx = $("fx");
+    var s = document.createElement("img");
+    s.src = "art/hit.png";
+    s.className = "spark pix";
+    s.style.left = x + "px";
+    s.style.top = y + "px";
+    s.style.width = (size || 130) + "px";
+    s.style.height = (size || 130) + "px";
+    s.style.margin = "-" + (size || 130) / 2 + "px 0 0 -" + (size || 130) / 2 + "px";
+    fx.appendChild(s);
+    void s.offsetWidth;
+    s.classList.add("on");
+    setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 600);
+    var sl = document.createElement("span");
+    sl.className = "slash";
+    sl.style.left = x + "px";
+    sl.style.top = y + "px";
+    fx.appendChild(sl);
+    void sl.offsetWidth;
+    sl.classList.add("on");
+    setTimeout(function () { if (sl.parentNode) sl.parentNode.removeChild(sl); }, 420);
+  }
+  function floatNumber(text, x, y, bad) {
+    var d = document.createElement("div");
+    d.className = "float-num" + (bad ? " bad" : "");
+    d.textContent = text;
+    d.style.left = x + "px";
+    d.style.top = y + "px";
+    $("fx").appendChild(d);
+    setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 950);
+  }
+  function golemPoint() {
+    var r = $("golem").getBoundingClientRect();
+    var app = $("app").getBoundingClientRect();
+    return { x: r.left - app.left + r.width / 2, y: r.top - app.top + r.height * 0.46 };
+  }
+  function damageGolem(amount, overload) {
+    var p = golemPoint();
+    $("golem-wrap").classList.remove("hurt");
+    void $("golem-wrap").offsetWidth;
+    $("golem-wrap").classList.add("hurt");
+    sparkAt(p.x, p.y, overload ? 170 : 140);
+    floatNumber("-" + amount, p.x - 20, p.y - 10, false);
+    var pl = $("armor-plate");
+    pl.classList.remove("cracked");
+    void pl.offsetWidth;
+    pl.classList.add("cracked");
+    $("armor-val").classList.remove("pop");
+    void $("armor-val").offsetWidth;
+    $("armor-val").classList.add("pop");
+    if (overload) SFX.over(); else SFX.forge();
+    setTimeout(function () { $("golem-wrap").classList.remove("hurt"); }, 460);
+  }
+
+  function applyWeapon(value) {
+    var e = G.enemy, A = e.armor;
+    var res = { broke: false, overload: false, overflow: 0, carry: 0 };
+    if (value > A) {
+      // 超載：護甲照樣被敲開，但溢出會反噬，而且多餘傷害只帶到下一層、不再連續破甲
+      res.overload = true;
+      res.overflow = value - A;
+      res.carry = value - A;
+      e.hp -= 1; e.brokeThisTurn = true; res.broke = true;
+      damageGolem(A, true);
+      if (e.hp <= 0) { e.hp = 0; e.armor = 0; }
+      else {
+        nextArmor();
+        e.armor = Math.max(1, e.armor - res.carry);
+      }
+    } else if (value === A) {
+      e.hp -= 1; e.brokeThisTurn = true; res.broke = true;
+      damageGolem(A, false);
+      if (e.hp <= 0) { e.hp = 0; e.armor = 0; }
+      else nextArmor();
+    } else {
+      e.armor = A - value;
+      damageGolem(value, false);
+    }
+    return res;
+  }
+
+  function playForge() {
+    if (G.busy || G.screen !== "battle") return Promise.resolve();
+    if (!G.slot.length) { toast("先把手牌放進算式槽"); return Promise.resolve(); }
+    var ev = evalSeq(G.slot);
+    if (!ev.ok) {
+      var box = $("slot-box");
+      box.classList.remove("bad"); void box.offsetWidth;
+      if (ev.div) { toast("無法整除，算式無效"); banner("除不盡 · 卡牌退回", "bad", 1.2); SFX.over(); }
+      else { toast("算式還不完整"); }
+      // 卡牌退回手牌
+      Array.prototype.push.apply(G.hand, G.slot);
+      G.slot = [];
+      renderAll();
+      box.classList.add("bad");
+      setTimeout(function () { box.classList.remove("bad"); }, 420);
+      return Promise.resolve();
+    }
+    if (ev.value < 1) { toast("算式值必須大於 0"); return Promise.resolve(); }
+    G.busy = true;
+    setForgeState();
+    var value = ev.value;
+    var used = G.slot.slice();
+    renderHand();
+    SFX.forge();
+
+    var res = applyWeapon(value);
+    var A = G.enemy.armor;
+
+    if (res.overload) {
+      var cost = G.run.relics.fuse ? 1 : 2;
+      loseUnits(cost);
+      banner("超載！溢出 " + res.overflow, "bad", 1.5);
+    } else if (res.broke) {
+      banner("破甲！HP −1", "good", 1.4);
+    } else {
+      banner("護甲 −" + value + " → " + A, "", 1.1);
+    }
+    renderHud(); renderEnemy(); renderSlot();
+    var wait = G.fast ? 120 : 820;
+    return sleep(wait).then(function () {
+      // 打出的牌離開算式槽，進到棄牌堆（熔爐臨時補的牌不留在牌組裡）
+      G.slot = [];
+      renderSlot();
+      for (var i = 0; i < used.length; i++) if (!used[i].tmp) G.discard.push(used[i]);
+      if (G.enemy.hp <= 0) {
+        return victory();
+      }
+      if (G.run.units <= 0) {
+        return endRun(false);
+      }
+      return finishTurn(true).then(function () {
+        G.busy = false;
+        setForgeState();
+      });
+    });
+  }
+
+  function finishTurn(skipEnemy) {
+    if (G.run.units <= 0) return Promise.resolve();
+    for (var i = 0; i < G.hand.length; i++) if (!G.hand[i].tmp) G.discard.push(G.hand[i]);
+    for (i = 0; i < G.slot.length; i++) if (!G.slot[i].tmp) G.discard.push(G.slot[i]);
+    G.hand = []; G.slot = [];
+    renderHand(); renderSlot();
+    var wait = G.fast ? 90 : 560;
+    if (!skipEnemy && G.enemy && G.enemy.hp > 0) {
+      $("golem-wrap").classList.add("charge");
+      banner("魔像反擊！−1 心", "bad", 1.2);
+      loseUnits(2);
+      SFX.heart();
+      return sleep(wait).then(function () {
+        $("golem-wrap").classList.remove("charge");
+        if (G.run.units <= 0) return endRun(false);
+        G.turn += 1;
+        G.enemy.brokeThisTurn = false;
+        dealHand();
+        renderEnemy();
+        return null;
+      });
+    }
+    G.turn += 1;
+    G.enemy.brokeThisTurn = false;
+    dealHand();
+    renderEnemy();
+    return sleep(wait);
+  }
+
+  function endTurn() {
+    if (G.busy || G.screen !== "battle") return Promise.resolve();
+    G.busy = true;
+    setForgeState();
+    if (G.slot.length) {
+      for (var i = 0; i < G.slot.length; i++) G.hand.push(G.slot[i]);
+      G.slot = [];
+    }
+    return finishTurn(false).then(function () {
+      G.busy = false;
+      setForgeState();
+    });
+  }
+
+  function victory() {
+    G.run.wins += 1;
+    banner("擊破！", "good", 1.5);
+    SFX.win();
+    var wait = G.fast ? 150 : 1000;
+    return sleep(wait).then(function () {
+      if (G.run.wins >= BATTLE_COUNT) return endRun(true);
+      return openReward();
+    });
+  }
+
+  /* ================= 三選一 ================= */
+  function openReward() {
+    G.rewardOpen = true;
+    G.busy = false;
+    var offers = [];
+    var pool = CARD_POOL.slice();
+    shuffle(pool);
+    offers.push({ type: "card", def: pool[0] });
+    offers.push({ type: "card", def: pool[1] });
+    var relicKeys = ["calc", "anvil", "fuse"].filter(function (k) { return !G.run.relics[k]; });
+    if (relicKeys.length) {
+      shuffle(relicKeys);
+      offers.push({ type: "relic", key: relicKeys[0] });
+    } else {
+      offers.push({ type: "card", def: pool[2] });
+    }
+    G.offers = offers;
+    var row = $("offer-row");
+    row.innerHTML = "";
+    offers.forEach(function (o, i) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "offer";
+      btn.dataset.i = String(i);
+      if (o.type === "card") {
+        var c = o.def.make();
+        btn.innerHTML = '<span class="kind-tag">新卡</span>' +
+          '<span class="mini"><img class="cf" src="art/card-frame.png" alt="">' +
+          '<span class="face ' + (c.kind === "op" ? "op" : c.kind === "rune" ? "rune" : c.kind === "util" ? "util" : "") + '">' + cardGlyph(c) + "</span></span>" +
+          "<b>" + o.def.title + "</b><small>" + o.def.desc + "</small>";
+      } else {
+        var info = RELICS[o.key];
+        btn.innerHTML = '<span class="kind-tag relic">遺物</span>' +
+          '<span class="mini"><span class="relic-art">' +
+          (info.img ? '<img src="' + info.img + '" alt="">' : "<span>" + info.glyph + "</span>") +
+          "</span></span><b>" + info.name + "</b><small>" + info.desc + "</small>";
+      }
+      btn.addEventListener("click", function () { chooseReward(i); });
+      row.appendChild(btn);
+    });
+    $("reward-sub").innerHTML = "擊碎 <b>" + BATTLES[G.battleIdx].name + "</b> · 選一張牌或一件遺物";
+    $("reward").hidden = false;
+    SFX.tap();
+  }
+  function chooseReward(i) {
+    if (!G.rewardOpen) return;
+    var o = G.offers[i];
+    if (!o) return;
+    if (o.type === "card") G.run.deck.push(o.def.make());
+    else G.run.relics[o.key] = true;
+    G.rewardOpen = false;
+    $("reward").hidden = true;
+    SFX.tap();
+    startBattle(G.battleIdx + 1);
+  }
+
+  /* ================= 結算 ================= */
+  function endRun(win) {
+    if (G.over) return Promise.resolve();
+    G.over = true;
+    G.screen = "over";
+    G.busy = false;
+    $("reward").hidden = true;
+    G.rewardOpen = false;
+    var hearts = Math.ceil(G.run.units / 2);
+    var score = G.run.wins * 100 + hearts * 50;
+    G.run.score = score;
+    $("end-title").textContent = win ? "鍛造完成！" : "爐火熄滅";
+    $("end-sub").textContent = win ? "六座魔像全數擊碎，鍛造廠主倒下了。" : "心已耗盡，這一輪到此為止。";
+    $("end-score").textContent = String(score);
+    $("end-breakdown").innerHTML =
+      '<span>通過 <b>' + G.run.wins + "</b>/6 場 <b>+" + (G.run.wins * 100) + "</b></span>" +
+      '<span>剩餘 <b>' + hearts + "</b> 心 <b>+" + (hearts * 50) + "</b></span>";
+    $("over").hidden = false;
+    if (win) SFX.win(); else SFX.lose();
+    reportScore(score);
+    return Promise.resolve();
+  }
+  function reportScore(score) {
+    try { parent.postMessage({ type: "game-score", score: score }, location.origin); } catch (e) { /* ignore */ }
+  }
+
+  /* ================= 互動 ================= */
+  function flyCard(fromEl) {
+    if (!fromEl) return;
+    var to = $("slot-box").getBoundingClientRect();
+    var from = fromEl.getBoundingClientRect();
+    var app = $("app").getBoundingClientRect();
+    var clone = fromEl.cloneNode(true);
+    clone.classList.add("fly");
+    clone.style.left = (from.left - app.left) + "px";
+    clone.style.top = (from.top - app.top) + "px";
+    clone.style.width = from.width + "px";
+    clone.style.height = from.height + "px";
+    $("fx").appendChild(clone);
+    var sx = (to.left - app.left + 20 - from.left) / from.width;
+    var sy = (to.top - app.top + 10 - from.top) / from.height;
+    requestAnimationFrame(function () {
+      clone.style.transform = "translate(" + (to.left - app.left + 20 - from.left) + "px," + (to.top - app.top + 10 - from.top) + "px) scale(.45)";
+      clone.style.opacity = ".3";
+    });
+    setTimeout(function () { if (clone.parentNode) clone.parentNode.removeChild(clone); }, 230);
+  }
+  function addToSlot(uid, el) {
+    if (G.busy || G.screen !== "battle") return;
+    if (G.mirrorMode) { mirrorPick(uid); return; }
+    var idx = -1, i;
+    for (i = 0; i < G.hand.length; i++) if (G.hand[i].uid === uid) { idx = i; break; }
+    if (idx < 0) return;
+    if (G.hand[idx].kind === "util") { useUtility(G.hand[idx], idx); return; }
+    if (G.slot.length >= 5) { toast("算式槽最多 5 張"); return; }
+    var c = G.hand.splice(idx, 1)[0];
+    G.slot.push(c);
+    SFX.tap();
+    flyCard(el);
+    renderHand(); renderSlot();
+  }
+  function removeFromSlot(uid) {
+    if (G.busy) return;
+    for (var i = 0; i < G.slot.length; i++) {
+      if (G.slot[i].uid === uid) {
+        G.hand.push(G.slot.splice(i, 1)[0]);
+        SFX.tap();
+        renderHand(); renderSlot();
+        return;
+      }
+    }
+  }
+  function useUtility(c, idx) {
+    if (c.k === "swap") {
+      G.discard.push(G.hand.splice(idx, 1)[0]);
+      for (var i = 0; i < 2; i++) {
+        if (G.hand.length >= 7) break;
+        var n = drawOne();
+        if (n) G.hand.push(n);
+      }
+      toast("交換：抽 2 張");
+      SFX.tap();
+      renderAll();
+      return;
+    }
+    if (c.k === "mirror") {
+      var hasNum = G.hand.some(function (x) { return x.kind === "num"; });
+      if (!hasNum) { toast("手牌沒有數字可以複製"); return; }
+      G.mirrorMode = true;
+      toast("鏡像：點一張數字卡複製");
+      SFX.tap();
+      renderHand();
+      return;
+    }
+  }
+  function mirrorPick(uid) {
+    var idx = -1, i;
+    for (i = 0; i < G.hand.length; i++) if (G.hand[i].uid === uid) { idx = i; break; }
+    if (idx < 0) return;
+    var target = G.hand[idx];
+    if (!target || target.kind !== "num") { toast("只能複製數字卡"); return; }
+    var utilIdx = -1;
+    for (i = 0; i < G.hand.length; i++) if (G.hand[i].kind === "util" && G.hand[i].k === "mirror") { utilIdx = i; break; }
+    if (utilIdx < 0) { G.mirrorMode = false; renderHand(); return; }
+    G.discard.push(G.hand.splice(utilIdx, 1)[0]);
+    var copy = cloneCard(target);
+    var at = G.hand.indexOf(target);
+    G.hand.splice(at + 1, 0, copy);
+    G.mirrorMode = false;
+    toast("鏡像：複製了 " + target.v);
+    SFX.tap();
+    renderAll();
+  }
+  function useHint() {
+    if (!G.run || !G.run.relics.calc || G.usedHint || G.busy) return;
+    var sol = findSolution(G.hand, G.enemy.armor);
+    G.usedHint = true;
+    if (!sol) {
+      banner("這手牌湊不出，可考慮結束回合", "hint", 1.4);
+      toast("沒有不溢出的解");
+      renderAll();
+      return;
+    }
+    SFX.hint();
+    banner("提示：" + sol.expr + " = " + G.enemy.armor, "hint", 1.8);
+    var nodes = $("hand").querySelectorAll(".card");
+    for (var i = 0; i < nodes.length; i++) {
+      if (sol.uids.indexOf(nodes[i].dataset.uid) >= 0) nodes[i].classList.add("hint");
+    }
+    setTimeout(function () { renderHand(); }, 1800);
+    setForgeState();
+  }
+
+  /* ================= 事件 ================= */
+  $("hand").addEventListener("click", function (e) {
+    var el = e.target.closest ? e.target.closest(".card") : null;
+    if (el) addToSlot(el.dataset.uid, el);
+  });
+  $("slot").addEventListener("click", function (e) {
+    var el = e.target.closest ? e.target.closest(".card") : null;
+    if (el) removeFromSlot(el.dataset.uid);
+  });
+  $("btn-forge").addEventListener("click", function () { this.blur(); playForge(); });
+  $("btn-end").addEventListener("click", function () { this.blur(); endTurn(); });
+  $("btn-hint").addEventListener("click", function () { this.blur(); useHint(); });
+  $("btn-start").addEventListener("click", function () { this.blur(); startRun(); });
+  $("btn-again").addEventListener("click", function () { this.blur(); startRun(); });
+  window.addEventListener("keydown", function (e) {
+    if (G.screen !== "battle") return;
+    if (e.key === "Enter" && G.slot.length && !G.busy) { e.preventDefault(); playForge(); }
+    else if (e.key === "Escape" && G.slot.length && !G.busy) {
+      while (G.slot.length) G.hand.push(G.slot.pop());
+      renderAll();
+    }
+  });
+
+  /* 裝飾火星 */
+  (function embers() {
+    var box = $("embers");
+    for (var i = 0; i < 16; i++) {
+      var s = document.createElement("i");
+      s.style.left = (Math.random() * 100) + "%";
+      s.style.animationDuration = (5 + Math.random() * 6) + "s";
+      s.style.animationDelay = (-Math.random() * 8) + "s";
+      s.style.setProperty("--dx", (Math.random() * 60 - 30) + "px");
+      s.style.width = s.style.height = (2 + Math.random() * 2) + "px";
+      box.appendChild(s);
+    }
+  })();
+
+  /* ================= 除錯 / 驗證鉤子 ================= */
+  function snapshot() {
+    return {
+      screen: G.screen,
+      battle: G.battleIdx + 1,
+      battleName: G.enemy ? G.enemy.cfg.name : null,
+      armor: G.enemy ? G.enemy.armor : null,
+      hp: G.enemy ? G.enemy.hp : null,
+      turn: G.turn,
+      units: G.run ? G.run.units : null,
+      hearts: G.run ? Math.ceil(G.run.units / 2) : null,
+      wins: G.run ? G.run.wins : 0,
+      deck: G.run ? G.run.deck.length : 0,
+      hand: G.hand.map(function (c) { return cardGlyph(c); }),
+      handUids: G.hand.map(function (c) { return c.uid; }),
+      slot: G.slot.map(function (c) { return cardGlyph(c); }),
+      relics: G.run ? Object.keys(G.run.relics) : [],
+      rewardOpen: G.rewardOpen,
+      over: G.over,
+      busy: G.busy
+    };
+  }
+
+  function setHand(list) {
+    // list: [{kind, v/op/k}] or simple tokens
+    var cards = [];
+    (list || []).forEach(function (t) {
+      if (typeof t === "number") cards.push(cNum(t));
+      else if (t.kind === "num") cards.push(cNum(t.v));
+      else if (t.kind === "op") cards.push(cOp(t.v));
+      else if (t.kind === "rune") cards.push(cRune(t.op, t.v));
+      else if (t.kind === "util") cards.push(cUtil(t.k));
+      else if (t === "+" || t === "-" || t === "*" || t === "/") cards.push(cOp(t));
+    });
+    // 把被換掉的手牌塞回牌庫底，避免牌數減少
+    G.hand.forEach(function (c) { G.draw.push(c); });
+    G.hand = cards;
+    G.slot = [];
+    G.usedHint = false;
+    G.mirrorMode = false;
+    renderAll();
+    return snapshot();
+  }
+
+  function setArmor(n) {
+    if (!G.enemy) return null;
+    G.enemy.armor = n;
+    G.enemy.hp = Math.max(1, G.enemy.hp);
+    renderEnemy();
+    renderSlot();
+    return snapshot();
+  }
+
+  function setWins(n) {
+    G.run.wins = clamp(n, 0, BATTLE_COUNT);
+    return snapshot();
+  }
+
+  function setUnits(n) {
+    G.run.units = clamp(n, 0, 12);
+    renderHud();
+    return snapshot();
+  }
+
+  function setBattle(i) {
+    if (G.screen !== "battle") {
+      G.screen = "battle";
+      $("scr-start").classList.remove("active");
+      $("scr-battle").classList.add("active");
+    }
+    startBattle(clamp(i, 0, BATTLE_COUNT - 1));
+    return snapshot();
+  }
+
+  function bot(opts) {
+    opts = opts || {};
+    G.fast = true;
+    var report = [];
+    var guard = 0;
+    function step() {
+      if (guard++ > 400) return Promise.resolve(report);
+      if (G.screen === "over" || G.over) return Promise.resolve(report);
+      if (G.rewardOpen) {
+        // 偏好新卡（第一張）
+        chooseReward(0);
+        return sleep(60).then(step);
+      }
+      if (G.busy) return sleep(50).then(step);
+      if (!G.enemy) return sleep(50).then(step);
+      var sol = findSolution(G.hand, G.enemy.armor);
+      if (!sol) {
+        report.push({ battle: G.battleIdx + 1, armor: G.enemy.armor, hand: G.hand.map(cardGlyph).join(" "), solution: null });
+        return endTurn().then(function () { return sleep(60); }).then(step);
+      }
+      var all = allSolutions(G.hand, G.enemy.armor, 999);
+      report.push({
+        battle: G.battleIdx + 1,
+        armor: G.enemy.armor,
+        hp: G.enemy.hp,
+        hand: G.hand.map(cardGlyph).join(" "),
+        solution: sol.expr + " = " + G.enemy.armor,
+        exactCount: all.length,
+        overflowFree: true
+      });
+      // 用真正的 UI 路徑出牌
+      for (var i = 0; i < sol.uids.length; i++) addToSlot(sol.uids[i], null);
+      return sleep(20).then(function () { return playForge(); }).then(function () { return sleep(40); }).then(step);
+    }
+    return step().then(function () {
+      G.fast = false;
+      var hearts = G.run ? Math.ceil(G.run.units / 2) : 0;
+      return {
+        report: report,
+        wins: G.run ? G.run.wins : 0,
+        units: G.run ? G.run.units : 0,
+        hearts: hearts,
+        score: G.run ? G.run.score : 0,
+        over: G.over
+      };
+    });
+  }
+
+  function audit() {
+    var out = [];
+    BATTLES.forEach(function (b, bi) {
+      var rows = [];
+      b.armor.forEach(function (a) {
+        var list = combosFor(a);
+        var best = list[0] || null;
+        rows.push({
+          armor: a,
+          solution: best ? exprString(best) + " = " + a : null,
+          alternatives: list.slice(0, 5).map(exprString)
+        });
+      });
+      out.push({ battle: bi + 1, name: b.name, hp: b.hp, layers: rows });
+    });
+    return out;
+  }
+
+  window.__forge = {
+    state: snapshot,
+    snapshot: snapshot,
+    start: startRun,
+    restart: startRun,
+    setBattle: setBattle,
+    setArmor: setArmor,
+    setUnits: setUnits,
+    setWins: setWins,
+    setHand: setHand,
+    deal: function () { dealHand(); return snapshot(); },
+    play: function (uids) {
+      (uids || []).forEach(function (u) { addToSlot(u, null); });
+      return playForge();
+    },
+    endTurn: endTurn,
+    hint: useHint,
+    chooseReward: chooseReward,
+    winBattle: function () { G.busy = false; return victory(); },
+    endRun: function (win) { return endRun(!!win); },
+    addRelic: function (k) { G.run.relics[k] = true; renderAll(); },
+    audit: audit,
+    bot: bot,
+    solver: findSolution,
+    allSolutions: allSolutions,
+    combos: function (n) { return combosFor(n).map(exprString); },
+    pickCombo: function (n, glyphs) {
+      var h = glyphs.map(function (g) { return typeof g === "number" ? cNum(g) : g === "+" || g === "-" || g === "*" || g === "/" ? cOp(g) : cNum(1); });
+      var c = pickCombo(n, h);
+      return c ? exprString(c) : null;
+    },
+    cards: function (glyphs) { return setHand(glyphs); },
+    handNow: function () { return G.hand; },
+    pool: function (n) { return combosFor(n).map(exprString); },
+    battleList: BATTLES.map(function (b) { return { name: b.name, hp: b.hp, armor: b.armor.slice() }; })
+  };
+
+  // 讓直接開檔也能玩
+  renderAll();
+})();
+</script>
+</body>
+</html>
