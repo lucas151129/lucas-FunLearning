@@ -383,11 +383,20 @@
       flex: 1;
       min-height: 0;
       height: 100%;
-      width: auto;
-      max-width: 100%;
-      aspect-ratio: 1 / 1;
-      margin: 0 auto;
+      width: 100%;
+      max-width: none;
+      aspect-ratio: auto;
+      margin: 0;
+      display: grid;
+      place-items: center;
     }
+    /* 窄螢幕（iPad 分割視窗／被迫直向）時改成上下排，盤面才吃得到寬度 */
+    @media (max-width: 780px) {
+      html.dsh-embed .game-grid { grid-template-columns: minmax(0, 1fr); }
+      html.dsh-embed .side-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      html.dsh-embed .controls-card { grid-column: span 2; }
+    }
+
     html.dsh-embed .side-panel { min-height: 0; gap: 8px; }
     html.dsh-embed .hud-card { padding: 9px 10px; }
     html.dsh-embed .hud-card h3 { font-size: 11px; margin-bottom: 6px; }
@@ -571,9 +580,58 @@
       const screens = { start: $('#startScreen'), game: $('#gameScreen'), finish: $('#finishScreen') };
       const canvas = $('#gameCanvas');
       const ctx = canvas.getContext('2d');
-      const GRID = 20;
-      const SIZE = 600;
-      const CELL = SIZE / GRID;
+      /* 棋盤改成依容器實際長寬計算：橫屏時變成寬扁的盤（例如 20x9），
+         直屏或 iPad 時接近正方形。每個格子維持 18–34px。 */
+      let COLS = 20;
+      let ROWS = 20;
+      let CELL = 30;
+      let SIZE = 600;
+
+      /* 容器尺寸一變（切換畫面、轉向、分割視窗）就重新計算盤面 */
+      function watchBoard() {
+        if (!window.ResizeObserver) return;
+        try {
+          const ro = new ResizeObserver(() => {
+            layoutBoard();
+            draw();
+          });
+          ro.observe(document.querySelector(".board-wrap"));
+        } catch (err) {
+          /* ignore */
+        }
+      }
+
+      let layoutTries = 0;
+      function layoutBoard() {
+        /* 量容器（.board-wrap）而不是 canvas：canvas 自己有固定像素尺寸，
+           量它會永遠得到上一次算出來的大小。 */
+        const holder = canvas.parentElement || canvas;
+        const rect = {
+          width: holder.clientWidth || holder.getBoundingClientRect().width,
+          height: holder.clientHeight || holder.getBoundingClientRect().height,
+        };
+        /* 剛切到遊戲畫面時容器可能還是 0，等下一帧再量 */
+        if ((rect.width < 60 || rect.height < 60) && layoutTries < 20) {
+          layoutTries += 1;
+          requestAnimationFrame(layoutBoard);
+          return;
+        }
+        layoutTries = 0;
+        const w = Math.max(240, Math.round(rect.width));
+        const h = Math.max(160, Math.round(rect.height));
+        /* 每格邊長同時受寬與高限制，格子才會是正方形；橫屏時盤面自然變寬扁。 */
+        CELL = Math.max(14, Math.min(34, Math.floor(Math.min(w / 20, h / 8))));
+        COLS = Math.max(10, Math.floor(w / CELL));
+        ROWS = Math.max(6, Math.floor(h / CELL));
+        SIZE = COLS * CELL;
+        canvas.width = SIZE;
+        canvas.height = ROWS * CELL;
+        canvas.style.width = SIZE + "px";
+        canvas.style.height = ROWS * CELL + "px";
+        if (snake.some((s) => s.x >= COLS || s.y >= ROWS)) {
+          resetSnake();
+        }
+      }
 
       const configs = {
         basic: { name: '基础', icon: '🌱', speed: 245, goal: 50 },
@@ -684,9 +742,17 @@
         return [...options].sort(() => Math.random() - .5);
       }
 
+      function spawnSnake() {
+        const y = Math.floor(ROWS / 2);
+        const x = Math.max(4, Math.floor(COLS / 2));
+        return [
+          { x: x, y: y }, { x: x - 1, y: y }, { x: x - 2, y: y }, { x: x - 3, y: y },
+        ];
+      }
+
       function freeCell(existing = []) {
         for (let tries = 0; tries < 500; tries++) {
-          const pos = { x: randomInt(1, GRID - 2), y: randomInt(1, GRID - 2) };
+          const pos = { x: randomInt(1, COLS - 2), y: randomInt(1, ROWS - 2) };
           const onSnake = snake.some(s => s.x === pos.x && s.y === pos.y);
           const onFood = existing.some(f => f.x === pos.x && f.y === pos.y);
           const onPower = powerUp && powerUp.x === pos.x && powerUp.y === pos.y;
@@ -716,7 +782,7 @@
         clearInterval(timer); clearTimeout(effectTimer);
         score = 0; combo = 0; bestCombo = 0; correctCount = 0; hearts = 3;
         powerUp = null; slowUntil = 0; revealUntil = 0;
-        snake = [{x: 7,y:10},{x:6,y:10},{x:5,y:10},{x:4,y:10}];
+        snake = spawnSnake();
         direction = {x:1,y:0}; nextDirection = {x:1,y:0};
         paused = false; running = true;
         const cfg = configs[selectedLevel];
@@ -724,8 +790,10 @@
         $('#pauseOverlay').classList.remove('show');
         $('#pauseBtn').textContent = '⏸ 暂停';
         updateHUD();
-        newRound();
         showScreen('game');
+        layoutBoard();
+        requestAnimationFrame(() => { layoutBoard(); draw(); });
+        newRound();
         scheduleLoop();
         beep(520, .07, 'sine', .045);
       }
@@ -741,7 +809,7 @@
       }
 
       function resetSnake() {
-        snake = [{x: 7,y:10},{x:6,y:10},{x:5,y:10},{x:4,y:10}];
+        snake = spawnSnake();
         direction = {x:1,y:0}; nextDirection = {x:1,y:0};
         foods = foods.map((food, index) => ({ ...freeCell(foods.slice(0, index)), value: food.value, wobble: food.wobble }));
         if (powerUp && snake.some(s => s.x === powerUp.x && s.y === powerUp.y)) powerUp = { ...powerUp, ...freeCell(foods) };
@@ -770,7 +838,7 @@
         if (!running || paused) return;
         direction = nextDirection;
         const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
-        const hitWall = head.x < 0 || head.y < 0 || head.x >= GRID || head.y >= GRID;
+        const hitWall = head.x < 0 || head.y < 0 || head.x >= COLS || head.y >= ROWS;
         const hitSelf = snake.some((s, i) => i > 0 && s.x === head.x && s.y === head.y);
         if (hitWall || hitSelf) {
           loseHeart(hitWall ? '碰到边界啦！先看方向再出发' : '蛇蛇打结了！慢一点转弯');
@@ -871,12 +939,16 @@
       }
 
       function draw() {
-        ctx.clearRect(0, 0, SIZE, SIZE);
-        ctx.fillStyle = '#f2fff9'; ctx.fillRect(0, 0, SIZE, SIZE);
+        const W = canvas.width;
+        const H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = '#f2fff9'; ctx.fillRect(0, 0, W, H);
         ctx.strokeStyle = 'rgba(39,155,133,.12)'; ctx.lineWidth = 1;
-        for (let i = 1; i < GRID; i++) {
-          ctx.beginPath(); ctx.moveTo(i * CELL, 0); ctx.lineTo(i * CELL, SIZE); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(0, i * CELL); ctx.lineTo(SIZE, i * CELL); ctx.stroke();
+        for (let i = 1; i < COLS; i++) {
+          ctx.beginPath(); ctx.moveTo(i * CELL, 0); ctx.lineTo(i * CELL, H); ctx.stroke();
+        }
+        for (let i = 1; i < ROWS; i++) {
+          ctx.beginPath(); ctx.moveTo(0, i * CELL); ctx.lineTo(W, i * CELL); ctx.stroke();
         }
 
         if (powerUp) {
@@ -1011,6 +1083,13 @@
 
       window.addEventListener('blur', () => { if (running && !paused) togglePause(); });
       document.addEventListener('visibilitychange', () => { if (document.hidden && running && !paused) togglePause(); });
+      window.addEventListener("resize", () => {
+        layoutBoard();
+        draw();
+      });
+
+      layoutBoard();
+      watchBoard();
       draw();
     })();
   </script>
