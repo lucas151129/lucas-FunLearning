@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>分數廚房 · 太空補給站</title>
+<style>
+  :root {
+    --navy: #10162b;
+    --panel: #1a2140;
+    --panel-2: #232c52;
+    --line: #3b4675;
+    --gold: #ffd257;
+    --gold-deep: #b8860b;
+    --mint: #5ee0a0;
+    --coral: #ff6b8a;
+    --cream: #fff4d6;
+    --dim: #9aa6d0;
+    --ok: #4ade80;
+    --bad: #ff5c7a;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: radial-gradient(circle at 50% 0%, #1c2646 0%, var(--navy) 55%, #070b16 100%);
+    color: var(--cream);
+    font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+    overflow: hidden;
+    touch-action: manipulation;
+  }
+  button { font-family: inherit; cursor: pointer; touch-action: manipulation; }
+  .screen { display: none; height: var(--app-h, 100%); padding: 10px 14px; }
+  .screen.on { display: flex; flex-direction: column; }
+  h1, h2 { margin: 0; }
+
+  /* ---------- 開始 / 說明 ---------- */
+  #screen-start, #screen-rules { align-items: center; justify-content: center; text-align: center; gap: 8px; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo .bowl-mini { width: 46px; height: 46px; border-radius: 50%; border: 3px solid var(--gold); position: relative; overflow: hidden; background: #0d1224; }
+  .logo .bowl-mini::after { content: ""; position: absolute; inset: 22px 0 0 0; background: linear-gradient(#ffd257, #e09b1f); }
+  h1 { font-size: clamp(22px, 5.4vh, 40px); letter-spacing: 2px; color: var(--gold); text-shadow: 0 3px 0 #7a4d00; }
+  .sub { color: var(--dim); font-size: clamp(12px, 2.1vh, 16px); margin: 0; }
+  .lead { color: var(--cream); opacity: .9; font-size: clamp(12px, 2vh, 15px); line-height: 1.6; max-width: 640px; margin: 0; }
+  .row { display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    min-height: 44px; padding: 0 20px; border-radius: 12px; border: 2px solid #ffe9a8;
+    background: linear-gradient(#ffd257, #e29321); color: #4a2b00; font-weight: 800; font-size: 15px;
+    box-shadow: 0 3px 0 #8a5a00;
+  }
+  .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #8a5a00; }
+  .btn.ghost { background: transparent; color: var(--cream); border-color: var(--line); box-shadow: none; }
+  .btn.mint { background: linear-gradient(#7cf0b8, #35b47c); border-color: #b6ffd9; color: #053322; box-shadow: 0 3px 0 #16714c; }
+  #screen-rules ol { text-align: left; max-width: 660px; margin: 0; padding-left: 22px; color: #d8def5; font-size: clamp(11px, 1.9vh, 14px); line-height: 1.55; max-height: 62vh; overflow: auto; }
+  #screen-rules li { margin: 3px 0; }
+
+  /* ---------- 遊戲 ---------- */
+  #screen-game { padding: 6px 10px; gap: 6px; }
+  .topbar { display: flex; align-items: center; gap: 8px; flex: none; font-size: 12px; color: var(--dim); }
+  .topbar .day { color: var(--gold); font-weight: 800; font-size: 13px; }
+  .stars { letter-spacing: 2px; font-size: 14px; }
+  .spacer { flex: 1; }
+  .wallet { color: var(--gold); font-weight: 800; font-size: 15px; display: inline-block; transition: transform .18s; }
+  .icon-btn {
+    min-width: 40px; min-height: 40px; border-radius: 10px; border: 2px solid var(--line);
+    background: var(--panel); color: var(--cream); font-size: 13px; padding: 0 10px;
+  }
+
+  .board { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.05fr) 128px minmax(0, 1.45fr); gap: 8px; }
+
+  /* 訂單 */
+  .ticket {
+    background: linear-gradient(#232c52, #1a2140); border: 2px solid var(--line); border-radius: 14px;
+    padding: 8px 10px; display: flex; flex-direction: column; min-height: 0; gap: 4px;
+    box-shadow: inset 0 0 0 2px #0e1430;
+  }
+  .ticket-head { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--dim); }
+  .ticket-mid { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 4px; }
+  .guest { font-size: 18px; line-height: 1; }
+  .target { display: flex; align-items: baseline; gap: 8px; }
+  .frac { font-size: clamp(34px, 13vh, 64px); font-weight: 900; color: var(--gold); line-height: 1; letter-spacing: 1px; }
+  .frac small { font-size: .55em; color: var(--dim); font-weight: 600; margin-left: 4px; }
+  .ingredients { font-size: 20px; letter-spacing: 4px; }
+  .patience { margin-top: auto; }
+  .bar { height: 10px; border-radius: 6px; background: #0d1224; overflow: hidden; border: 1px solid var(--line); }
+  .bar > i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #5ee0a0, #2f9e68); transform-origin: left center; transition: background .2s; }
+  .bar.warn > i { background: linear-gradient(90deg, #ffd257, #e0a021); }
+  .bar.danger > i { background: linear-gradient(90deg, #ff8a9d, #e02f4f); }
+  .hint { font-size: 11px; color: var(--dim); min-height: 14px; }
+  .hint.bad { color: var(--bad); font-weight: 700; }
+  .hint.ok { color: var(--ok); font-weight: 700; }
+
+  /* 碗 */
+  .bowl-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+  .bowl {
+    width: 128px; height: 128px; border-radius: 50%;
+    background: conic-gradient(var(--gold) 0turn calc(var(--fill, 0) * 1turn), #0d1224 calc(var(--fill, 0) * 1turn) 1turn);
+    border: 3px solid #4a5689; position: relative;
+    display: grid; place-items: center;
+    box-shadow: 0 0 0 4px #0b1020, 0 6px 18px rgba(0,0,0,.45);
+    transition: box-shadow .15s;
+  }
+  .bowl::after { content: ""; position: absolute; inset: 12px; border-radius: 50%; background: #141a30; }
+  .bowl b { position: relative; z-index: 2; font-size: 26px; color: var(--cream); font-weight: 900; }
+  .bowl.pop { box-shadow: 0 0 0 4px #0b1020, 0 0 22px 4px rgba(255,210,87,.6); }
+  .bowl.shake { animation: shake .3s; }
+  @keyframes shake { 25% { transform: translateX(-6px) } 50% { transform: translateX(6px) } 75% { transform: translateX(-3px) } }
+  .bowl-label { font-size: 11px; color: var(--dim); }
+
+  /* 量杯 */
+  .cups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(48px, 1fr); gap: 6px; }
+  .cup {
+    position: relative; border-radius: 12px; border: 2px solid var(--line);
+    background: linear-gradient(#2a3462, #1c2344); color: var(--cream);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    font-weight: 800; font-size: 15px; min-height: 54px; max-height: 78px;
+    padding: 4px;
+  }
+  .cup:active { background: linear-gradient(#3a4a86, #262f5c); }
+  .cup .pie { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #6b7ab5;
+    background: conic-gradient(#ffd257 0turn calc(var(--p) * 1turn), transparent calc(var(--p) * 1turn) 1turn); }
+  .cup.den6 .pie { border-color: #7bd8ff; }
+  .cup:last-child:nth-child(odd) { grid-column: span 2; }
+  .cup.new { border-color: var(--gold); box-shadow: 0 0 12px rgba(255,210,87,.5); }
+
+  /* ---------- 升級 / 結算 ---------- */
+  #screen-upgrade, #screen-end { align-items: center; justify-content: center; gap: 10px; text-align: center; }
+  .cards { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .card {
+    width: 170px; min-height: 120px; border-radius: 14px; border: 2px solid var(--line);
+    background: linear-gradient(#232c52, #1a2140); padding: 10px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 6px; color: var(--cream);
+  }
+  .card:active { border-color: var(--gold); }
+  .card .big { font-size: 30px; }
+  .card b { font-size: 15px; color: var(--gold); }
+  .card small { font-size: 11px; color: var(--dim); line-height: 1.4; }
+  .stat-grid { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .stat { min-width: 110px; padding: 8px 12px; border-radius: 12px; background: #1a2140; border: 1px solid var(--line); }
+  .stat span { display: block; font-size: 11px; color: var(--dim); }
+  .stat b { font-size: 20px; color: var(--gold); }
+
+  /* 手機矮屏（平台 iframe 874×292） */
+  @media (max-height: 400px) {
+    #screen-start, #screen-rules { padding: 6px 12px; gap: 4px; }
+    #screen-rules ol { max-height: 54vh; font-size: 11px; }
+    .logo .bowl-mini { width: 34px; height: 34px; }
+    .board { grid-template-columns: minmax(0, 1.05fr) 104px minmax(0, 1.4fr); gap: 6px; }
+    .bowl { width: 106px; height: 106px; }
+    .bowl b { font-size: 17px; }
+    .bowl::after { inset: 10px; }
+    .cup { font-size: 13px; gap: 2px; min-height: 48px; max-height: 60px; }
+    .cup .pie { width: 14px; height: 14px; }
+    .ticket { padding: 6px 8px; }
+    .frac { font-size: clamp(30px, 11vh, 42px); }
+    .card { width: 132px; min-height: 96px; padding: 8px; }
+    .card .big { font-size: 22px; }
+    .stat { min-width: 88px; padding: 6px 8px; }
+    .stat b { font-size: 16px; }
+  }
+  html.dsh-embed .topbar { padding-left: 0; }
+  @media (max-height: 400px) {
+    html.dsh-embed #screen-game { padding-left: 92px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 開始 -->
+<section class="screen on" id="screen-start">
+  <div class="logo"><div class="bowl-mini"></div><h1>分數廚房</h1></div>
+  <p class="sub">太空補給站 · 值班員日誌</p>
+  <p class="lead">客人要 3/4 杯糖漿，你只有 1/2、1/4、1/3 的量杯。<br>先算好再倒，倒超過就整碗報廢。</p>
+  <div class="row">
+    <button class="btn" id="btn-start">開始值班</button>
+    <button class="btn ghost" id="btn-rules">怎麼玩</button>
+  </div>
+</section>
+
+<!-- 說明 -->
+<section class="screen" id="screen-rules">
+  <h2 style="color:var(--gold);font-size:20px">怎麼玩</h2>
+  <ol>
+    <li>左邊是客人的訂單，例如「3/4 杯」。</li>
+    <li>右邊是你的量杯：1/2、1/4、1/3……點一下就把那麼多倒進碗裡。</li>
+    <li>碗裡的分數會累加，**剛好等於訂單**就完成，客人會付錢。</li>
+    <li>**倒超過就整碗報廢**（碗歸零、耐心扣一截），所以要先算再倒。</li>
+    <li>客人的耐心條倒數完還沒完成，就失去一顆星。</li>
+    <li>一天 3 顆星，掉光就提早打烊；打完 3 天結束一輪。</li>
+    <li>每天結束可以選一張升級：新量杯、或遺物（保溫、快手、大碗）。</li>
+    <li>分數 = 你賺到的金幣：完成 +10、耐心剩一半以上 +5、一天打完 +20。</li>
+  </ol>
+  <div class="row">
+    <button class="btn" id="rules-back">回去</button>
+  </div>
+</section>
+
+<!-- 遊戲 -->
+<section class="screen" id="screen-game">
+  <div class="topbar">
+    <span class="day" id="hud-day">第 1 天</span>
+    <span class="stars" id="hud-stars">★★★</span>
+    <span class="spacer"></span>
+    <span>金幣 <b class="wallet" id="hud-coins">0</b></span>
+    <button class="icon-btn" id="btn-quit">離開</button>
+  </div>
+  <div class="board">
+    <div class="ticket">
+      <div class="ticket-head"><span class="guest" id="t-guest">🐧</span><span id="t-name">客人</span><span class="spacer"></span><span id="t-no">1/4</span></div>
+      <div class="ticket-mid">
+        <div class="target"><span class="frac" id="t-frac">3/4<small>杯</small></span></div>
+        <div class="ingredients" id="t-ing">🍯 🍋</div>
+        <div class="hint" id="t-hint">倒到剛好 3/4 杯</div>
+      </div>
+      <div class="patience">
+        <div class="bar" id="t-bar"><i id="t-fill"></i></div>
+      </div>
+    </div>
+
+    <div class="bowl-wrap">
+      <div class="bowl" id="bowl"><b id="bowl-text">0</b></div>
+      <div class="bowl-label">碗 · 目前份量</div>
+    </div>
+
+    <div class="cups" id="cups"></div>
+  </div>
+</section>
+
+<!-- 每日升級 -->
+<section class="screen" id="screen-upgrade">
+  <h2 style="color:var(--gold);font-size:20px" id="up-title">第 1 天結束</h2>
+  <p class="sub" id="up-sub">選一張帶進明天</p>
+  <div class="cards" id="up-cards"></div>
+</section>
+
+<!-- 結算 -->
+<section class="screen" id="screen-end">
+  <h1 id="end-title">收工！</h1>
+  <div class="stat-grid">
+    <div class="stat"><span>完成訂單</span><b id="end-orders">0</b></div>
+    <div class="stat"><span>賺到金幣</span><b id="end-coins">0</b></div>
+    <div class="stat"><span>最快反應</span><b id="end-best">–</b></div>
+    <div class="stat"><span>剩餘星數</span><b id="end-stars">0</b></div>
+  </div>
+  <div class="row">
+    <button class="btn" id="end-again">再來一輪</button>
+    <button class="btn ghost" id="end-home">回主畫面</button>
+  </div>
+</section>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------- 分數工具 ---------- */
+  function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { var t = a % b; a = b; b = t; } return a || 1; }
+  function F(n, d) { var g = gcd(n, d); return { n: n / g, d: d / g }; }
+  function fAdd(a, b) { return F(a.n * b.d + b.n * a.d, a.d * b.d); }
+  function fVal(f) { return f.n / f.d; }
+  function fEq(a, b) { return a.n * b.d === b.n * a.d; }
+  function fStr(f) { return f.d === 1 ? String(f.n) : f.n + "/" + f.d; }
+  function cmp(a, b) { var x = a.n * b.d, y = b.n * a.d; return x === y ? 0 : (x < y ? -1 : 1); }
+
+  var ZERO = { n: 0, d: 1 };
+
+  /* ---------- 設定 ---------- */
+  var DAYS = [
+    { cups: [{ n: 1, d: 2 }, { n: 1, d: 4 }, { n: 1, d: 3 }], orders: 4, patience: 30, dens: [2, 3, 4] },
+    { cups: null, orders: 5, patience: 27, dens: [2, 3, 4, 8] },
+    { cups: null, orders: 5, patience: 24, dens: [2, 3, 4, 6, 8] }
+  ];
+  var GUESTS = [
+    { icon: "🐧", name: "企鵝船長" }, { icon: "🦊", name: "狐狸工程師" },
+    { icon: "🐼", name: "熊貓廚師" }, { icon: "🐸", name: "青蛙快遞" },
+    { icon: "🦉", name: "貓頭鷹站長" }
+  ];
+  var ING = ["🍯", "🍋", "🥛", "🧊", "🍓", "🍫"];
+
+  var state = null;
+
+  function newRun() {
+    state = {
+      day: 0, coins: 0, stars: 3, ordersDone: 0, doneThisDay: 0,
+      cups: DAYS[0].cups.slice(), relics: {}, best: null,
+      guestIdx: 0, order: null, bowl: ZERO, pouring: false,
+      patience: 0, patienceMax: 1, timer: null, playing: false,
+      startedAt: 0, runOrders: 0
+    };
+  }
+
+  /* ---------- 訂單生成（保證可解） ---------- */
+  function sumsFrom(cups, maxCups) {
+    var out = [], seen = {};
+    function walk(idx, acc, used) {
+      if (used > 0) {
+        var key = acc.n + "/" + acc.d;
+        if (!seen[key]) { seen[key] = 1; out.push({ f: acc, pours: used }); }
+      }
+      if (used >= maxCups) return;
+      for (var i = idx; i < cups.length; i++) {
+        var nxt = fAdd(acc, cups[i]);
+        if (fVal(nxt) <= 1.0001) walk(i, nxt, used + 1);
+      }
+    }
+    walk(0, ZERO, 0);
+    return out;
+  }
+
+  function pickOrder() {
+    var cfg = DAYS[state.day];
+    var pool = sumsFrom(state.cups, 3).filter(function (o) {
+      return o.pours >= 2 && cfg.dens.indexOf(o.f.d) >= 0 && fVal(o.f) > 0.1 && fVal(o.f) < 1.0001;
+    });
+    if (!pool.length) pool = sumsFrom(state.cups, 3).filter(function (o) { return o.pours >= 2; });
+    if (!pool.length) pool = [{ f: { n: 1, d: 2 }, pours: 2 }];
+    var pick = pool[Math.floor(Math.random() * pool.length)];
+    var g = GUESTS[state.guestIdx % GUESTS.length];
+    state.guestIdx++;
+    var ings = [];
+    var k = 1 + Math.floor(Math.random() * 2);
+    while (ings.length < k) { var it = ING[Math.floor(Math.random() * ING.length)]; if (ings.indexOf(it) < 0) ings.push(it); }
+    return { f: pick.f, pours: pick.pours, guest: g, ing: ings };
+  }
+
+  /* ---------- 畫面 ---------- */
+  function show(id) {
+    ["screen-start", "screen-rules", "screen-game", "screen-upgrade", "screen-end"].forEach(function (s) {
+      $(s).classList.toggle("on", s === id);
+    });
+  }
+
+  function renderCups() {
+    var box = $("cups");
+    box.innerHTML = "";
+    state.cups.forEach(function (c, i) {
+      var b = document.createElement("button");
+      b.className = "cup" + (c.d >= 6 ? " den6" : "");
+      b.type = "button";
+      b.setAttribute("data-cup", fStr(c));
+      b.style.setProperty("--p", (c.n / c.d).toFixed(3));
+      b.innerHTML = '<span class="pie"></span><span>' + fStr(c) + "</span>";
+      b.addEventListener("click", function () { pour(c); });
+      box.appendChild(b);
+    });
+  }
+
+  function renderTicket() {
+    var o = state.order;
+    $("t-guest").textContent = o.guest.icon;
+    $("t-name").textContent = o.guest.name;
+    $("t-no").textContent = "訂單 " + (state.doneThisDay + 1) + "/" + DAYS[state.day].orders;
+    $("t-frac").innerHTML = fStr(o.f) + "<small>杯</small>";
+    $("t-ing").textContent = o.ing.join(" ");
+    $("t-hint").textContent = "倒到剛好 " + fStr(o.f) + " 杯";
+    $("t-hint").className = "hint";
+    $("hud-day").textContent = "第 " + (state.day + 1) + " 天";
+    $("hud-coins").textContent = state.coins;
+    $("hud-stars").textContent = "★★★".slice(0, state.stars) + "☆☆☆".slice(0, 3 - state.stars);
+  }
+
+  function renderBowl(pop) {
+    var v = fVal(state.bowl);
+    var el = $("bowl");
+    el.style.setProperty("--fill", Math.min(1, v).toFixed(4));
+    $("bowl-text").textContent = v === 0 ? "0" : fStr(state.bowl);
+    if (pop) { el.classList.add("pop"); setTimeout(function () { el.classList.remove("pop"); }, 180); }
+  }
+
+  function renderPatience() {
+    var r = Math.max(0, state.patience / state.patienceMax);
+    $("t-fill").style.transform = "scaleX(" + r.toFixed(3) + ")";
+    var bar = $("t-bar");
+    bar.className = "bar" + (r < 0.28 ? " danger" : (r < 0.55 ? " warn" : ""));
+  }
+
+  /* ---------- 流程 ---------- */
+  function startDay() {
+    state.doneThisDay = 0;
+    state.stars = state.stars; // 星數跨日保留
+    nextOrder();
+    show("screen-game");
+  }
+
+  function nextOrder() {
+    if (state.doneThisDay >= DAYS[state.day].orders) { finishDay(); return; }
+    state.order = pickOrder();
+    state.bowl = ZERO;
+    state.pours = [];
+    state.startedAt = performance.now();
+    state.patienceMax = DAYS[state.day].patience * (state.relics.warm ? 1.25 : 1);
+    state.patience = state.patienceMax;
+    renderTicket();
+    renderBowl(false);
+    renderPatience();
+    startTimer();
+  }
+
+  function startTimer() {
+    stopTimer();
+    var last = performance.now();
+    state.timer = setInterval(function () {
+      var now = performance.now();
+      var dt = (now - last) / 1000;
+      last = now;
+      if (!state.playing) return;
+      state.patience -= dt;
+      if (state.patience <= 0) {
+        state.patience = 0;
+        renderPatience();
+        timeoutOrder();
+        return;
+      }
+      renderPatience();
+    }, 100);
+  }
+  function stopTimer() { if (state.timer) { clearInterval(state.timer); state.timer = null; } }
+
+  function timeoutOrder() {
+    state.playing = false;
+    state.stars--;
+    $("t-hint").textContent = "客人等太久了… −1 星";
+    $("t-hint").className = "hint bad";
+    renderTicket();
+    setTimeout(function () {
+      if (state.stars <= 0) { endDay(true); return; }
+      state.doneThisDay++;
+      state.playing = true;
+      nextOrder();
+    }, 900);
+  }
+
+  function pour(cup) {
+    if (!state.playing || state.pouring || !state.order) return;
+    var target = state.order.f;
+    var next = fAdd(state.bowl, cup);
+
+    if (cmp(next, target) > 0) {
+      // 倒超過 → 報廢
+      state.bowl = ZERO;
+      state.patience = Math.max(0.6, state.patience * (state.relics.fast ? 0.9 : 0.8));
+      renderBowl(false);
+      renderPatience();
+      var el = $("bowl");
+      el.classList.add("shake");
+      setTimeout(function () { el.classList.remove("shake"); }, 320);
+      var over = fAdd(next, { n: -target.n, d: target.d });
+      $("t-hint").textContent = "倒超過了！超出 " + fStr(over) + " 杯，整碗報廢";
+      $("t-hint").className = "hint bad";
+      return;
+    }
+
+    state.bowl = next;
+    state.pours.push(cup);
+    renderBowl(true);
+
+    if (fEq(next, target)) { completeOrder(); return; }
+
+    var left = fAdd(target, { n: -next.n, d: next.d });
+    $("t-hint").textContent = "已倒 " + fStr(next) + "，還差 " + fStr(left);
+    $("t-hint").className = "hint";
+  }
+
+  function completeOrder() {
+    state.playing = false;
+    var used = (performance.now() - state.startedAt) / 1000;
+    if (state.best === null || used < state.best) state.best = used;
+
+    var gain = 10;
+    if (state.patience / state.patienceMax > 0.5) gain += 5;
+    if (state.relics.big) gain += 3;
+    state.coins += gain;
+    state.ordersDone++;
+    state.runOrders++;
+    state.doneThisDay++;
+
+    var parts = state.pours.map(fStr).join(" + ");
+    $("t-hint").textContent = "完成！" + fStr(state.order.f) + " = " + parts + "　+" + gain + " 金幣";
+    $("t-hint").className = "hint ok";
+    $("hud-coins").textContent = state.coins;
+    var w = $("hud-coins");
+    w.style.transform = "scale(1.35)";
+    setTimeout(function () { w.style.transform = "scale(1)"; }, 180);
+    postScore();
+
+    setTimeout(function () {
+      state.playing = true;
+      if (state.doneThisDay >= DAYS[state.day].orders) finishDay();
+      else nextOrder();
+    }, 650);
+  }
+
+  function finishDay() {
+    stopTimer();
+    state.playing = false;
+    var bonus = 30;
+    state.coins += bonus;
+    $("hud-coins").textContent = state.coins;
+    postScore();
+    if (state.day >= DAYS.length - 1) { endRun(); return; }
+    openUpgrade();
+  }
+
+  function endDay(outOfStars) {
+    stopTimer();
+    state.playing = false;
+    if (state.day >= DAYS.length - 1) { endRun(); return; }
+    if (outOfStars) state.stars = 1; // 打烊後隔天回一顆
+    openUpgrade();
+  }
+
+  /* ---------- 升級 ---------- */
+  function upgradePool() {
+    var pool = [];
+    var have = state.cups.map(fStr);
+    [{ n: 1, d: 8 }, { n: 1, d: 6 }, { n: 1, d: 12 }, { n: 1, d: 5 }].forEach(function (c) {
+      if (have.indexOf(fStr(c)) < 0) pool.push({ kind: "cup", f: c, title: "新量杯 " + fStr(c), desc: "多一種倒法，能解的訂單變多" });
+    });
+    if (!state.relics.warm) pool.push({ kind: "relic", key: "warm", title: "保溫箱", desc: "客人耐心 +25%" });
+    if (!state.relics.fast) pool.push({ kind: "relic", key: "fast", title: "厚碗", desc: "倒超過只扣 10% 耐心（原本 20%）" });
+    if (!state.relics.big) pool.push({ kind: "relic", key: "big", title: "招牌食譜", desc: "每完成一單金幣 +3" });
+    return pool.sort(function () { return Math.random() - 0.5; }).slice(0, 3);
+  }
+
+  function openUpgrade() {
+    var opts = upgradePool();
+    var box = $("up-cards");
+    box.innerHTML = "";
+    $("up-title").textContent = "第 " + (state.day + 1) + " 天結束";
+    $("up-sub").textContent = "金幣 " + state.coins + " · 選一張帶進第 " + (state.day + 2) + " 天";
+    opts.forEach(function (o) {
+      var b = document.createElement("button");
+      b.className = "card";
+      b.type = "button";
+      b.innerHTML = '<span class="big">' + (o.kind === "cup" ? "🥄" : "📦") + "</span><b>" + o.title + "</b><small>" + o.desc + "</small>";
+      b.addEventListener("click", function () {
+        if (o.kind === "cup") state.cups.push(o.f);
+        else state.relics[o.key] = true;
+        state.day++;
+        state.stars = 3;
+        show("screen-game");
+        state.playing = true;
+        renderCups();
+        startDay();
+      });
+      box.appendChild(b);
+    });
+    show("screen-upgrade");
+  }
+
+  /* ---------- 結束 ---------- */
+  function endRun() {
+    stopTimer();
+    state.playing = false;
+    $("end-orders").textContent = state.ordersDone;
+    $("end-coins").textContent = state.coins;
+    $("end-best").textContent = state.best ? state.best.toFixed(1) + "s" : "–";
+    $("end-stars").textContent = state.stars;
+    postScore();
+    show("screen-end");
+  }
+
+  function postScore() {
+    if (window.parent && window.parent !== window) {
+      try { parent.postMessage({ type: "game-score", score: state.coins }, location.origin); } catch (e) {}
+    }
+  }
+
+  /* ---------- 綁定 ---------- */
+  $("btn-start").addEventListener("click", function () {
+    newRun();
+    renderCups();
+    state.playing = true;
+    show("screen-game");
+    startDay();
+  });
+  $("btn-rules").addEventListener("click", function () { show("screen-rules"); });
+  $("rules-back").addEventListener("click", function () { show("screen-start"); });
+  $("btn-quit").addEventListener("click", function () { stopTimer(); state.playing = false; endRun(); });
+  $("end-again").addEventListener("click", function () {
+    newRun(); renderCups(); state.playing = true; show("screen-game"); startDay();
+  });
+  $("end-home").addEventListener("click", function () { stopTimer(); show("screen-start"); });
+})();
+</script>
+</body>
+</html>

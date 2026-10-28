@@ -109,6 +109,16 @@ const GAMES = [
     entry: "games/chemistry/bubbles/index.html",
   },
   {
+    id: "math-fraction",
+    category: "math",
+    title: "分數廚房",
+    level: "middle",
+    blurb: "用量杯倒出剛好的分數。倒超過就整碗報廢。",
+    maxScore: 300,
+    icon: "assets/games/math-fraction.png?v=1",
+    entry: "games/math/fraction-kitchen/index.html",
+  },
+  {
     id: "math-coin",
     category: "math",
     title: "數學推幣機",
