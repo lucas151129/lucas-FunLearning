@@ -107,6 +107,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pet-still,
-  .pet-still.is-react { animation: none; }
+  .pet-still[data-species],
+  .pet-still.is-react { animation: none !important; }
 }
