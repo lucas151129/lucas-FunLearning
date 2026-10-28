@@ -130,17 +130,18 @@ function renderWaterField() {
       nx /= nl; ny /= nl; nz /= nl;
 
       const shallow = sim.c2[index] < C_DEEP * C_DEEP - 1;
-      const baseDeep = [6, 39, 54];
-      const baseShallow = [10, 82, 92];
+      const baseDeep = [9, 57, 76];
+      const baseShallow = [17, 101, 112];
       const base = shallow ? baseShallow : baseDeep;
       const diffuse = Math.max(0, nx * light.x + ny * light.y + nz * light.z);
-      const spec = Math.pow(Math.max(0, nx * half.x + ny * half.y + nz * half.z), 42);
-      const caustic = Math.max(0, (left + right + up + down - 4 * u) * gain * 7);
-      const shade = 0.62 + diffuse * 0.56 + h * 0.12;
+      const spec = Math.pow(Math.max(0, nx * half.x + ny * half.y + nz * half.z), 52);
+      const caustic = Math.max(0, (left + right + up + down - 4 * u) * gain * 8);
+      const shade = 0.72 + diffuse * 0.5 + h * 0.16;
+      const foam = Math.max(0, (h - 0.55) * 2.2) * 18;
       const pixel = index * 4;
-      data[pixel] = clamp(base[0] * shade + spec * 185 + caustic * 80 + Math.max(0, h) * 22, 0, 255);
-      data[pixel + 1] = clamp(base[1] * shade + spec * 241 + caustic * 100 + Math.max(0, h) * 26, 0, 255);
-      data[pixel + 2] = clamp(base[2] * shade + spec * 255 + caustic * 120 + Math.max(0, h) * 24, 0, 255);
+      data[pixel] = clamp(base[0] * shade + spec * 198 + caustic * 85 + foam * 1.2, 0, 255);
+      data[pixel + 1] = clamp(base[1] * shade + spec * 245 + caustic * 105 + foam * 1.3, 0, 255);
+      data[pixel + 2] = clamp(base[2] * shade + spec * 255 + caustic * 125 + foam * 1.4, 0, 255);
       data[pixel + 3] = 255;
     }
   }
@@ -163,6 +164,14 @@ function drawWater() {
   ctx.save();
   ctx.imageSmoothingEnabled = true;
   ctx.drawImage(fieldCanvas, 0, 0, NX, NY, 0, 0, TANK.width, TANK.height);
+  const vignette = ctx.createRadialGradient(
+    TANK.width / 2, TANK.height / 2, TANK.height * 0.28,
+    TANK.width / 2, TANK.height / 2, TANK.width * 0.65,
+  );
+  vignette.addColorStop(0, 'rgba(0,0,0,0)');
+  vignette.addColorStop(1, 'rgba(0,7,12,.34)');
+  ctx.fillStyle = vignette;
+  ctx.fillRect(0, 0, TANK.width, TANK.height);
   ctx.restore();
 
   drawShallowOverlay(0.12);
