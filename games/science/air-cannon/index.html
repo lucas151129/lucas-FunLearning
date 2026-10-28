@@ -110,12 +110,6 @@
       </div>
     </main>
   </div>
-  <script>
-    // A dynamic import is deliberate: some embedded iframe contexts do not
-    // start a top-level module script, but do allow a dynamic module import.
-    import('./src/main.js').catch(function (error) {
-      console.error('air-cannon boot failed', error);
-    });
-  </script>
+  <script src="./src/boot.js"></script>
 </body>
 </html>
