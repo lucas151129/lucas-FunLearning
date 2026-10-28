@@ -850,7 +850,7 @@ function missing(text) {
 }
 
 function render() {
-  document.body.classList.remove("playing", "game-any");
+  document.body.classList.remove("playing", "game-any", "game-portrait");
   /* 離開遊戲頁時順便退出全螢幕，避免使用者卡在沒有工具列的畫面 */
   if (fullscreenElement() && !/^#\/g\//.test(location.hash)) exitFullscreen();
   renderChrome();
