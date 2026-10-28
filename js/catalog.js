@@ -99,6 +99,16 @@ const GAMES = [
     entry: "games/math/coin-pusher/index.html",
   },
   {
+    id: "ricochet",
+    category: "math",
+    title: "稜鏡迴廊",
+    level: "upper",
+    blurb: "拖曳炮台、轉動鏡子，讓金球在牆與鏡之間反彈，一輪打完六間幾何房間。",
+    maxScore: 750,
+    icon: "assets/games/ricochet.png?v=1",
+    entry: "games/math/ricochet/index.html",
+  },
+  {
     id: "math-snake",
     category: "math",
     title: "正負數貪食蛇",
