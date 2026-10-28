@@ -187,6 +187,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--teal); outl
 html.dsh-embed .topbar { display: none; }
 html.dsh-embed .stage { height: 100%; }
 html.dsh-embed .side-panel { padding-bottom: 64px; }
+html.dsh-embed .hud-top { top: 46px; }
 @media (max-height: 470px) and (min-width: 721px) {
   .side-panel { position: relative; padding-bottom: 62px; }
   .action-row {

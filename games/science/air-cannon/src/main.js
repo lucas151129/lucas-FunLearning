@@ -447,6 +447,7 @@ function loadMission(index) {
   state.lastSim = null;
   state.anim = null;
   state.candleState = new Set();
+  $('#sidePanel').scrollTop = 0;
   state.aim = 0;
   state.pull = state.mission.standard.pull || 0.9;
   $('#finalOverlay').hidden = true;
@@ -683,17 +684,29 @@ function updateMainButton() {
   }
 }
 
+function reveal(selector) {
+  requestAnimationFrame(() => {
+    const element = $(selector);
+    if (element && !element.hidden) element.scrollIntoView({ block: 'nearest' });
+  });
+}
+
 function selectPrediction(index) {
   if (state.phase === 'predict') {
     state.prediction = index;
     state.predictionLocked = true;
     state.phase = 'test';
-  } else if (state.phase === 'finalPredict') {
+    updateUI();
+    reveal('#trialsBox');
+    return;
+  }
+  if (state.phase === 'finalPredict') {
     state.finalPrediction = index;
     state.predictionLocked = true;
     state.phase = 'finalAim';
-  } else return;
-  updateUI();
+    updateUI();
+    reveal('#finalBox');
+  }
 }
 
 function trialSettings(index) {
@@ -725,6 +738,7 @@ function chooseConclusion(index) {
   state.conclusionChoice = index;
   state.phase = 'concluded';
   const best = bestOf(state.trialResults);
+  reveal('#scoreNote');
   const parts = scoreMission({
     predictionCorrect: state.prediction === m.prediction.correct,
     testedAll: state.trialResults.filter(Boolean).length === m.trials.length,
@@ -749,6 +763,9 @@ function finishAnimation(animation) {
     if (state.trialResults.filter(Boolean).length === state.mission.trials.length) {
       state.phase = 'conclusion';
       updateUI();
+      reveal('#conclusionBox');
+    } else {
+      reveal('#dataBox');
     }
     return;
   }
