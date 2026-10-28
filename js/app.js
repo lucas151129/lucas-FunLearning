@@ -265,7 +265,9 @@ function syncShell() {
 }
 
 function syncOrientation() {
-  const coarse = window.matchMedia("(pointer: coarse)").matches;
+  /* Mobile emulation and some WebViews report (pointer: coarse) as false;
+     maxTouchPoints keeps the landscape prompt reliable there too. */
+  const coarse = window.matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoints > 0;
   /* 只有手機／平板這種小螢幕才提示轉向，桌機視窗拉高不干擾。 */
   const portrait = coarse && window.innerWidth <= 1024 && window.innerHeight > window.innerWidth;
   document.body.classList.toggle("is-portrait", portrait);
@@ -646,6 +648,7 @@ function renderGame(id) {
   }
   openGameId = game.id;
   document.body.classList.add("playing");
+  document.body.classList.toggle("game-any", game.orientation === "any");
   syncOrientation();
   const cat = categoryById(game.category);
   const max = gameMax(game);
@@ -846,7 +849,7 @@ function missing(text) {
 }
 
 function render() {
-  document.body.classList.remove("playing");
+  document.body.classList.remove("playing", "game-any");
   /* 離開遊戲頁時順便退出全螢幕，避免使用者卡在沒有工具列的畫面 */
   if (fullscreenElement() && !/^#\/g\//.test(location.hash)) exitFullscreen();
   renderChrome();

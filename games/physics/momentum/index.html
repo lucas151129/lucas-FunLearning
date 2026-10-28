@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#05080d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="動量碰撞模擬器" />
+  <meta name="description" content="動量碰撞模擬器：用手機或 iPad 學動量守恆、完全非彈性、非彈性、彈性碰撞與爆炸，附文字題考試模式。" />
+  <title>動量碰撞模擬器 · Momentum Collision</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+  <link rel="icon" href="./icons/favicon-32.png" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="app-header">
+      <a class="brand" href="../../" aria-label="回到學習遊戲庫">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64">
+            <path d="M32 4 56 18v28L32 60 8 46V18Z" />
+            <path d="M22 39 32 18l10 21-10-5Z" />
+          </svg>
+        </span>
+        <span class="brand-copy">
+          <span class="brand-kicker">MOMENTUM COLLISION</span>
+          <span class="brand-name">動量碰撞模擬器</span>
+        </span>
+      </a>
+      <div class="header-actions">
+        <div class="lang-switch" id="langSwitch" role="group" aria-label="語言切換">
+          <button type="button" data-lang="zh-Hant" class="is-active" aria-pressed="true">繁</button>
+          <button type="button" data-lang="zh-Hans" aria-pressed="false">简</button>
+        </div>
+        <button class="header-btn" id="examBtn" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5Z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+          <span>考試</span>
+        </button>
+        <button class="icon-btn" id="guideBtn" type="button" aria-label="玩法說明">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.6 2.6 0 0 1 5.1.5c0 1.7-2.6 2-2.6 3.7M12 17h.01"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <nav class="scenario-strip" id="scenarioTabs" role="tablist" aria-label="碰撞情景"></nav>
+
+    <main class="app-main" id="appMain">
+      <section class="screen-panel lab-screen" id="labScreen" aria-label="動量實驗">
+        <div class="lab-head">
+          <div>
+            <span class="eyebrow">MOMENTUM / 1D</span>
+            <h1 id="scenarioTitle">完全非彈性</h1>
+            <p id="labScenarioDesc">兩車碰撞後黏在一起，以同一個最終速度移動。</p>
+          </div>
+          <span class="sign-chip">向右為正 →</span>
+        </div>
+
+        <div class="scene-card" id="stage">
+          <canvas id="scene"></canvas>
+          <div class="scene-top">
+            <span class="scene-label">LIVE TRACK</span>
+            <span class="stage-status" id="stageStatus">待開始</span>
+          </div>
+          <div class="stage-result" id="stageResult" hidden></div>
+          <div class="scene-caption">
+            <span><i class="dot dot-a"></i>A <b id="hudM1">2.0 kg</b></span>
+            <span><i class="dot dot-b"></i>B <b id="hudM2">3.0 kg</b></span>
+            <span class="stage-hint" id="stageHint">先預測，再開始。</span>
+          </div>
+        </div>
+
+        <section class="prediction-card" aria-labelledby="predictionTitle">
+          <div class="card-heading">
+            <span class="eyebrow">PREDICT FIRST</span>
+            <span class="card-step">01</span>
+          </div>
+          <h2 id="predictionTitle">先預測，再看結果</h2>
+          <p id="predictionQuestion">碰撞後，兩車的運動是？</p>
+          <div class="prediction-options" id="predictionOptions"></div>
+          <p class="prediction-feedback" id="predictionFeedback"></p>
+        </section>
+
+        <div class="control-summary" aria-label="目前變量">
+          <div class="summary-chips">
+            <span><i>m₁</i><b id="summaryM1">2.0 kg</b></span>
+            <span><i>m₂</i><b id="summaryM2">3.0 kg</b></span>
+            <span><i>u₁</i><b id="summaryU1">+4.0 m/s</b></span>
+            <span><i>u₂</i><b id="summaryU2">−2.0 m/s</b></span>
+            <span><i id="summaryExtraLabel">e</i><b id="summaryExtra">0</b></span>
+          </div>
+        </div>
+
+        <div class="lab-actions">
+          <button class="primary-btn run-btn" id="runBtn" type="button">
+            <span>先選預測</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7Z"/></svg>
+          </button>
+          <button class="ghost-btn" id="resetBtn" type="button">重設</button>
+          <button class="ghost-btn" id="adjustBtn" type="button">調整</button>
+          <span class="time-readout" id="timeReadout">t = 0.0 s</span>
+        </div>
+
+        <aside class="control-sheet" id="setupPanel" aria-label="調整變量">
+          <div class="sheet-head">
+            <div>
+              <span class="eyebrow">SETUP</span>
+              <h2>調整變量</h2>
+            </div>
+            <button class="close-btn" id="closeControls" type="button" aria-label="關閉設定">×</button>
+          </div>
+
+          <p class="scenario-desc" id="scenarioDesc"></p>
+          <div class="concept-card">
+            <span class="label">CORE IDEA</span>
+            <p id="scenarioConcept"></p>
+          </div>
+
+          <div class="control-list">
+            <label class="control-row">
+              <span class="control-label">質量 m₁ <b id="m1Val">2.0 kg</b></span>
+              <input id="m1" type="range" min="1" max="6" step="0.5" value="2" />
+            </label>
+            <label class="control-row">
+              <span class="control-label">質量 m₂ <b id="m2Val">3.0 kg</b></span>
+              <input id="m2" type="range" min="1" max="6" step="0.5" value="3" />
+            </label>
+            <div id="velocityControls">
+              <label class="control-row">
+                <span class="control-label">初速度 u₁ <b id="u1Val">+4.0 m/s</b></span>
+                <input id="u1" type="range" min="-6" max="6" step="0.5" value="4" />
+              </label>
+              <label class="control-row">
+                <span class="control-label">初速度 u₂ <b id="u2Val">−2.0 m/s</b></span>
+                <input id="u2" type="range" min="-6" max="6" step="0.5" value="-2" />
+              </label>
+            </div>
+            <label class="control-row" id="restitutionGroup" hidden>
+              <span class="control-label">恢復係數 e <b id="eVal">0.55</b></span>
+              <input id="e" type="range" min="0" max="1" step="0.05" value="0.55" />
+              <span class="control-help">e = 分離速度 ÷ 接近速度。e = 0 完全非彈性；e = 1 彈性。DSE 不要求數值，這是延伸。</span>
+            </label>
+            <label class="control-row" id="energyGroup" hidden>
+              <span class="control-label">爆炸能量 E <b id="energyVal">100 J</b></span>
+              <input id="energy" type="range" min="20" max="220" step="10" value="100" />
+              <span class="control-help">爆炸前靜止；能量來自化學能／彈性能。</span>
+            </label>
+          </div>
+
+          <div class="exam-tip">
+            <span class="label">EXAM TIP</span>
+            <p id="scenarioTip"></p>
+          </div>
+
+          <button class="primary-btn sheet-done" id="sheetDone" type="button">完成設定</button>
+        </aside>
+      </section>
+
+      <section class="screen-panel analysis-screen" id="analysisPanel" aria-label="數據與分析" hidden>
+        <div class="analysis-head">
+          <div>
+            <span class="eyebrow">ANALYSIS</span>
+            <h1>數據與分析</h1>
+          </div>
+          <span class="analysis-chip">p 與 KE 同步</span>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-card">
+            <span>碰撞前</span>
+            <p id="beforeSummary">—</p>
+          </div>
+          <div class="summary-card">
+            <span>碰撞後</span>
+            <p id="afterSummary">尚未模擬</p>
+          </div>
+        </div>
+
+        <section class="data-block">
+          <div class="data-head"><h2>動量 p</h2><span>kg·m/s</span></div>
+          <div class="bars" id="momentumBars"></div>
+          <p class="data-note" id="momentumNote">總動量在碰撞前後應相同。</p>
+        </section>
+
+        <section class="data-block">
+          <div class="data-head"><h2>動能 KE</h2><span>J</span></div>
+          <div class="bars" id="energyBars"></div>
+          <p class="data-note" id="energyNote">非彈性碰撞會損失動能；彈性碰撞則守恆。</p>
+        </section>
+
+        <section class="equation-card">
+          <div class="equation-head">
+            <h2>方程式</h2>
+            <button class="text-btn" id="derivationBtn" type="button">顯示推導</button>
+          </div>
+          <div class="equation-body" id="equationBlock">—</div>
+          <div class="derivation" id="derivationBlock" hidden></div>
+        </section>
+
+        <div class="system-note">
+          <span class="label">SYSTEM</span>
+          <p id="systemNote">系統：A + B；水平方向外力可忽略，總動量守恆。</p>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" id="bottomNav" aria-label="主要導航">
+      <button type="button" class="nav-item is-active" data-view="lab" id="labNav">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 8a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-8V3"/><path d="M7 15h10"/></svg>
+        <span>實驗</span>
+      </button>
+      <button type="button" class="nav-item" data-view="analysis" id="analysisNav">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16"/><path d="M8 15v-4M12 15V7M16 15v-6"/></svg>
+        <span>分析</span>
+        <i class="nav-dot" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="nav-item" data-view="exam" id="examNav">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5Z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+        <span>考試</span>
+      </button>
+    </nav>
+
+    <div class="scrim" id="scrim" hidden></div>
+
+    <div class="modal" id="examModal" hidden>
+      <div class="modal-card exam-card" role="dialog" aria-modal="true" aria-labelledby="examTitle">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow">EXAM MODE</span>
+            <h2 id="examTitle">文字題訓練</h2>
+          </div>
+          <button class="close-btn" id="examClose" type="button" aria-label="關閉考試模式">×</button>
+        </div>
+        <div class="exam-types" id="examTypes"></div>
+        <div class="exam-body">
+          <span class="exam-meta" id="examMeta">完全非彈性 · 一維</span>
+          <div class="exam-question" id="examQuestion"></div>
+          <div class="exam-fields" id="examFields"></div>
+          <div class="exam-actions">
+            <button class="primary-btn" id="examCheck" type="button">檢查答案</button>
+            <button class="ghost-btn" id="examHint" type="button">提示</button>
+            <button class="ghost-btn" id="examSolutionBtn" type="button">顯示解法</button>
+            <button class="text-btn" id="examNext" type="button">下一題 →</button>
+          </div>
+          <div class="exam-feedback" id="examFeedback" role="status"></div>
+          <div class="exam-solution" id="examSolution" hidden></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="guideModal" hidden>
+      <div class="modal-card guide-card" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow">HOW TO LEARN</span>
+            <h2 id="guideTitle">不要只看動畫</h2>
+          </div>
+          <button class="close-btn" id="guideClose" type="button" aria-label="關閉說明">×</button>
+        </div>
+        <div class="guide-steps">
+          <div><b>01</b><p><strong>先預測</strong><br />選一個你認為會發生的結果，不要先按模擬。</p></div>
+          <div><b>02</b><p><strong>再觀察</strong><br />按「開始模擬」，同時看動畫、動量棒和能量棒。</p></div>
+          <div><b>03</b><p><strong>寫守恆式</strong><br />選系統、定正方向、寫出碰前 = 碰後，再代入數字。</p></div>
+          <div><b>04</b><p><strong>去考試</strong><br />用「考試」做文字題；先自己寫，再看 marking steps。</p></div>
+        </div>
+        <div class="guide-note">
+          <span class="label">記住</span>
+          <p>動量是向量，可以有正負；動能永遠是正數。非彈性碰撞中，動量守恆，但動能會轉為熱、聲和形變。遇到牆、摩擦力或繩張力等外力，不能直接用動量守恆，要用衝量 J = FΔt = Δp。</p>
+        </div>
+        <button class="primary-btn" id="guideStart" type="button">開始探索</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

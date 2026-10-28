@@ -48,6 +48,17 @@ const GAMES = [
     entry: "games/physics/water-rocket/index.html",
   },
   {
+    id: "phy-momentum",
+    category: "physics",
+    title: "動量碰撞模擬器",
+    level: "upper",
+    blurb: "用 3D 碰撞理解動量守恆：完全非彈性、非彈性、彈性碰撞與爆炸，附文字題考試模式。",
+    maxScore: 4,
+    icon: "assets/games/phy-momentum.png?v=1",
+    entry: "games/physics/momentum/index.html",
+    orientation: "any",
+  },
+  {
     id: "chem-cauldron",
     category: "chemistry",
     title: "化學反應釜",

@@ -1279,6 +1279,10 @@ body.is-short.playing #toast {
 body.playing.is-portrait .rotate-tip { display: grid; }
 body.playing.is-portrait .stage iframe { visibility: hidden; }
 
+/* Games that explicitly support portrait keep playing without the rotate tip. */
+body.playing.game-any.is-portrait .rotate-tip { display: none; }
+body.playing.game-any.is-portrait .stage iframe { visibility: visible; }
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
   .cat-card:hover img, .btn:hover, .btn:active, .egg-card:hover, .egg-card:active { transform: none; }
