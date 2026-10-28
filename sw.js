@@ -5,7 +5,7 @@
    - 跨網域（Supabase / Google Fonts）：完全不攔截
    版本號改動時，舊快取會在 activate 清掉。 */
 
-const VERSION = "v1";
+const VERSION = "v2";
 const SHELL_CACHE = `fl-shell-${VERSION}`;
 const RUNTIME_CACHE = `fl-runtime-${VERSION}`;
 
@@ -102,7 +102,10 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (!isSameOrigin(url)) return;
 
-  if (request.mode === "navigate") {
+  /* HTML / JS / CSS 走 network-first：更新後第一次載入就拿到新版，
+     離線時才退回快取。圖片、字型等才會用 stale-while-revalidate。 */
+  const dest = request.destination;
+  if (request.mode === "navigate" || dest === "script" || dest === "style" || dest === "manifest" || dest === "document") {
     event.respondWith(networkFirst(request));
     return;
   }

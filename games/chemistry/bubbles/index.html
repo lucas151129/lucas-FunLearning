@@ -18,7 +18,7 @@
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            min-height: 100vh;
+            min-height: var(--app-h, 100vh);
             color: #333;
             overflow-x: hidden;
             position: relative;
@@ -65,7 +65,7 @@
             padding: 12px;
             border-radius: 14px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            max-height: calc(100vh - 20px);
+            max-height: calc(var(--app-h, 100vh) - 20px);
             overflow-y: auto;
         }
 
@@ -305,7 +305,7 @@
             gap: 12px;
             max-width: none;
             width: 100%;
-            height: 100dvh;
+            height: var(--app-h, 100dvh);
             padding: 8px 12px;
         }
 
@@ -326,7 +326,7 @@
             grid-row: 1;
             /* Keep the 700x500 board ratio: size from the frame height,
                never from a max-width clamp (which would distort it). */
-            width: min(100%, calc((100dvh - 78px) * 1.4)) !important;
+            width: min(100%, calc((var(--app-h, 100dvh) - 78px) * 1.4)) !important;
             height: auto !important;
             aspect-ratio: 700 / 500;
             max-width: 100%;
@@ -347,7 +347,7 @@
             grid-template-columns: auto minmax(0, 1fr);
             align-items: center;
             gap: 10px;
-            width: min(100%, calc((100dvh - 78px) * 1.4));
+            width: min(100%, calc((var(--app-h, 100dvh) - 78px) * 1.4));
             margin-top: 6px;
         }
 

@@ -20,7 +20,7 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
-    min-height: 100vh;
+    min-height: var(--app-h, 100vh);
     color: #eef8ff;
     font-family: "Microsoft JhengHei", "PingFang HK", "Noto Sans TC", "Segoe UI", sans-serif;
     font-size: 18px;
@@ -329,8 +329,8 @@
      ========================================================= */
   html.dsh-embed, html.dsh-embed body { height: 100%; }
   html.dsh-embed body {
-    height: 100vh;
-    height: 100dvh;
+    height: var(--app-h, 100vh);
+    height: var(--app-h, 100dvh);
     min-height: 0;
     overflow: hidden;
     font-size: 15px;

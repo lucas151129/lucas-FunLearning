@@ -25,7 +25,7 @@
 
   body {
     font-family: "Segoe UI", "Trebuchet MS", system-ui, sans-serif;
-    min-height: 100vh;
+    min-height: var(--app-h, 100vh);
     color: var(--text);
     background:
       radial-gradient(ellipse at 20% 10%, #2a1a4a 0%, transparent 55%),
@@ -1060,13 +1060,13 @@
     background-attachment: scroll;
   }
   /* Decorative embers start 20px below the viewport (bottom:-20px) which
-     counts as page overflow in a 100dvh iframe; drop them in embed mode. */
+     counts as page overflow in a var(--app-h, 100dvh) iframe; drop them in embed mode. */
   html.dsh-embed .ember { display: none; }
 
   html.dsh-embed .game {
     width: 100%;
     max-width: none;
-    height: 100dvh;
+    height: var(--app-h, 100dvh);
     min-height: 0;
     padding: 8px 14px 10px;
     border: 0;

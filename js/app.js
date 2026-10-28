@@ -214,6 +214,39 @@ function exitFullscreen() {
   }
 }
 
+/* 除錯用：網址加 ?diag=1 會在左下角顯示即時視窗尺寸，方便在真實手機回報問題。 */
+function startDiagnostics() {
+  if (!/[?&]diag=1/.test(location.search)) return;
+  const box = document.createElement("pre");
+  box.style.cssText =
+    "position:fixed;z-index:99;left:6px;bottom:6px;margin:0;padding:6px 8px;" +
+    "background:rgba(0,0,0,.8);color:#7dff9b;font:11px/1.35 ui-monospace,monospace;" +
+    "border-radius:8px;white-space:pre;pointer-events:none";
+  document.body.appendChild(box);
+  const tick = () => {
+    const vv = window.visualViewport;
+    const frame = document.querySelector(".stage iframe");
+    let inner = "-";
+    try {
+      const d = frame && frame.contentDocument;
+      if (d) inner = d.documentElement.scrollHeight + "/" + d.documentElement.clientHeight;
+    } catch (err) {
+      inner = "x-origin";
+    }
+    box.textContent = [
+      "inner " + innerWidth + "x" + innerHeight,
+      "visual " + Math.round(vv ? vv.width : 0) + "x" + Math.round(vv ? vv.height : 0),
+      "dpr " + devicePixelRatio,
+      "tvh " + getComputedStyle(document.documentElement).getPropertyValue("--tvh").trim(),
+      "body " + Math.round(document.body.getBoundingClientRect().height),
+      "frame " + (frame ? frame.clientHeight : "-"),
+      "doc " + inner,
+    ].join("\n");
+    requestAnimationFrame(tick);
+  };
+  tick();
+}
+
 function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
   const secure = location.protocol === "https:" || /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
@@ -236,6 +269,22 @@ function syncOrientation() {
   /* 只有手機／平板這種小螢幕才提示轉向，桌機視窗拉高不干擾。 */
   const portrait = coarse && window.innerWidth <= 1024 && window.innerHeight > window.innerWidth;
   document.body.classList.toggle("is-portrait", portrait);
+}
+
+/* iOS Safari 的網址列（尤其橫向時）會佔掉 100px 以上，
+   而 position:fixed + inset:0 會以「版面視窗」計算，底部就被切掉。
+   這裡改用 visualViewport 的真實可見高度寫進 --tvh，並同步傳給 iframe。 */
+function syncViewport() {
+  const vv = window.visualViewport;
+  const height = Math.round(vv ? vv.height : window.innerHeight);
+  const width = Math.round(vv ? vv.width : window.innerWidth);
+  const root = document.documentElement;
+  root.style.setProperty("--tvh", height + "px");
+  root.style.setProperty("--tvw", width + "px");
+  /* 橫放又矮（iPhone Safari 有網址列時只剩 ~310px）→ 收起工具列換取高度 */
+  document.body.classList.toggle("is-short", width > height && height < 430);
+  const frame = document.querySelector(".stage iframe");
+  if (frame) frame.style.setProperty("--app-h", height + "px");
 }
 
 const EMBED_CSS = `
@@ -265,6 +314,20 @@ function installEmbedKit(frame) {
     const style = doc.createElement("style");
     style.textContent = EMBED_CSS;
     (doc.head || doc.documentElement).appendChild(style);
+  } catch (err) {
+    /* 跨網域就放棄 */
+  }
+  try {
+    const win = doc.defaultView || frame.contentWindow;
+    const setAppHeight = () => {
+      const h = Math.round(doc.documentElement.clientHeight || win.innerHeight || 0);
+      if (h) doc.documentElement.style.setProperty("--app-h", h + "px");
+    };
+    setAppHeight();
+    if (win) {
+      win.addEventListener("resize", setAppHeight);
+      win.addEventListener("orientationchange", () => setTimeout(setAppHeight, 150));
+    }
   } catch (err) {
     /* 跨網域就放棄 */
   }
@@ -605,6 +668,10 @@ function renderGame(id) {
     <a class="btn btn-cream btn-small back play-back" href="#/c/${game.category}">${iconBack()} ${esc(catName(cat))}</a>
     <div class="play-layout">
       <section class="stage panel">
+        <div class="mini-nav">
+          <button class="mini-btn" type="button" data-mini-back aria-label="${esc(catName(cat))}">${iconBack()}</button>
+          <button class="mini-btn" type="button" data-play-more aria-pressed="false" aria-label="${esc(I18n.t("play.board"))}">${iconTrophy()}</button>
+        </div>
         <div class="play-bar">
           <a class="btn btn-cream btn-small" href="#/c/${game.category}">${iconBack()} ${esc(catName(cat))}</a>
           <strong>${esc(gameText(game, "title"))}</strong>
@@ -645,6 +712,7 @@ function renderGame(id) {
     frame.addEventListener("load", () => installEmbedKit(frame));
     installEmbedKit(frame);
   }
+  syncViewport();
 }
 
 function renderBoard() {
@@ -843,6 +911,11 @@ document.body.addEventListener("click", async (event) => {
     showToast(I18n.t("play.installHint"));
     return;
   }
+  const miniBack = event.target.closest("[data-mini-back]");
+  if (miniBack) {
+    location.hash = "#/c/" + (openGameId ? (gameById(openGameId) || {}).category : "");
+    return;
+  }
   if (event.target.closest(".sheet-veil")) {
     toggleSheet(false);
     return;
@@ -1004,7 +1077,19 @@ window.addEventListener("message", async (event) => {
 
 syncShell();
 syncOrientation();
+syncViewport();
 registerServiceWorker();
+startDiagnostics();
+window.addEventListener("resize", syncViewport, { passive: true });
+window.addEventListener("orientationchange", () => {
+  syncViewport();
+  setTimeout(syncViewport, 120);
+  setTimeout(syncViewport, 400);
+});
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", syncViewport, { passive: true });
+  window.visualViewport.addEventListener("scroll", syncViewport, { passive: true });
+}
 WIDE_QUERY.addEventListener("change", () => {
   syncShell();
   render();
