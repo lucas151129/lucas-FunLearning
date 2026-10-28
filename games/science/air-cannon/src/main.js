@@ -102,14 +102,14 @@ function drawBackground() {
 
   /* wall banner */
   ctx.fillStyle = '#ffffff';
-  roundedRect(70, 38, 330, 62, 16);
+  roundedRect(70, 94, 330, 58, 16);
   ctx.fill();
   ctx.fillStyle = '#0c8f86';
-  ctx.font = '900 25px "Microsoft JhengHei", sans-serif';
-  ctx.fillText('空氣炮實驗室', 92, 78);
+  ctx.font = '900 24px "Microsoft JhengHei", sans-serif';
+  ctx.fillText('空氣炮實驗室', 92, 132);
   ctx.fillStyle = '#ff7a3c';
   ctx.font = '900 12px Consolas, monospace';
-  ctx.fillText('AIR CANNON LAB', 260, 78);
+  ctx.fillText('AIR CANNON LAB', 260, 132);
 
   /* table */
   ctx.fillStyle = '#d99a5d';
