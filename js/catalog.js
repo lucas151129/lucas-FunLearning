@@ -129,6 +129,16 @@ const GAMES = [
     entry: "games/math/fish/index.html",
   },
   {
+    id: "sci-starforge",
+    category: "science",
+    title: "星際工坊",
+    level: "upper",
+    blurb: "在漂浮天文台用 3D 座標、旋轉、縮放、燈光與動畫修復五件展品。",
+    maxScore: 5,
+    icon: "assets/games/sci-starforge.png?v=1",
+    entry: "games/science/starforge/index.html",
+  },
+  {
     id: "sci-garden",
     category: "science",
     title: "太空菜園",
