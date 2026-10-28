@@ -319,6 +319,79 @@
     image-rendering: pixelated;
     image-rendering: crisp-edges;
   }
+  /* 速度成本：每題倒數 6 秒，越快答掉越多幣 */
+  .speed {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 2px 0 6px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #ffe9a0;
+  }
+  .speed-tag { flex: 0 0 auto; letter-spacing: .02em; white-space: nowrap; }
+  .speed-sec { flex: 0 0 auto; min-width: 3.4em; text-align: right; font-variant-numeric: tabular-nums; }
+  .speed-track {
+    position: relative;
+    flex: 1 1 auto;
+    height: 10px;
+    border-radius: 99px;
+    background: rgba(0, 0, 0, .45);
+    border: 2px solid #c9a227;
+    overflow: hidden;
+  }
+  .speed-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #7af0ff, #ffd76a);
+  }
+  .speed.t2 .speed-fill { background: linear-gradient(90deg, #ffd76a, #ff9d42); }
+  .speed.t2 .speed-tag, .speed.t2 .speed-sec { color: #ffc46b; }
+  .speed.t1 .speed-track {
+    border-color: #ff5e5e;
+    background: rgba(255, 70, 70, .22);
+    animation: slowpulse .7s ease-in-out infinite;
+  }
+  .speed.t1 .speed-fill { background: #ff5e5e; }
+  .speed.t1 .speed-tag, .speed.t1 .speed-sec { color: #ff9b9b; }
+  @keyframes slowpulse {
+    0%, 100% { box-shadow: 0 0 0 rgba(255, 94, 94, 0); }
+    50% { box-shadow: 0 0 10px rgba(255, 94, 94, .8); }
+  }
+  .floater.speed {
+    font-size: 20px;
+    color: #fff;
+    text-shadow: 0 0 10px #ff9d42, 0 2px 0 #7a3e00;
+  }
+  .round-hero { text-align: center; }
+  .round-lead { margin: 6px 0 0; font-size: 16px; color: #ffe9a0; }
+  .round-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin: 16px 0 8px;
+  }
+  .round-stat {
+    border: 3px solid #ffd76a;
+    background: #241048;
+    box-shadow: 4px 4px 0 #000;
+    padding: 10px 8px;
+    text-align: center;
+    min-width: 0;
+  }
+  .round-stat span { display: block; font-size: 13px; color: #ffe9a0; line-height: 1.3; }
+  .round-stat b {
+    display: block;
+    margin-top: 4px;
+    font-size: clamp(20px, 4vh, 30px);
+    color: #fff6c8;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+  }
+  .round-tip { margin: 10px 0 0; text-align: center; color: #f3e2b0; font-size: 14px; }
+  @media (max-width: 640px) {
+    .round-stats { grid-template-columns: 1fr 1fr; }
+  }
   .action-row { display: flex; gap: 10px; }
   .action-row button { flex: 1; font-size: 20px; min-height: 52px; }
   #btn-submit:not(:disabled) {
@@ -528,6 +601,40 @@
   html.dsh-embed #clear-root .ach p { margin: 3px 0 0; font-size: 12px; }
   html.dsh-embed #screen-clear .row.center { flex: none; }
 
+  /* ---------------- 每輪結算頁：292px 高也要完整顯示，兩個按鈕 ≥40px ---------------- */
+  html.dsh-embed #screen-round .wrap {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+  }
+  html.dsh-embed #round-root { flex: none; width: 100%; }
+  html.dsh-embed #screen-round .title { margin: 0; font-size: clamp(20px, 5.6vh, 34px); text-align: center; }
+  html.dsh-embed .round-lead { margin: 0; font-size: clamp(11px, 1.9vh, 14px); line-height: 1.4; }
+  html.dsh-embed .round-stats { margin: 6px 0 2px; gap: 8px; }
+  html.dsh-embed .round-stat { padding: 4px 8px; }
+  html.dsh-embed .round-stat span { font-size: 11px; line-height: 1.25; }
+  html.dsh-embed .round-stat b { margin-top: 1px; font-size: clamp(16px, 4.6vh, 26px); }
+  html.dsh-embed .round-tip { margin: 2px 0 0; font-size: 11px; line-height: 1.35; }
+  html.dsh-embed #screen-round .row.center { flex: none; margin-top: 0; gap: 8px; }
+  html.dsh-embed #screen-round .row.center button { min-height: 40px; padding: 6px 26px; font-size: 14px; }
+  /* 平板／桌機高度足夠時，結算畫面放大一點，不要擠成一團 */
+  @media (min-height: 500px) {
+    html.dsh-embed #screen-round .wrap { gap: 10px; }
+    html.dsh-embed #screen-round .title { font-size: clamp(30px, 5.4vh, 46px); }
+    html.dsh-embed .round-lead { font-size: clamp(14px, 2.2vh, 20px); margin-top: 6px; }
+    html.dsh-embed .round-stats { margin: 18px 0 6px; gap: 14px; }
+    html.dsh-embed .round-stat { padding: 16px 12px; }
+    html.dsh-embed .round-stat span { font-size: 15px; }
+    html.dsh-embed .round-stat b { margin-top: 6px; font-size: clamp(24px, 4.6vh, 40px); }
+    html.dsh-embed .round-tip { margin-top: 6px; font-size: 14px; }
+    html.dsh-embed #screen-round .row.center { gap: 14px; }
+    html.dsh-embed #screen-round .row.center button { min-height: 46px; padding: 10px 34px; font-size: 17px; }
+  }
+
   /* ---------------- 遊戲畫面 ---------------- */
   html.dsh-embed #screen-game .wrap {
     display: flex;
@@ -576,22 +683,25 @@
     flex-direction: column;
     justify-content: center;
     min-height: 0;
-    padding: 6px 8px 8px;
+    padding: 4px 8px 6px;
     overflow: hidden;
   }
-  html.dsh-embed .quiz-head { flex: none; font-size: 12px; line-height: 1.3; }
+  html.dsh-embed .quiz-head { flex: none; font-size: 12px; line-height: 1.25; }
+  html.dsh-embed .speed { flex: none; gap: 6px; margin: 0 0 3px; font-size: 12px; line-height: 1.25; }
+  html.dsh-embed .speed-track { height: 9px; }
+  html.dsh-embed .speed-sec { min-width: 3.2em; }
   html.dsh-embed .round-note { flex: none; min-height: 0; margin: 0; font-size: 12px; line-height: 1.3; }
   /* 題目 ≥20px；落點軌放在題目下方（平台提示條固定在底部中央，放最下面會被蓋住） */
-  html.dsh-embed #q-text { flex: none; margin: 2px 0 4px; font-size: clamp(20px, 5.2vh, 30px); line-height: 1.2; }
-  html.dsh-embed .q-actions { flex: none; order: 3; margin: 2px 0 6px; }
-  html.dsh-embed .track-label { font-size: 12px; line-height: 1.25; margin-bottom: 1px; }
-  html.dsh-embed .track { height: 22px; }
-  html.dsh-embed .track-bar { top: 6px; height: 9px; }
-  html.dsh-embed .knob { top: 2px; width: 20px; height: 20px; }
+  html.dsh-embed #q-text { flex: none; margin: 2px 0 2px; font-size: clamp(20px, 5.2vh, 30px); line-height: 1.2; }
+  html.dsh-embed .q-actions { flex: none; order: 3; margin: 1px 0 3px; }
+  html.dsh-embed .track-label { font-size: 11px; line-height: 1.2; margin-bottom: 1px; }
+  html.dsh-embed .track { height: 20px; }
+  html.dsh-embed .track-bar { top: 5px; height: 9px; }
+  html.dsh-embed .knob { top: 1px; width: 20px; height: 20px; }
   html.dsh-embed .options {
     flex: 1 1 auto;
     order: 4;
-    min-height: 0;
+    min-height: min-content;
     max-height: min(210px, 46vh);
     align-content: stretch;
     gap: 5px;
@@ -599,7 +709,7 @@
   html.dsh-embed button.opt { min-height: 44px; padding: 2px 8px; font-size: 16px; }
   html.dsh-embed .opt-key { width: 22px; height: 22px; font-size: 12px; }
   html.dsh-embed .opt-val { font-size: 19px; }
-  html.dsh-embed .result { flex: none; order: 5; margin: 5px 0 0; padding: 3px 6px; font-size: 12px; }
+  html.dsh-embed .result { flex: none; order: 5; margin: 2px 0 0; padding: 2px 6px; font-size: 11.5px; line-height: 1.3; }
 
   /* ---------------- 浮層 ---------------- */
   html.dsh-embed .modal { padding: 10px; }
@@ -648,7 +758,7 @@
     <div class="wrap hero">
       <p class="subtitle">小學四則運算 × 推幣機</p>
       <h1 class="title">數學推幣機：金幣大挑戰</h1>
-      <p class="lead">答對數學題，點選項的瞬間，一枚金幣就會從移動中的落點掉進推幣機。推板會前後推動金幣，金幣掉出前方出口才加進錢包。</p>
+      <p class="lead">答對數學題，金幣就會從移動中的落點掉進推幣機。越早作答，掉下來的金幣越多（1 到 3 枚）。推板會前後推動金幣，金幣掉出前方出口才加進錢包。</p>
       <div class="previews">
         <article class="preview">
           <canvas class="coin-face" width="16" height="16" data-type="gold" aria-hidden="true"></canvas>
@@ -672,10 +782,10 @@
           <canvas class="coin-face" width="16" height="16" data-type="rainbow" aria-hidden="true"></canvas>
           <b>彩虹幣</b>
           <em>答對落幣時 2%</em>
-          <em>掉出出口 +30，並灑下 5 枚欣賞用小金幣</em>
+          <em>掉出出口 +12，並灑下 5 枚欣賞用小金幣</em>
         </article>
       </div>
-      <p class="lead">錢包一開始有 10 枚金幣。機台上另外排好一批金幣，那些金幣要掉出出口，才算推幣機獲得。</p>
+      <p class="lead">錢包一開始有 10 枚金幣。機台上另外排好一批金幣，那些金幣要掉出出口，才算推幣機獲得。一輪 20 題，做完會顯示本輪結算。</p>
       <div class="row center">
         <button type="button" id="btn-start">開始遊戲</button>
         <button type="button" id="btn-rules" class="ghost">玩法說明</button>
@@ -694,17 +804,17 @@
           <li>開局錢包有 10 枚金幣。機台上已經排好一批普通金幣。</li>
           <li>推板會自動前後移動，把金幣推向機台前方的掉落出口。</li>
           <li>金幣掉出出口，才加進錢包，並跳出對應的浮動文字。錢包數字增加時會彈一下。</li>
-          <li>這不是點擊投幣。投幣口不能按。金色落點會在投幣口範圍內左右來回移動，用正弦速度，兩端較慢，從一端到另一端大約 4.5 秒。</li>
+          <li>這不是點擊投幣，投幣口不能按。金色落點會在投幣口範圍內左右來回移動，用正弦速度，兩端較慢，從一端到另一端大約 4.5 秒。每題出現時也開始計時，題目列的速度條會從滿格慢慢縮短。</li>
           <li>機台上的金色標記，和題目區的落點軌一起移動。統計裡的目前落點會顯示偏左、正中或偏右。</li>
-          <li>題目是固定的 20 題小學四則運算，每題 4 個選項。題目順序和選項都會洗牌，做完一輪再重洗。</li>
+          <li>一輪是 20 題小學四則運算，每題 4 個選項。每輪開始時題目順序和選項都會重新洗牌，做完 20 題就結算。</li>
           <li>點選項就會作答。選項是 A、B、C、D，也可以按 A 到 D，或數字鍵 1 到 4。</li>
-          <li>答對：答對題數加 1，並在點下選項的瞬間從落點掉進 1 枚金幣。金幣種類依機率抽出。答對當下錢包不會立刻增加。</li>
-          <li>先選擇答案，點下去就會判定。答對時，金幣在按下的瞬間從落點掉進機台。答錯沒有金幣落下。</li>
-          <li>答完會自動換下一題，不用再按提交或下一題。</li>
-          <li>普通金幣 75% 為 +1，銀幣 15% 為 +3，紅寶幣 8% 為 +5，彩虹幣 2% 顯示「彩虹大獎！+30」並入帳 30，同時灑下 5 枚只有視覺效果的小金幣。</li>
-          <li>2 秒內連續掉出 3 枚以上，顯示「連續掉幣！」；6 枚以上顯示「狂爆掉幣！」。短時間掉出很多枚時，機台會震動。</li>
-          <li>遊戲沒有結束條件。達成成就会彈出視窗並灑下彩紙。三條進度是：累計從推幣機獲得 300 金幣、累計答對 10 題、成功掉落 3 枚彩虹幣。</li>
-          <li>「截圖」會列出目前達成的條件，以及目前金幣、推幣機獲得、答題落幣數、成功落幣次數、掉落金幣數、掉落特殊幣數、答對題數、遊玩時間。</li>
+          <li>答對會依反應速度掉幣：3 秒內掉 3 枚、6 秒內掉 2 枚、超過 6 秒只掉 1 枚。每一枚都各自依下面的機率抽種類，不是把 1 枚乘上去。答對當下錢包不會立刻增加，要等金幣掉出出口。</li>
+          <li>答錯：錢包扣 1 枚（最低 0），沒有金幣落下；正確選項會標成綠色，題目下方顯示「正解：B（8）」這樣的提示。</li>
+          <li>答完會自動換下一題，不用再按提交或下一題。答錯也會在 1 秒左右自動進下一題。</li>
+          <li>普通金幣 75% 為 +1，銀幣 15% 為 +3，紅寶幣 8% 為 +5，彩虹幣 2% 為 +12。另外，連續答對 5 題（10、15、20 題也一樣）會額外保證掉 1 枚彩虹幣。</li>
+          <li>2 秒內連續掉出 3 枚以上，顯示「連續掉幣！」；6 枚以上顯示「狂爆掉幣！」。短時間掉出很多枚時，機台會震動。開局前 1.5 秒的掉落，以及不是答題造成的掉落，都不列入連掉判定。</li>
+          <li>第 20 題答完（不論對錯）就進入結算畫面，顯示答對題數 / 20、這一輪從推幣機獲得多少幣、平均反應秒數、最高連對。結算畫面可以「再玩一次」或「回首頁」；再玩一次會換新的一輪 20 題，累計金幣、成就與通關進度都會保留。</li>
+          <li>「截圖」會列出目前達成的條件，以及目前金幣、推幣機獲得、答題落幣數、成功落幣次數、掉落金幣數、掉落特殊幣數、答對題數、本輪答對、平均反應、最高連對、遊玩時間。</li>
           <li>「重新開始」會清空進度，並在機台上重新擺幣。</li>
         </ol>
       </div>
@@ -729,7 +839,7 @@
             <button type="button" id="btn-clear" class="ghost">通關</button>
           </div>
         </div>
-        <p class="hint">落點在投幣口裡左右移動，兩端會變慢。選好答案，按下提交的瞬間，金幣就在那個位置落下。</p>
+        <p class="hint">落點在投幣口裡左右移動，兩端會變慢。越快作答，從落點掉下的金幣越多：3 秒內 3 枚、6 秒內 2 枚、超過 6 秒只剩 1 枚。</p>
       </header>
       <ul class="stat-list">
         <li>目前落點 <b id="st-zone">偏左</b></li>
@@ -776,7 +886,12 @@
         <div class="quiz">
           <div class="quiz-head">
             <span id="q-progress">第 1 / 20 題</span>
-            <span>點選項就掉金幣</span>
+            <span>越快答，掉越多幣</span>
+          </div>
+          <div class="speed" id="speed">
+            <span class="speed-tag" id="speed-tag">⚡ 秒答 ×3</span>
+            <div class="speed-track"><div class="speed-fill" id="speed-fill"></div></div>
+            <span class="speed-sec" id="speed-sec">0.0 秒</span>
           </div>
           <p id="round-note" class="round-note"></p>
           <p id="q-text" class="q-text">準備中</p>
@@ -792,6 +907,16 @@
           </div>
           <p id="result" class="result" aria-live="polite"></p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-round" class="screen">
+    <div class="wrap">
+      <div id="round-root"></div>
+      <div class="row center">
+        <button type="button" id="round-again">再玩一次</button>
+        <button type="button" id="round-home" class="ghost">回首頁</button>
       </div>
     </div>
   </section>
@@ -856,7 +981,7 @@
   var STEP = 1 / 60;
   var TYPE_NAME = { gold: "普通金幣", silver: "銀幣", ruby: "紅寶幣", rainbow: "彩虹幣" };
   var TYPE_CHAR = { gold: "金", silver: "銀", ruby: "寶", rainbow: "彩" };
-  var TYPE_VALUE = { gold: 1, silver: 3, ruby: 5, rainbow: 30 };
+  var TYPE_VALUE = { gold: 1, silver: 3, ruby: 5, rainbow: 12 };
   var CHEERS = [
     "你算得真準！",
     "太棒了，繼續保持！",
@@ -914,6 +1039,15 @@
     selected: null,
     phase: "choose",
     roundNote: "",
+    qElapsed: 0,
+    reactSum: 0,
+    reactN: 0,
+    roundCorrect: 0,
+    roundBest: 0,
+    roundOver: false,
+    roundEarned0: 0,
+    openedSim: 0,
+    needLayout: false,
     sweepT: 0,
     pusherT: 0,
     pusherY: F.pusherMin,
@@ -1124,6 +1258,35 @@
     return state.questions[state.qIndex];
   }
 
+  /* 速度成本：0～3 秒是 ×3、3～6 秒是 ×2、超過 6 秒只剩 ×1 */
+  function speedTier(t) {
+    if (t <= 3) return 3;
+    if (t <= 6) return 2;
+    return 1;
+  }
+
+  function renderSpeed() {
+    var el = document.getElementById("speed");
+    if (!el) return;
+    var t = state.qElapsed;
+    var tier = speedTier(t);
+    document.getElementById("speed-fill").style.width =
+      (Math.max(0, Math.min(1, 1 - t / 6)) * 100).toFixed(1) + "%";
+    el.classList.toggle("t2", tier === 2);
+    el.classList.toggle("t1", tier === 1);
+    el.setAttribute("data-tier", String(tier));
+    var tag = tier === 3 ? "⚡ 秒答 ×3" : (tier === 2 ? "⚡ 快答 ×2" : "🐢 慢答 ×1");
+    var tagEl = document.getElementById("speed-tag");
+    if (tagEl.textContent !== tag) tagEl.textContent = tag;
+    var secEl = document.getElementById("speed-sec");
+    var sec = t.toFixed(1) + " 秒";
+    if (secEl.textContent !== sec) secEl.textContent = sec;
+  }
+
+  function avgReact() {
+    return state.reactN ? state.reactSum / state.reactN : 0;
+  }
+
   function renderOptions() {
     var q = currentQ();
     var box = document.getElementById("options");
@@ -1158,7 +1321,9 @@
     var result = document.getElementById("result");
     result.textContent = "";
     result.className = "result";
+    state.qElapsed = 0;
     renderOptions();
+    renderSpeed();
   }
 
   function showScreen(name) {
@@ -1168,14 +1333,55 @@
       screens[i].classList.toggle("active", screens[i].id === "screen-" + name);
     }
     if (name === "start") {
-      document.getElementById("btn-start").textContent = state.started ? "繼續遊戲" : "開始遊戲";
+      document.getElementById("btn-start").textContent = state.roundOver ? "再玩一次" : (state.started ? "繼續遊戲" : "開始遊戲");
     }
     if (name === "clear") renderClear();
+    if (name === "round") renderRound();
     if (name === "game") renderHud();
   }
 
-  function resetAll() {
+  /* 開新的一輪：只重置這一輪的錢包、題目與機台，累計金幣、成就與通關進度留著 */
+  function resetRound() {
     state.wallet = 10;
+    state.qIndex = 0;
+    state.selected = null;
+    state.phase = "choose";
+    state.roundNote = "";
+    state.qElapsed = 0;
+    state.reactSum = 0;
+    state.reactN = 0;
+    state.roundCorrect = 0;
+    state.roundBest = 0;
+    state.streak = 0;
+    state.roundOver = false;
+    state.roundEarned0 = state.earned;
+    state.openedSim = 0;
+    clearTimeout(state.autoNext);
+    state.sweepT = 0;
+    state.pusherT = 0;
+    state.pusherY = F.pusherMin;
+    state.prevPusher = null;
+    state.sim = 0;
+    state.flash = 0;
+    fallTimes = [];
+    comboLevel = 0;
+    comboDirty = false;
+    acc = 0;
+    achQueue = [];
+    lastShownSec = -1;
+    lastZone = "";
+    buildQuestions();
+    layoutCoins();
+    /* 結算頁到新一輪之間機台尺寸可能變了，等遊戲畫面真的顯示時再重擺一次 */
+    state.needLayout = true;
+    setWallet(10, false);
+    renderHud();
+    renderQuestion();
+    document.getElementById("fx").replaceChildren();
+    closeModals();
+  }
+
+  function resetAll() {
     state.earned = 0;
     state.correct = 0;
     state.answerDrops = 0;
@@ -1190,31 +1396,9 @@
     state.bestStreak = 0;
     state.playMs = 0;
     state.unlocked = {};
-    state.qIndex = 0;
-    state.selected = null;
-    state.phase = "choose";
-    state.roundNote = "";
-    clearTimeout(state.autoNext);
-    state.sweepT = 0;
-    state.pusherT = 0;
-    state.pusherY = F.pusherMin;
-    state.prevPusher = null;
-    state.sim = 0;
-    state.flash = 0;
     state.mainAnnounced = false;
-    fallTimes = [];
-    comboLevel = 0;
-    comboDirty = false;
-    acc = 0;
-    achQueue = [];
-    lastShownSec = -1;
-    lastZone = "";
-    buildQuestions();
-    layoutCoins();
-    setWallet(10, false);
-    renderHud();
-    renderQuestion();
-    closeModals();
+    resetRound();
+    state.roundEarned0 = 0;
   }
 
   function startGame() {
@@ -1222,7 +1406,16 @@
     if (!state.started) {
       resetAll();
       state.started = true;
+    } else if (state.roundOver) {
+      resetRound();
     }
+    showScreen("game");
+  }
+
+  function replayRound() {
+    if (state.sound) ensureAudio();
+    resetRound();
+    state.started = true;
     showScreen("game");
   }
 
@@ -1234,8 +1427,8 @@
     return "rainbow";
   }
 
-  function dropCoin(x) {
-    var type = rollType();
+  function dropCoin(x, forcedType) {
+    var type = forcedType || rollType();
     var c = makeCoin(x, state.pusherY + F.r + 3, type, true);
     for (var n = 0; n < 16; n++) {
       var moved = false;
@@ -1333,10 +1526,14 @@
       cab.classList.add("rainbow-flash");
     }
     chute.push({ x: c.x, y: F.exitY + 10, r: c.r * 0.85, type: c.type, age: 0 });
-    var label = c.type === "rainbow" ? "彩虹大獎！+30" : (TYPE_NAME[c.type] + " +" + c.value);
+    var label = c.type === "rainbow" ? "彩虹大獎！+12" : (TYPE_NAME[c.type] + " +" + c.value);
     showFloat(label, c.x, F.exitY - 16, c.type === "rainbow" ? "rainbow" : "");
-    fallTimes.push(state.sim);
-    comboDirty = true;
+    /* 只有答題造成的掉落、而且開局 1.5 秒之後，才列入連掉判定；
+       開局排在出口唇上的金幣不算，避免一進場就誤觸「狂爆掉幣！」。 */
+    if (c.fromAnswer && state.sim - state.openedSim >= 1.5) {
+      fallTimes.push(state.sim);
+      comboDirty = true;
+    }
     sfxCoin(c.type);
     renderHud();
   }
@@ -1513,6 +1710,10 @@
   function fit() {
     var rect = canvas.getBoundingClientRect();
     syncWorld(rect.width, rect.height);
+    if (state.needLayout && rect.width > 60 && rect.height > 60) {
+      state.needLayout = false;
+      layoutCoins();
+    }
     var dpr = Math.min(2, window.devicePixelRatio || 1);
     var w = Math.max(1, Math.round(rect.width * dpr));
     var h = Math.max(1, Math.round(rect.height * dpr));
@@ -1801,6 +2002,10 @@
     state.playMs += dt * 1000;
     state.sweepT += dt;
     state.sim += dt;
+    if (state.phase === "choose" && !anyModal()) {
+      state.qElapsed += dt;
+      renderSpeed();
+    }
     if (state.flash > 0) state.flash -= dt;
     acc += dt;
     var guard = 0;
@@ -1832,6 +2037,8 @@
 
   function pumpAch() {
     if (achOpen || achQueue.length === 0) return;
+    /* 作答結果的 1 秒內先讓浮動文字（例如連對獎勵）露臉，下一題再彈成就 */
+    if (state.phase === "result") return;
     var a = achQueue.shift();
     achOpen = true;
     document.getElementById("ach-name").textContent = a.name;
@@ -1870,8 +2077,8 @@
     var lead = document.createElement("p");
     lead.className = "lead";
     lead.textContent = done
-      ? "你完成了三條通關進度。遊戲沒有結束條件，還可以繼續答題、推金幣，收集剩下的成就。"
-      : "這款遊戲沒有結束條件。三條進度與十個成就，都是給你的挑戰獎盃。";
+      ? "你完成了三條通關進度。每一輪 20 題，結算後可以再玩一次，繼續累計成就。"
+      : "每輪 20 題，做完會結算。三條進度與十個成就，都是給你的挑戰獎盃。";
     root.appendChild(title);
     root.appendChild(lead);
     var goals = document.createElement("div");
@@ -1936,6 +2143,9 @@
       ["掉落金幣數", String(state.fallen)],
       ["掉落特殊幣數", String(state.special)],
       ["答對題數", String(state.correct)],
+      ["本輪答對", state.roundCorrect + " / " + (state.questions.length || 20)],
+      ["平均反應", avgReact().toFixed(1) + " 秒"],
+      ["最高連對", state.roundBest + " 題"],
       ["遊玩時間", formatTime(state.playMs)]
     ];
   }
@@ -2009,7 +2219,7 @@
 
   function drawCertificate() {
     var w = 780;
-    var h = 1040;
+    var h = 1160;
     var cvs = document.createElement("canvas");
     cvs.width = w;
     cvs.height = h;
@@ -2177,6 +2387,18 @@
     beep(big ? 880 : 660, 0.1, "triangle", 0.06, 0);
     beep(big ? 1320 : 990, 0.16, "triangle", 0.06, 0.1);
   }
+  function sfxRainbow() {
+    beep(659, 0.12, "triangle", 0.08, 0);
+    beep(880, 0.12, "triangle", 0.08, 0.1);
+    beep(1046, 0.12, "triangle", 0.08, 0.2);
+    beep(1318, 0.22, "triangle", 0.07, 0.3);
+  }
+  function sfxRound() {
+    beep(523, 0.12, "triangle", 0.08, 0);
+    beep(659, 0.12, "triangle", 0.08, 0.12);
+    beep(784, 0.12, "triangle", 0.08, 0.24);
+    beep(1046, 0.24, "triangle", 0.07, 0.36);
+  }
 
   function submit(index) {
     if (state.phase !== "choose") return;
@@ -2185,42 +2407,124 @@
     var choice = q.options[index];
     state.phase = "result";
     var result = document.getElementById("result");
+    var last = state.qIndex + 1 >= state.questions.length;
+    if (last) state.roundOver = true;
+    var waitMs;
     if (choice === q.answer) {
+      var t = Math.max(0, state.qElapsed);
+      var n = speedTier(t);
+      var tierText = n === 3 ? "秒答" : (n === 2 ? "快答" : "慢答");
       state.correct++;
+      state.roundCorrect++;
+      state.reactSum += t;
+      state.reactN++;
       state.streak++;
       if (state.streak > state.bestStreak) state.bestStreak = state.streak;
-      dropCoin(markerX());
+      if (state.streak > state.roundBest) state.roundBest = state.streak;
+      /* n 枚各自獨立抽幣種（不是把 1 枚乘 n），全部從落點落下 */
+      var mx = markerX();
+      for (var k = 0; k < n; k++) dropCoin(mx + (Math.random() - 0.5) * 10);
+      var milestone = state.streak % 5 === 0;
+      var extra = 0;
+      if (milestone) {
+        dropCoin(mx + (Math.random() - 0.5) * 10, "rainbow");
+        extra = 1;
+        showFloat("🔥 連對 " + state.streak + " 題！彩虹幣", F.w / 2, F.h * 0.35, "banner rainbow");
+        sfxRainbow();
+      }
+      showFloat("⚡ " + tierText + " ×" + n + "　+" + (n + extra) + " 枚",
+        Math.max(F.w * 0.24, Math.min(F.w * 0.76, mx)), 72, "speed");
       result.className = "result good";
-      result.textContent = "答對！金幣落下。";
+      result.textContent = "答對！" + tierText + " ×" + n + "，掉落 " + n + " 枚" +
+        (milestone ? "＋彩虹幣" : "") + "。";
       sfxCorrect();
+      waitMs = 950;
     } else {
       state.streak = 0;
+      var letter = "ABCD".charAt(q.options.indexOf(q.answer));
+      setWallet(Math.max(0, state.wallet - 1), false);
       result.className = "result bad";
-      result.textContent = "答錯，答案是 " + q.answer + "。";
+      result.textContent = "答錯，錢包 −1。正解：" + letter + "（" + q.answer + "）";
       sfxWrong();
+      waitMs = 800 + Math.random() * 400;
     }
+    renderSpeed();
     renderOptions();
     renderHud();
     unlockCheck();
     clearTimeout(state.autoNext);
-    state.autoNext = setTimeout(nextQ, 650);
+    state.autoNext = setTimeout(last ? finishRound : nextQ, waitMs);
   }
 
   function nextQ() {
     if (state.phase !== "result") return;
-    state.qIndex++;
-    if (state.qIndex >= state.questions.length) {
-      buildQuestions();
-      state.qIndex = 0;
-      state.roundNote = "這一輪 20 題做完了，題目和選項已重新洗牌！";
-    } else if (state.qIndex === 0) {
-      state.roundNote = "";
-    } else {
-      state.roundNote = "";
+    if (state.qIndex + 1 >= state.questions.length) {
+      finishRound();
+      return;
     }
+    state.qIndex++;
     state.selected = null;
     state.phase = "choose";
+    state.roundNote = "";
     renderQuestion();
+    pumpAch();
+  }
+
+  function finishRound() {
+    clearTimeout(state.autoNext);
+    if (state.phase === "over") return;
+    state.phase = "over";
+    state.roundOver = true;
+    if (state.screen !== "game") return;
+    showScreen("round");
+    burstConfetti();
+    sfxRound();
+  }
+
+  function renderRound() {
+    var root = document.getElementById("round-root");
+    if (!root) return;
+    root.replaceChildren();
+    var total = state.questions.length || 20;
+    var earned = Math.max(0, state.earned - state.roundEarned0);
+    var ratio = total ? state.roundCorrect / total : 0;
+    var hero = document.createElement("div");
+    hero.className = "round-hero";
+    var title = document.createElement("h2");
+    title.className = "title";
+    title.textContent = "本輪結算";
+    var lead = document.createElement("p");
+    lead.className = "lead round-lead";
+    lead.textContent = ratio >= 0.9 ? "太強了，20 題幾乎全對！"
+      : ratio >= 0.6 ? "不錯喔！再快一點，金幣會更多。"
+        : "再練一輪，越早作答掉越多幣。";
+    hero.appendChild(title);
+    hero.appendChild(lead);
+    root.appendChild(hero);
+    var stats = document.createElement("div");
+    stats.className = "round-stats";
+    var rows = [
+      ["答對題數", state.roundCorrect + " / " + total],
+      ["本輪推幣機獲得", "+" + earned + " 枚"],
+      ["平均反應", avgReact().toFixed(1) + " 秒"],
+      ["最高連對", state.roundBest + " 題"]
+    ];
+    for (var i = 0; i < rows.length; i++) {
+      var card = document.createElement("div");
+      card.className = "round-stat";
+      var label = document.createElement("span");
+      label.textContent = rows[i][0];
+      var value = document.createElement("b");
+      value.textContent = rows[i][1];
+      card.appendChild(label);
+      card.appendChild(value);
+      stats.appendChild(card);
+    }
+    root.appendChild(stats);
+    var tip = document.createElement("p");
+    tip.className = "round-tip";
+    tip.textContent = "金幣要掉出出口才算入帳。目前錢包 " + state.wallet + " 枚。";
+    root.appendChild(tip);
   }
 
   function onOption(e) {
@@ -2298,6 +2602,8 @@
     state.started = true;
     showScreen("game");
   });
+  document.getElementById("round-again").addEventListener("click", replayRound);
+  document.getElementById("round-home").addEventListener("click", function () { showScreen("start"); });
   document.getElementById("btn-sound").addEventListener("click", toggleSound);
   document.getElementById("btn-shot").addEventListener("click", openShot);
   document.getElementById("shot-close").addEventListener("click", function () {
@@ -2307,6 +2613,7 @@
   document.getElementById("btn-clear").addEventListener("click", function () { showScreen("clear"); });
   document.getElementById("clear-game").addEventListener("click", function () {
     if (!state.started) startGame();
+    else if (state.roundOver) showScreen("round");
     else showScreen("game");
   });
   document.getElementById("clear-home").addEventListener("click", function () { showScreen("start"); });
