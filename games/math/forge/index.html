@@ -570,6 +570,11 @@
     background: rgba(16, 52, 38, .66);
     color: #a8f5cf;
   }
+  .intent.lock {
+    border-color: rgba(255, 170, 80, .55);
+    background: rgba(58, 30, 10, .8);
+    color: #ffd9a0;
+  }
   .relic-row {
     flex: none;
     display: flex;
@@ -698,6 +703,77 @@
     white-space: nowrap;
     pointer-events: none;
   }
+  /* 保留 / 臨時 / 鐵鎖 角標 */
+  .card .keep {
+    position: absolute;
+    top: 3px;
+    right: 2px;
+    z-index: 3;
+    padding: 1px 3px;
+    border: 1px solid rgba(160, 185, 230, .55);
+    border-radius: 3px;
+    background: rgba(10, 16, 32, .88);
+    color: #dbe7ff;
+    font-size: max(8px, calc(var(--cw) * .09));
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: 0;
+    opacity: .92;
+    pointer-events: auto;
+  }
+  .card .keep.on {
+    opacity: 1;
+    color: #2b1603;
+    background: linear-gradient(180deg, #ffe08a, #f0a537);
+    border-color: #ffe6a6;
+    box-shadow: 0 0 7px rgba(255, 190, 80, .9);
+  }
+  .card .keep::after {
+    content: "";
+    position: absolute;
+    inset: -9px -7px;
+  }
+  .card.keep-mark { filter: drop-shadow(0 0 5px rgba(255, 208, 106, .6)) drop-shadow(0 5px 5px rgba(0, 0, 0, .45)); }
+  .card .tmp-tag {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    z-index: 3;
+    padding: 1px 3px;
+    border: 1px solid rgba(255, 170, 90, .6);
+    border-radius: 3px;
+    background: rgba(58, 28, 8, .9);
+    color: #ffcf8a;
+    font-size: max(8px, calc(var(--cw) * .085));
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: 0;
+    pointer-events: none;
+  }
+  .card .lock-tag {
+    position: absolute;
+    left: 2px;
+    top: 3px;
+    z-index: 3;
+    padding: 1px 3px;
+    border: 1px solid rgba(255, 120, 90, .65);
+    border-radius: 3px;
+    background: rgba(52, 12, 10, .92);
+    color: #ffb4a4;
+    font-size: max(8px, calc(var(--cw) * .085));
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: 0;
+    pointer-events: none;
+  }
+  .card.locked {
+    filter: grayscale(.92) brightness(.5) drop-shadow(0 5px 5px rgba(0, 0, 0, .45));
+    cursor: not-allowed;
+  }
+  .card.locked:hover {
+    transform: none;
+    filter: grayscale(.92) brightness(.5) drop-shadow(0 5px 5px rgba(0, 0, 0, .45));
+  }
   .card:hover { transform: translateY(-5px); filter: drop-shadow(0 8px 8px rgba(0, 0, 0, .5)) brightness(1.08); }
   .card:active { transform: translateY(-1px) scale(.97); }
   .card.hint { animation: cardHint 1s ease-in-out infinite; }
@@ -775,7 +851,7 @@
   }
   .slot .card { --cw: 34px; --ch: 47px; }
   .slot .card:hover { transform: translateY(-2px); }
-  .slot .card .tag { display: none; }
+  .slot .card .tag, .slot .card .tmp-tag, .slot .card .keep { display: none; }
   .slot-val {
     flex: none;
     display: flex;
@@ -795,7 +871,7 @@
   .controls { flex: none; display: flex; align-items: center; justify-content: flex-end; gap: 6px; min-height: 40px; }
   .controls .spacer { flex: 1 1 auto; }
   #btn-forge { min-width: 126px; }
-  #btn-end { min-width: 92px; font-size: 12px; }
+  #btn-end { min-width: 122px; font-size: 11.5px; padding: 0 10px; }
   #btn-hint { min-width: 64px; font-size: 12px; }
   #btn-hint img { width: 18px; height: 18px; image-rendering: pixelated; }
 
@@ -1077,7 +1153,7 @@
     .hand.dense .card { --cw: 68px; --ch: 95px; }
     .controls { min-height: 40px; gap: 5px; }
     #btn-forge { min-height: 40px; min-width: 118px; font-size: 15px; }
-    #btn-end { min-height: 40px; min-width: 84px; font-size: 11px; }
+    #btn-end { min-height: 40px; min-width: 108px; font-size: 10.5px; padding: 0 7px; }
     #btn-hint { min-height: 40px; min-width: 58px; font-size: 11px; }
     .btn.forge img { width: 26px; height: 26px; }
     .sheet { padding: 7px 10px 8px; }
@@ -1150,7 +1226,7 @@
     .hand.dense .card { --cw: 88px; --ch: 123px; }
     .controls { min-height: 52px; gap: 10px; }
     #btn-forge { min-width: 176px; min-height: 50px; font-size: 20px; }
-    #btn-end { min-width: 118px; min-height: 50px; font-size: 14px; }
+    #btn-end { min-width: 152px; min-height: 50px; font-size: 13.5px; }
     #btn-hint { min-width: 82px; min-height: 50px; font-size: 14px; }
     .sheet { padding: 16px 20px 18px; }
     .offer .mini { width: 72px; height: 98px; }
@@ -1202,7 +1278,7 @@
       <div class="start-copy">
         <p class="eyebrow">MATH FORGE · 算式就是你的武器</p>
         <h1 class="logo">算式<em>鍛造</em>所</h1>
-        <p class="tagline">把數字與運算子排進鐵砧（先乘除後加減），<b>算式值就是這一擊的傷害</b>。敲碎魔像的護甲，一路打到鍛造廠主。</p>
+        <p class="tagline">把數字與運算子排進鐵砧（先乘除後加減），<b>算式值就是這一擊的傷害</b>。敲碎魔像的護甲，一路打到鍛造廠主；<b>每座魔像都有不同機制</b>。</p>
         <div class="rules">
           <span class="rule"><i>盾</i>算式 ≤ 護甲：削甲；剛好歸零 <b>破甲</b></span>
           <span class="rule"><i>焰</i>超過護甲：<b>超載</b>，破甲但 −1 心</span>
@@ -1215,7 +1291,7 @@
       </div>
       <div class="start-foe" aria-hidden="true">
         <img src="art/golem.png" alt="" class="pix">
-        <span class="foe-tag">6 座魔像把關 · 護甲 <b>24 → 120</b></span>
+        <span class="foe-tag">6 座魔像 · 各自機制 · 護甲 <b>24 → 120</b></span>
       </div>
     </div>
     <p class="start-foot">每回合抽 5 張 · 出 1–5 張牌 · 算式值就是傷害</p>
@@ -1281,7 +1357,7 @@
         <div class="controls">
           <button id="btn-hint" class="btn ghost" type="button" hidden>提示</button>
           <span class="spacer"></span>
-          <button id="btn-end" class="btn ghost" type="button">結束回合</button>
+          <button id="btn-end" class="btn ghost" type="button" title="先點卡片右上角「保留」，最多留 2 張到下一回合">結束回合（保留 2）</button>
           <button id="btn-forge" class="btn forge" type="button"><img src="art/anvil.png" alt="" class="pix">鍛造！</button>
         </div>
       </section>
@@ -1420,6 +1496,39 @@
   }
   function cardExpr(c) { return cardGlyph(c); }
 
+  /* 乘法卡（鐵鎖會封印）× 運算子與 ×N 符文 */
+  function isMulCard(c) {
+    return !!c && ((c.kind === "op" && c.v === "*") || (c.kind === "rune" && c.op === "*"));
+  }
+  function seqHasMul(seq) {
+    for (var i = 0; i < seq.length; i++) if (isMulCard(seq[i])) return true;
+    return false;
+  }
+  function seqUsesPlusMinus(seq) {
+    for (var i = 0; i < seq.length; i++) {
+      var c = seq[i];
+      if (c.kind === "op" && (c.v === "+" || c.v === "-")) return true;
+      if (c.kind === "rune" && (c.op === "+" || c.op === "-")) return true;
+    }
+    return false;
+  }
+  function seqPureMul(seq) {
+    for (var i = 0; i < seq.length; i++) {
+      var c = seq[i];
+      if (c.kind === "num") continue;
+      if (c.kind === "op" && c.v === "*") continue;
+      if (c.kind === "rune" && c.op === "*") continue;
+      return false;
+    }
+    return true;
+  }
+  function lockActive() {
+    return !!(G.enemy && G.enemy.cfg.mech === "lock" && G.turn % 2 === 0);
+  }
+  function handLimit() {
+    return G.enemy && G.enemy.cfg.mech === "limit" ? 4 : 5;
+  }
+
   function baseDeck() {
     var d = [];
     for (var i = 1; i <= 9; i++) d.push(cNum(i));
@@ -1437,9 +1546,9 @@
         cur = c.v;
       } else if (c.kind === "rune") {
         if (cur === null) return { ok: false };
-        if (c.op === "×") { cur *= c.v; }
+        if (c.op === "×" || c.op === "*") { cur *= c.v; }
         else if (c.op === "+") { cur += c.v; }
-        else if (c.op === "÷") {
+        else if (c.op === "÷" || c.op === "/") {
           if (cur % c.v !== 0) return { ok: false, div: true };
           cur /= c.v;
         }
@@ -1468,21 +1577,39 @@
     return { ok: true, value: v };
   }
   function exprString(seq) {
-    var s = "";
-    for (var i = 0; i < seq.length; i++) {
+    var s = "", i = 0;
+    while (i < seq.length) {
       var c = seq[i];
-      if (c.kind === "op") s += " " + OPCH[c.v] + " ";
-      else if (c.kind === "rune") s += OPCH[c.op] + c.v;
-      else s += cardGlyph(c);
+      if (c.kind === "op") {
+        s += " " + OPCH[c.v] + " ";
+        i++;
+        continue;
+      }
+      if (c.kind === "rune") { s += OPCH[c.op] + c.v; i++; continue; }
+      // 數字（含接在後面的符文）用括號包起來，避免「2+9 × 3」被讀成 2 + 9×3
+      var v = String(cardGlyph(c));
+      i++;
+      while (i < seq.length && seq[i].kind === "rune") {
+        v = "(" + v + OPCH[seq[i].op] + seq[i].v + ")";
+        i++;
+      }
+      s += v;
     }
     return s.replace(/\s+/g, " ").trim();
   }
 
-  /* 枚舉手牌中所有不溢出的解 */
-  function allSolutions(hand, target, cap) {
+  /* 枚舉手牌中所有不溢出的解。opts: { lock: 鐵鎖時排除 × 卡, maxLen: 手牌上限 } */
+  function allSolutions(hand, target, cap, opts) {
     cap = cap || 240;
+    opts = opts || {};
+    var lock = !!opts.lock;
+    var maxLen = opts.maxLen || 5;
     var cards = [], i;
-    for (i = 0; i < hand.length; i++) if (hand[i].kind !== "util") cards.push(hand[i]);
+    for (i = 0; i < hand.length; i++) {
+      if (hand[i].kind === "util") continue;
+      if (lock && isMulCard(hand[i])) continue;
+      cards.push(hand[i]);
+    }
     var out = [], seen = {}, used = new Array(cards.length);
     var seq = [];
     function record() {
@@ -1504,7 +1631,7 @@
     function dfs(needTerm, start) {
       if (out.length >= cap) return;
       if (!needTerm) record();
-      if (seq.length >= 5) return;
+      if (seq.length >= maxLen) return;
       for (var k = 0; k < cards.length; k++) {
         if (used[k]) continue;
         var c = cards[k];
@@ -1512,9 +1639,6 @@
         if (needTerm) ok = c.kind === "num";
         else ok = c.kind === "rune" || c.kind === "op";
         if (!ok) continue;
-        var bad = false;
-        if (!needTerm && c.kind === "op" && seq.length + 1 > 5) bad = true;
-        if (bad) continue;
         used[k] = true; seq.push(c);
         // 先遞迴延伸，再記錄目前這個完整算式
         dfs(c.kind === "op", k);
@@ -1528,8 +1652,8 @@
     });
     return out;
   }
-  function findSolution(hand, target) {
-    var s = allSolutions(hand, target, 200);
+  function findSolution(hand, target, opts) {
+    var s = allSolutions(hand, target, 200, opts);
     return s.length ? s[0] : null;
   }
 
@@ -1537,6 +1661,14 @@
      每個護甲值都一定找得到解，而且只會用到牌組裡真的有的卡型。 */
   var COMBO_CACHE = {};
   var COMBO_OPS = ["+", "-", "*", "/"];
+  var COMBO_RUNE_OPS = ["+", "-", "*"];
+  var COMBO_RUNES = [
+    { kind: "rune", op: "*", v: 3 },
+    { kind: "rune", op: "*", v: 2 },
+    { kind: "rune", op: "+", v: 15 },
+    { kind: "rune", op: "+", v: 9 },
+    { kind: "rune", op: "/", v: 2 }
+  ];
   function combosFor(target) {
     if (COMBO_CACHE[target]) return COMBO_CACHE[target];
     var seen = {}, out = [];
@@ -1546,13 +1678,31 @@
       var s = exprString(parts);
       if (seen[s]) return;
       seen[s] = 1;
-      out.push(parts.map(function (p) { return { kind: p.kind, v: p.v }; }));
+      out.push(parts.map(function (p) {
+        var o = { kind: p.kind, v: p.v };
+        if (p.op) o.op = p.op;
+        return o;
+      }));
     }
     var a, b, c, i, j, k;
     for (a = 1; a <= 9; a++) {
       for (i = 0; i < 4; i++) {
         for (b = 1; b <= 9; b++) {
           add([{ kind: "num", v: a }, { kind: "op", v: COMBO_OPS[i] }, { kind: "num", v: b }]);
+        }
+      }
+    }
+    // 4 張：單一符文接在數字後（×3 / ×2 / +15 / +9 / ÷2），讓 4 張手牌的魔王也能有解
+    for (a = 1; a <= 9; a++) {
+      for (i = 0; i < COMBO_RUNE_OPS.length; i++) {
+        for (b = 1; b <= 9; b++) {
+          for (var ri = 0; ri < COMBO_RUNES.length; ri++) {
+            var rt = COMBO_RUNES[ri];
+            add([{ kind: "num", v: a }, { kind: "op", v: COMBO_RUNE_OPS[i] },
+                 { kind: "num", v: b }, { kind: rt.kind, op: rt.op, v: rt.v }]);
+            add([{ kind: "num", v: a }, { kind: rt.kind, op: rt.op, v: rt.v },
+                 { kind: "op", v: COMBO_RUNE_OPS[i] }, { kind: "num", v: b }]);
+          }
         }
       }
     }
@@ -1628,13 +1778,26 @@
   }
 
   /* ================= 關卡資料 ================= */
+  /* 每場一個機制；護甲刻意混入需要 +／− 才能剛好削完的層，避免後期全是連乘。 */
   var BATTLES = [
-    { name: "鏽鐵崗哨", en: "RUST SENTINEL", hp: 3, armor: [24, 28, 32], tint: "none", scale: 1.0 },
-    { name: "煤渣衛兵", en: "CINDER GUARD", hp: 3, armor: [32, 36, 40], tint: "hue-rotate(-12deg) saturate(1.08)", scale: 1.02 },
-    { name: "熔渣巨像", en: "SLAG COLOSSUS", hp: 4, armor: [40, 44, 48, 54], tint: "hue-rotate(16deg) saturate(1.15)", scale: 1.04 },
-    { name: "鐵砧守衛", en: "ANVIL WARDEN", hp: 4, armor: [48, 54, 60, 64], tint: "hue-rotate(-28deg) saturate(.9)", scale: 1.06 },
-    { name: "爐心魔像", en: "CORE GOLEM", hp: 4, armor: [60, 64, 72, 81], tint: "hue-rotate(30deg) saturate(1.2) brightness(1.04)", scale: 1.08 },
-    { name: "鍛造廠主", en: "THE FORGEMASTER", hp: 5, armor: [72, 84, 96, 108, 120], tint: "hue-rotate(48deg) saturate(1.28) brightness(1.05)", scale: 1.12 }
+    { name: "鏽鐵崗哨", en: "RUST SENTINEL", mech: "none", mechName: "教學",
+      blurb: "沒有特殊機制，先熟悉削甲節奏", hp: 3, armor: [24, 27, 33],
+      tint: "none", scale: 1.0 },
+    { name: "煤渣衛兵", en: "CINDER GUARD", mech: "lock", mechName: "鐵鎖",
+      blurb: "每 2 回合，× 卡被鐵鎖封印", hp: 3, armor: [30, 36, 41],
+      tint: "hue-rotate(-12deg) saturate(1.08)", scale: 1.02 },
+    { name: "熔渣巨像", en: "SLAG COLOSSUS", mech: "heal", mechName: "癒合",
+      blurb: "該回合沒破甲，下回合護甲重鑄 +6", hp: 4, armor: [36, 44, 48, 58],
+      tint: "hue-rotate(16deg) saturate(1.15)", scale: 1.04 },
+    { name: "鐵砧守衛", en: "ANVIL WARDEN", mech: "reflect", mechName: "反擊",
+      blurb: "破甲當回合仍會反擊 1 心", hp: 2, armor: [47, 58],
+      tint: "hue-rotate(-28deg) saturate(.9)", scale: 1.06 },
+    { name: "爐心魔像", en: "CORE GOLEM", mech: "crit", mechName: "臨界",
+      blurb: "超載代價 2 心，寧可算準", hp: 3, armor: [54, 65, 72],
+      tint: "hue-rotate(30deg) saturate(1.2) brightness(1.04)", scale: 1.08 },
+    { name: "鍛造廠主", en: "THE FORGEMASTER", mech: "limit", mechName: "限牌",
+      blurb: "每回合只發 4 張手牌", hp: 5, armor: [64, 72, 88, 102, 120],
+      tint: "hue-rotate(48deg) saturate(1.28) brightness(1.05)", scale: 1.12 }
   ];
 
   var RELICS = {
@@ -1668,6 +1831,8 @@
     enemy: null,
     hand: [],
     slot: [],
+    keep: [],
+    events: [],
     draw: [],
     discard: [],
     turn: 1,
@@ -1675,7 +1840,8 @@
     mirrorMode: false,
     rewardOpen: false,
     offers: [],
-    over: false
+    over: false,
+    lastHeal: 0
   };
 
   function resetRun() {
@@ -1689,6 +1855,14 @@
     };
     G.battleIdx = 0;
     G.over = false;
+    G.keep = [];
+    G.events = [];
+  }
+  function logEvent(type, data) {
+    var row = { type: type, battle: G.battleIdx + 1, turn: G.turn };
+    if (data) for (var k in data) if (Object.prototype.hasOwnProperty.call(data, k)) row[k] = data[k];
+    G.events.push(row);
+    if (G.events.length > 120) G.events.shift();
   }
 
   /* ================= 繪製 ================= */
@@ -1712,20 +1886,33 @@
   function renderEnemy() {
     if (!G.enemy) return;
     var e = G.enemy;
-    $("enemy-name").innerHTML = e.cfg.name + "<small>" + e.cfg.en + "</small>";
+    $("enemy-name").innerHTML = e.cfg.name + "<small>" + e.cfg.en + " · " + e.cfg.mechName + "</small>";
     $("armor-val").textContent = e.armor;
     $("hud-foe").textContent = e.cfg.name;
     var pips = "";
     for (var i = 0; i < e.cfg.hp; i++) pips += '<span class="pip' + (i < e.hp ? " on" : "") + '"></span>';
     $("enemy-pips").innerHTML = pips;
     var it = $("intent");
+    it.classList.remove("lock");
     if (e.brokeThisTurn) {
       it.classList.add("safe");
-      $("intent-text").textContent = "護甲已破 · 本回合不反擊";
+      $("intent-text").textContent = e.cfg.mech === "reflect" ? "護甲已破 · 反擊仍會落下" : "護甲已破 · 本回合不反擊";
       it.firstElementChild.textContent = "✓";
     } else {
       it.classList.remove("safe");
-      $("intent-text").textContent = "下回合 −1 心";
+      var txt = "下回合 −1 心";
+      switch (e.cfg.mech) {
+        case "lock":
+          if (e.lockActive) { txt = "鐵鎖 · 本回合 × 卡封印"; it.classList.add("lock"); }
+          else txt = "下回合 × 封印";
+          break;
+        case "heal": txt = "未破甲 → 護甲重鑄 +6"; break;
+        case "reflect": txt = "破甲仍反擊 −1 心"; break;
+        case "crit": txt = "超載代價 −2 心"; break;
+        case "limit": txt = "限牌 · 每回合 4 張"; break;
+        default: txt = "下回合 −1 心";
+      }
+      $("intent-text").textContent = txt;
       it.firstElementChild.textContent = "⚔";
     }
     var img = $("golem");
@@ -1753,9 +1940,14 @@
     return '<span class="face"><b class="big">' + glyph + "</b></span>";
   }
   function cardButton(c, extra, inSlot) {
+    var marked = G.keep.indexOf(c.uid) >= 0;
+    var badges = "";
+    if (c.tmp) badges += '<span class="tmp-tag">臨時</span>';
+    if (lockActive() && isMulCard(c)) badges += '<span class="lock-tag">鎖</span>';
+    if (!inSlot) badges += '<span class="keep' + (marked ? " on" : "") + '" data-keep="1">保留</span>';
     return '<button class="card' + (extra ? " " + extra : "") + '" type="button" data-uid="' + c.uid + '" data-kind="' + c.kind + '"' +
       (inSlot ? ' data-slot="1"' : "") + ' aria-label="' + cardSub(c) + " " + cardGlyph(c) + '">' +
-      '<img class="cf" src="art/card-frame.png" alt="">' + cardFaceHTML(c) + "</button>";
+      '<img class="cf" src="art/card-frame.png" alt="">' + cardFaceHTML(c) + badges + "</button>";
   }
   function renderHand() {
     var hand = $("hand");
@@ -1766,6 +1958,8 @@
     for (var i = 0; i < G.hand.length; i++) {
       var c = G.hand[i];
       var extra = "deal";
+      if (G.keep.indexOf(c.uid) >= 0) extra += " keep-mark";
+      if (lockActive() && isMulCard(c)) extra += " locked";
       if (G.mirrorMode && c.kind === "num") extra += " mirror-pick";
       else if (G.mirrorMode) extra += " dim";
       html += cardButton(c, extra, false);
@@ -1846,50 +2040,101 @@
     }
     return null;
   }
-  function ensureSolvable(hand, target) {
-    if (!hand.length) return;
-    if (findSolution(hand, target)) return;
-    var combo = pickCombo(target, hand);
-    if (!combo || combo.length > hand.length) return;
-    var used = {}, missing = [], i, j;
-    for (i = 0; i < combo.length; i++) {
-      var found = -1;
-      for (j = 0; j < hand.length; j++) {
-        if (used[j]) continue;
-        if (hand[j].kind !== "util" && sig(hand[j]) === sig(combo[i])) { found = j; break; }
+  /* 保底：從設計好的組合中挑一個最省事、且「最多只補 1 張臨時牌」的解。
+     opts.protect：本回合保留的手牌 uid，不會被換掉。 */
+  function ensureSolvable(hand, target, opts) {
+    opts = opts || {};
+    var lock = !!opts.lock;
+    var maxLen = opts.maxLen || 5;
+    var protect = opts.protect || [];
+    if (!hand.length) return false;
+    if (findSolution(hand, target, { lock: lock, maxLen: maxLen })) return true;
+    var list = combosFor(target);
+    var protSet = {};
+    for (var p = 0; p < protect.length; p++) protSet[protect[p]] = 1;
+    var best = null, bestScore = -1e9;
+    for (var li = 0; li < list.length; li++) {
+      var seq = list[li];
+      if (seq.length > maxLen) continue;
+      if (lock && seqHasMul(seq)) continue;
+      var used = {}, matched = [], missing = [], i, j;
+      for (i = 0; i < hand.length; i++) used[i] = false;
+      for (i = 0; i < seq.length; i++) {
+        var found = -1;
+        for (j = 0; j < hand.length; j++) {
+          if (used[j]) continue;
+          if (hand[j].kind !== "util" && sig(hand[j]) === sig(seq[i])) { found = j; break; }
+        }
+        if (found >= 0) { used[found] = true; matched.push(hand[found]); }
+        else missing.push(seq[i]);
       }
-      if (found >= 0) used[found] = true;
-      else missing.push(combo[i]);
+      var spare = 0, unusedProt = 0;
+      for (i = 0; i < hand.length; i++) {
+        if (used[i]) continue;
+        if (protSet[hand[i].uid]) unusedProt++;
+        else spare++;
+      }
+      if (missing.length > spare) continue;
+      if (seq.length + unusedProt > maxLen) continue;
+      // 模擬牌堆：能從實際牌堆拿到的不算臨時牌；最多只允許 1 張臨時牌
+      var pile = G.draw.concat(G.discard), temps = 0;
+      for (i = 0; i < missing.length; i++) {
+        found = -1;
+        for (j = 0; j < pile.length; j++) if (sig(pile[j]) === sig(missing[i])) { found = j; break; }
+        if (found >= 0) pile.splice(found, 1);
+        else temps++;
+      }
+      if (temps > 1) continue;
+      var score = -temps * 120 + matched.length * 20 - seq.length * 3 - missing.length * 2;
+      if (score > bestScore) {
+        bestScore = score;
+        best = { seq: seq, matched: matched, missing: missing };
+      }
     }
-    if (!missing.length) return;
-    var spare = [];
-    for (i = 0; i < hand.length; i++) if (!used[i]) spare.push(i);
-    spare.sort(function (a, b) {
-      var ca = hand[a], cb = hand[b];
-      var sa = ca.kind === "util" ? 0 : 1, sb = cb.kind === "util" ? 0 : 1;
-      if (sa !== sb) return sa - sb;
-      return b - a;
-    });
-    for (i = 0; i < missing.length; i++) {
-      var slot = spare[i];
-      if (slot === undefined) break;
-      var repl = takeFromPiles(missing[i]);
-      if (!repl) { repl = cloneCard(missing[i]); repl.tmp = true; }
-      G.draw.push(hand[slot]);
-      hand[slot] = repl;
+    if (!best) return false;
+    // 重建手牌：保留牌一定留著；換掉的牌回牌堆；最後補滿手牌上限
+    var keepUids = {}, newHand = [];
+    for (var k = 0; k < hand.length; k++) {
+      if (protSet[hand[k].uid]) { newHand.push(hand[k]); keepUids[hand[k].uid] = 1; }
     }
-    shuffle(hand);
+    for (k = 0; k < best.matched.length; k++) {
+      if (!keepUids[best.matched[k].uid]) { newHand.push(best.matched[k]); keepUids[best.matched[k].uid] = 1; }
+    }
+    for (k = 0; k < best.missing.length; k++) {
+      var repl = takeFromPiles(best.missing[k]);
+      if (!repl) { repl = cloneCard(best.missing[k]); repl.tmp = true; }
+      newHand.push(repl); keepUids[repl.uid] = 1;
+    }
+    for (k = 0; k < hand.length; k++) if (!keepUids[hand[k].uid]) G.draw.push(hand[k]);
+    while (newHand.length < maxLen) {
+      var extra = drawOne();
+      if (!extra) break;
+      newHand.push(extra);
+    }
+    G.hand = newHand;
+    shuffle(G.hand);
+    return true;
   }
   function dealHand() {
-    G.hand = [];
-    for (var i = 0; i < 5; i++) {
+    var limit = handLimit();
+    while (G.hand.length < limit) {
       var c = drawOne();
-      if (c) G.hand.push(c);
+      if (!c) break;
+      G.hand.push(c);
     }
-    ensureSolvable(G.hand, G.enemy.armor);
+    var solvable = ensureSolvable(G.hand, G.enemy.armor, { lock: lockActive(), maxLen: limit, protect: G.keep.slice() });
     G.usedHint = false;
     G.mirrorMode = false;
+    G.keep = [];
     renderAll();
+    var tempCount = G.hand.filter(function (x) { return x.tmp; }).length;
+    if (tempCount) {
+      logEvent("temp", { n: tempCount, armor: G.enemy.armor });
+      toast("爐火補牌：" + tempCount + " 張臨時牌（結算後消失）");
+    } else if (!solvable && !lockActive()) {
+      logEvent("unsolvable", { armor: G.enemy.armor });
+      toast("這一手湊不出剛好 · 可削甲、保留或結束回合");
+    }
   }
 
   /* ================= 戰鬥流程 ================= */
@@ -1912,21 +2157,26 @@
       hp: cfg.hp,
       armor: cfg.armor[0],
       queue: cfg.armor.slice(1),
-      brokeThisTurn: false
+      brokeThisTurn: false,
+      lockActive: false
     };
     G.turn = 1;
     G.draw = shuffle(G.run.deck.slice());
     G.discard = [];
     G.slot = [];
+    G.keep = [];
     G.busy = false;
     G.usedHint = false;
     G.mirrorMode = false;
     G.screen = "battle";
     G.enemy.brokeThisTurn = false;
+    G.enemy.lockActive = false;
     $("golem-wrap").classList.remove("hurt", "charge");
+    logEvent("battle", { name: cfg.name, mech: cfg.mech, armor: G.enemy.armor, hp: G.enemy.hp });
     renderEnemy();
     dealHand();
     banner("第 " + (idx + 1) + " 場 · " + cfg.name, "", 1.1);
+    toast(cfg.mech === "none" ? "教學：算式 ≤ 護甲就能削甲" : "機制 · " + cfg.mechName + "：" + cfg.blurb);
     SFX.tap();
   }
   function nextArmor() {
@@ -2076,13 +2326,27 @@
 
     var res = applyWeapon(value);
     var A = G.enemy.armor;
+    var cfg = G.enemy.cfg;
 
     if (res.overload) {
-      var cost = G.run.relics.fuse ? 1 : 2;
+      var cost = cfg.mech === "crit" ? 4 : 2;
+      if (G.run.relics.fuse) cost = Math.max(1, Math.ceil(cost / 2));
       loseUnits(cost);
-      banner("超載！溢出 " + res.overflow, "bad", 1.5);
+      if (cfg.mech === "crit") {
+        logEvent("crit", { cost: cost, overflow: res.overflow });
+        banner("臨界超載！−" + (cost / 2) + " 心", "bad", 1.6);
+        toast("溢出 " + res.overflow + " · 爐心臨界");
+      } else {
+        banner("超載！溢出 " + res.overflow, "bad", 1.5);
+      }
     } else if (res.broke) {
-      banner("破甲！HP −1", "good", 1.4);
+      if (cfg.mech === "reflect") {
+        logEvent("reflect", { armor: value });
+        loseUnits(2);
+        banner("破甲！鐵砧反擊 −1 心", "bad", 1.6);
+      } else {
+        banner("破甲！HP −1", "good", 1.4);
+      }
     } else {
       banner("護甲 −" + value + " → " + A, "", 1.1);
     }
@@ -2093,6 +2357,8 @@
       G.slot = [];
       renderSlot();
       for (var i = 0; i < used.length; i++) if (!used[i].tmp) G.discard.push(used[i]);
+      var usedIds = used.map(function (c) { return c.uid; });
+      G.keep = G.keep.filter(function (u) { return usedIds.indexOf(u) < 0; });
       if (G.enemy.hp <= 0) {
         return victory();
       }
@@ -2108,31 +2374,62 @@
 
   function finishTurn(skipEnemy) {
     if (G.run.units <= 0) return Promise.resolve();
-    for (var i = 0; i < G.hand.length; i++) if (!G.hand[i].tmp) G.discard.push(G.hand[i]);
+    var e = G.enemy;
+    // 「保留」：最多 2 張手牌留到下一回合；臨時牌一律在結算時消失
+    var kept = [];
+    for (var i = 0; i < G.hand.length; i++) {
+      var c = G.hand[i];
+      if (c.tmp) continue;
+      if (G.keep.indexOf(c.uid) >= 0 && kept.length < 2) kept.push(c);
+      else G.discard.push(c);
+    }
     for (i = 0; i < G.slot.length; i++) if (!G.slot[i].tmp) G.discard.push(G.slot[i]);
-    G.hand = []; G.slot = [];
+    G.hand = kept.slice(); G.slot = []; G.keep = [];
     renderHand(); renderSlot();
+    var keptCount = kept.length;
+
+    var healNow = !!(e && e.cfg.mech === "heal" && !e.brokeThisTurn && e.hp > 0);
     var wait = G.fast ? 90 : 560;
-    if (!skipEnemy && G.enemy && G.enemy.hp > 0) {
+
+    function nextTurn() {
+      if (G.run.units <= 0) return endRun(false);
+      G.turn += 1;
+      if (e) {
+        e.brokeThisTurn = false;
+        if (healNow) {
+          e.armor += 6;
+          logEvent("heal", { armor: e.armor });
+          banner("護甲重鑄 +6", "bad", 1.4);
+          $("armor-val").classList.remove("pop");
+          void $("armor-val").offsetWidth;
+          $("armor-val").classList.add("pop");
+          renderEnemy();
+          renderSlot();
+        }
+        e.lockActive = e.cfg.mech === "lock" && (G.turn % 2 === 0);
+        if (e.lockActive) logEvent("lock", { armor: e.armor });
+      }
+      // 讓保底發牌知道哪幾張是「保留」牌，不可以被換掉
+      G.keep = kept.map(function (x) { return x.uid; });
+      dealHand();
+      if (keptCount) toast("保留 " + keptCount + " 張手牌 · 已帶入本回合");
+      renderEnemy();
+      if (e && e.cfg.mech === "limit") logEvent("limit", { hand: G.hand.length });
+      return null;
+    }
+
+    if (!skipEnemy && e && e.hp > 0) {
       $("golem-wrap").classList.add("charge");
       banner("魔像反擊！−1 心", "bad", 1.2);
+      logEvent("counter", {});
       loseUnits(2);
       SFX.heart();
       return sleep(wait).then(function () {
         $("golem-wrap").classList.remove("charge");
-        if (G.run.units <= 0) return endRun(false);
-        G.turn += 1;
-        G.enemy.brokeThisTurn = false;
-        dealHand();
-        renderEnemy();
-        return null;
+        return nextTurn();
       });
     }
-    G.turn += 1;
-    G.enemy.brokeThisTurn = false;
-    dealHand();
-    renderEnemy();
-    return sleep(wait);
+    return sleep(wait).then(nextTurn);
   }
 
   function endTurn() {
@@ -2151,7 +2448,10 @@
 
   function victory() {
     G.run.wins += 1;
-    banner("擊破！", "good", 1.5);
+    var before = G.run.units;
+    G.run.units = Math.min(HEART_UNITS, G.run.units + 2);
+    G.lastHeal = G.run.units - before;
+    banner(G.lastHeal ? "擊破！爐火回溫 +1 心" : "擊破！", "good", 1.5);
     SFX.win();
     var wait = G.fast ? 150 : 1000;
     return sleep(wait).then(function () {
@@ -2200,7 +2500,8 @@
       btn.addEventListener("click", function () { chooseReward(i); });
       row.appendChild(btn);
     });
-    $("reward-sub").innerHTML = "擊碎 <b>" + BATTLES[G.battleIdx].name + "</b> · 選一張牌或一件遺物";
+    $("reward-sub").innerHTML = "擊碎 <b>" + BATTLES[G.battleIdx].name + "</b> · 選一張牌或一件遺物" +
+      (G.lastHeal ? " · <b>爐火回溫 +1 心</b>" : "");
     $("reward").hidden = false;
     SFX.tap();
   }
@@ -2270,12 +2571,30 @@
     for (i = 0; i < G.hand.length; i++) if (G.hand[i].uid === uid) { idx = i; break; }
     if (idx < 0) return;
     if (G.hand[idx].kind === "util") { useUtility(G.hand[idx], idx); return; }
+    if (lockActive() && isMulCard(G.hand[idx])) {
+      toast("鐵鎖：× 卡本回合被封");
+      logEvent("lock-block", {});
+      return;
+    }
     if (G.slot.length >= 5) { toast("算式槽最多 5 張"); return; }
     var c = G.hand.splice(idx, 1)[0];
     G.slot.push(c);
     SFX.tap();
     flyCard(el);
     renderHand(); renderSlot();
+  }
+  function toggleKeep(uid) {
+    if (G.busy || G.screen !== "battle") return;
+    var i = G.keep.indexOf(uid);
+    if (i >= 0) { G.keep.splice(i, 1); SFX.tap(); renderHand(); return; }
+    if (G.keep.length >= 2) { toast("最多保留 2 張手牌"); return; }
+    var c = null;
+    for (var k = 0; k < G.hand.length; k++) if (G.hand[k].uid === uid) { c = G.hand[k]; break; }
+    if (!c) return;
+    if (c.tmp) { toast("臨時牌不能保留，結算後會消失"); return; }
+    G.keep.push(uid);
+    SFX.tap();
+    renderHand();
   }
   function removeFromSlot(uid) {
     if (G.busy) return;
@@ -2317,6 +2636,7 @@
     if (idx < 0) return;
     var target = G.hand[idx];
     if (!target || target.kind !== "num") { toast("只能複製數字卡"); return; }
+    if (target.tmp) { toast("臨時牌不能複製（結算後會消失）"); return; }
     var utilIdx = -1;
     for (i = 0; i < G.hand.length; i++) if (G.hand[i].kind === "util" && G.hand[i].k === "mirror") { utilIdx = i; break; }
     if (utilIdx < 0) { G.mirrorMode = false; renderHand(); return; }
@@ -2331,11 +2651,11 @@
   }
   function useHint() {
     if (!G.run || !G.run.relics.calc || G.usedHint || G.busy) return;
-    var sol = findSolution(G.hand, G.enemy.armor);
+    var sol = findSolution(G.hand, G.enemy.armor, { lock: lockActive(), maxLen: handLimit() });
     G.usedHint = true;
     if (!sol) {
-      banner("這手牌湊不出，可考慮結束回合", "hint", 1.4);
-      toast("沒有不溢出的解");
+      banner("這手湊不出，可考慮保留手牌或結束回合", "hint", 1.5);
+      toast(lockActive() ? "鐵鎖中：× 卡不能解這層" : "沒有不溢出的解");
       renderAll();
       return;
     }
@@ -2351,8 +2671,11 @@
 
   /* ================= 事件 ================= */
   $("hand").addEventListener("click", function (e) {
+    var keepEl = e.target.closest ? e.target.closest(".keep") : null;
     var el = e.target.closest ? e.target.closest(".card") : null;
-    if (el) addToSlot(el.dataset.uid, el);
+    if (!el) return;
+    if (keepEl) { toggleKeep(el.dataset.uid); return; }
+    addToSlot(el.dataset.uid, el);
   });
   $("slot").addEventListener("click", function (e) {
     var el = e.target.closest ? e.target.closest(".card") : null;
@@ -2388,21 +2711,29 @@
 
   /* ================= 除錯 / 驗證鉤子 ================= */
   function snapshot() {
+    var e = G.enemy;
     return {
       screen: G.screen,
       battle: G.battleIdx + 1,
-      battleName: G.enemy ? G.enemy.cfg.name : null,
-      armor: G.enemy ? G.enemy.armor : null,
-      hp: G.enemy ? G.enemy.hp : null,
+      battleName: e ? e.cfg.name : null,
+      mech: e ? e.cfg.mech : null,
+      mechName: e ? e.cfg.mechName : null,
+      armor: e ? e.armor : null,
+      hp: e ? e.hp : null,
       turn: G.turn,
+      lock: !!(e && e.lockActive),
+      handLimit: e ? handLimit() : 5,
       units: G.run ? G.run.units : null,
       hearts: G.run ? Math.ceil(G.run.units / 2) : null,
       wins: G.run ? G.run.wins : 0,
       deck: G.run ? G.run.deck.length : 0,
       hand: G.hand.map(function (c) { return cardGlyph(c); }),
       handUids: G.hand.map(function (c) { return c.uid; }),
+      keep: G.hand.filter(function (c) { return G.keep.indexOf(c.uid) >= 0; }).map(function (c) { return cardGlyph(c); }),
+      temps: G.hand.filter(function (c) { return c.tmp; }).length,
       slot: G.slot.map(function (c) { return cardGlyph(c); }),
       relics: G.run ? Object.keys(G.run.relics) : [],
+      events: G.events.slice(),
       rewardOpen: G.rewardOpen,
       over: G.over,
       busy: G.busy
@@ -2424,6 +2755,7 @@
     G.hand.forEach(function (c) { G.draw.push(c); });
     G.hand = cards;
     G.slot = [];
+    G.keep = [];
     G.usedHint = false;
     G.mirrorMode = false;
     renderAll();
@@ -2460,39 +2792,117 @@
     return snapshot();
   }
 
+  function setTurn(n) {
+    if (!G.enemy) return null;
+    G.turn = Math.max(1, Math.floor(n) || 1);
+    G.enemy.brokeThisTurn = false;
+    G.enemy.lockActive = lockActive();
+    if (G.enemy.lockActive) logEvent("lock", { armor: G.enemy.armor });
+    renderAll();
+    return snapshot();
+  }
+
+  function setKeep(uids) {
+    G.keep = (uids || []).slice(0, 2);
+    renderHand();
+    return snapshot();
+  }
+
+  function bestChip(hand, armor, opts) {
+    opts = opts || {};
+    var lock = !!opts.lock;
+    var maxLen = opts.maxLen || 5;
+    var cards = [];
+    for (var i = 0; i < hand.length; i++) {
+      if (hand[i].kind === "util") continue;
+      if (lock && isMulCard(hand[i])) continue;
+      cards.push(hand[i]);
+    }
+    var best = null, used = new Array(cards.length), seq = [];
+    function rec(needTerm) {
+      if (!needTerm && seq.length) {
+        var ev = evalSeq(seq);
+        if (ev.ok && ev.value > 0 && ev.value <= armor) {
+          if (!best || ev.value > best.value || (ev.value === best.value && seq.length < best.len)) {
+            best = {
+              value: ev.value,
+              len: seq.length,
+              expr: exprString(seq),
+              uids: seq.map(function (c) { return c.uid; })
+            };
+          }
+        }
+      }
+      if (seq.length >= maxLen) return;
+      for (var k = 0; k < cards.length; k++) {
+        if (used[k]) continue;
+        var c = cards[k];
+        if (needTerm ? c.kind !== "num" : (c.kind !== "op" && c.kind !== "rune")) continue;
+        used[k] = true; seq.push(c);
+        rec(c.kind === "op");
+        seq.pop(); used[k] = false;
+      }
+    }
+    rec(true);
+    return best;
+  }
+
   function bot(opts) {
     opts = opts || {};
     G.fast = true;
     var report = [];
     var guard = 0;
     function step() {
-      if (guard++ > 400) return Promise.resolve(report);
+      if (guard++ > 900) return Promise.resolve(report);
       if (G.screen === "over" || G.over) return Promise.resolve(report);
       if (G.rewardOpen) {
         // 偏好新卡（第一張）
         chooseReward(0);
-        return sleep(60).then(step);
+        return sleep(30).then(step);
       }
-      if (G.busy) return sleep(50).then(step);
-      if (!G.enemy) return sleep(50).then(step);
-      var sol = findSolution(G.hand, G.enemy.armor);
-      if (!sol) {
-        report.push({ battle: G.battleIdx + 1, armor: G.enemy.armor, hand: G.hand.map(cardGlyph).join(" "), solution: null });
-        return endTurn().then(function () { return sleep(60); }).then(step);
-      }
-      var all = allSolutions(G.hand, G.enemy.armor, 999);
-      report.push({
+      if (G.busy) return sleep(25).then(step);
+      if (!G.enemy) return sleep(25).then(step);
+      var e = G.enemy;
+      var hopts = { lock: lockActive(), maxLen: handLimit() };
+      var handTxt = G.hand.map(cardGlyph).join(" ");
+      var base = {
         battle: G.battleIdx + 1,
-        armor: G.enemy.armor,
-        hp: G.enemy.hp,
-        hand: G.hand.map(cardGlyph).join(" "),
-        solution: sol.expr + " = " + G.enemy.armor,
-        exactCount: all.length,
-        overflowFree: true
-      });
-      // 用真正的 UI 路徑出牌
-      for (var i = 0; i < sol.uids.length; i++) addToSlot(sol.uids[i], null);
-      return sleep(20).then(function () { return playForge(); }).then(function () { return sleep(40); }).then(step);
+        name: e.cfg.name,
+        turn: G.turn,
+        armor: e.armor,
+        hp: e.hp,
+        hand: handTxt,
+        lock: !!e.lockActive,
+        limit: e.cfg.mech === "limit"
+      };
+      var sol = findSolution(G.hand, e.armor, hopts);
+      if (sol) {
+        base.action = "break";
+        base.solution = sol.expr + " = " + e.armor;
+        base.value = e.armor;
+        base.exactCount = allSolutions(G.hand, e.armor, 999, hopts).length;
+        report.push(base);
+        // 用真正的 UI 路徑出牌
+        return sleep(10).then(function () {
+          for (var i = 0; i < sol.uids.length; i++) addToSlot(sol.uids[i], null);
+          return playForge();
+        }).then(function () { return sleep(20); }).then(step);
+      }
+      var chip = bestChip(G.hand, e.armor, hopts);
+      if (chip && chip.value > 0 && !e.lockActive) {
+        base.action = "chip";
+        base.solution = chip.expr + " = " + chip.value;
+        base.value = chip.value;
+        report.push(base);
+        return sleep(10).then(function () {
+          for (var i = 0; i < chip.uids.length; i++) addToSlot(chip.uids[i], null);
+          return playForge();
+        }).then(function () { return sleep(20); }).then(step);
+      }
+      base.action = e.lockActive ? "endTurnLocked" : "endTurn";
+      base.solution = null;
+      report.push(base);
+      return endTurn().then(function () { return sleep(30); }).then(step);
     }
     return step().then(function () {
       G.fast = false;
@@ -2503,7 +2913,8 @@
         units: G.run ? G.run.units : 0,
         hearts: hearts,
         score: G.run ? G.run.score : 0,
-        over: G.over
+        over: G.over,
+        events: G.events.slice()
       };
     });
   }
@@ -2512,16 +2923,30 @@
     var out = [];
     BATTLES.forEach(function (b, bi) {
       var rows = [];
+      var limit = b.mech === "limit" ? 4 : 5;
       b.armor.forEach(function (a) {
         var list = combosFor(a);
         var best = list[0] || null;
+        var pm = null, pure = false, i;
+        for (i = 0; i < list.length; i++) {
+          if (list[i].length > limit) continue;
+          if (!pm && seqUsesPlusMinus(list[i])) pm = list[i];
+          if (!pure && seqPureMul(list[i])) pure = true;
+        }
         rows.push({
           armor: a,
           solution: best ? exprString(best) + " = " + a : null,
-          alternatives: list.slice(0, 5).map(exprString)
+          plusMinusSolution: pm ? exprString(pm) + " = " + a : null,
+          needsPlusMinus: !pure,
+          length: best ? best.length : 0,
+          fitsHand: !!best && best.length <= limit,
+          alternatives: list.slice(0, 6).map(exprString)
         });
       });
-      out.push({ battle: bi + 1, name: b.name, hp: b.hp, layers: rows });
+      out.push({
+        battle: bi + 1, name: b.name, hp: b.hp, mech: b.mech, mechName: b.mechName,
+        blurb: b.blurb, armor: b.armor.slice(), handLimit: limit, layers: rows
+      });
     });
     return out;
   }
@@ -2535,6 +2960,8 @@
     setArmor: setArmor,
     setUnits: setUnits,
     setWins: setWins,
+    setTurn: setTurn,
+    setKeep: setKeep,
     setHand: setHand,
     deal: function () { dealHand(); return snapshot(); },
     play: function (uids) {
@@ -2549,6 +2976,7 @@
     addRelic: function (k) { G.run.relics[k] = true; renderAll(); },
     audit: audit,
     bot: bot,
+    chip: bestChip,
     solver: findSolution,
     allSolutions: allSolutions,
     combos: function (n) { return combosFor(n).map(exprString); },
@@ -2560,7 +2988,12 @@
     cards: function (glyphs) { return setHand(glyphs); },
     handNow: function () { return G.hand; },
     pool: function (n) { return combosFor(n).map(exprString); },
-    battleList: BATTLES.map(function (b) { return { name: b.name, hp: b.hp, armor: b.armor.slice() }; })
+    battleList: BATTLES.map(function (b) {
+      return {
+        name: b.name, hp: b.hp, armor: b.armor.slice(), mech: b.mech,
+        mechName: b.mechName, blurb: b.blurb, handLimit: b.mech === "limit" ? 4 : 5
+      };
+    })
   };
 
   // 讓直接開檔也能玩
