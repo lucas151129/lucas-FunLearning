@@ -48,7 +48,34 @@
     background:
       radial-gradient(120% 90% at 14% -12%, rgba(94, 224, 255, .18), transparent 60%),
       radial-gradient(90% 90% at 102% 118%, rgba(255, 210, 87, .14), transparent 62%),
-      linear-gradient(180deg, #111c38 0%, #0b1224 58%, #080d1a 100%);
+      linear-gradient(180deg, rgba(17, 28, 56, .93) 0%, rgba(11, 18, 36, .95) 58%, rgba(8, 13, 26, .97) 100%),
+      url("art/floor.png");
+    background-size: auto, auto, auto, 128px 128px;
+    background-repeat: no-repeat, no-repeat, no-repeat, repeat;
+  }
+  /* 嚮導角色：素材沒載到就整張隱藏，不會出現破圖 */
+  .hero {
+    display: none;
+    position: absolute;
+    right: max(8px, 1.2vmin);
+    bottom: max(2px, .6vmin);
+    z-index: 2;
+    width: auto;
+    height: clamp(96px, 32vh, 260px);
+    pointer-events: none;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .55)) drop-shadow(0 0 20px rgba(94, 224, 255, .16));
+    opacity: .97;
+  }
+  .hero.ready { display: block; }
+  .hero::after { content: none; }
+  .ov-hero {
+    position: absolute;
+    left: max(8px, 1.6vmin);
+    bottom: max(2px, .8vmin);
+    height: clamp(90px, 30vh, 220px);
+    opacity: .94;
+    z-index: 1;
   }
   #scr-start::before,
   #scr-start::after {
@@ -254,9 +281,16 @@
     gap: 7px;
     padding: 8px;
     text-align: center;
-    background: rgba(6, 10, 22, .84);
+    background:
+      linear-gradient(rgba(6, 10, 22, .86), rgba(5, 9, 19, .9)),
+      url("art/floor.png");
+    background-size: auto, 128px 128px;
+    background-repeat: repeat;
     -webkit-backdrop-filter: blur(3px);
     backdrop-filter: blur(3px);
+  }
+  .overlay::before {
+    content: none;
   }
   .ov-title {
     margin: 0;
@@ -338,6 +372,16 @@
     html.dsh-embed .overlay { gap: 5px; padding: 5px 8px; }
     html.dsh-embed .up { min-height: 52px; }
     html.dsh-embed .score { font-size: 26px; }
+    html.dsh-embed .hero { height: 150px; right: 6px; opacity: .96; }
+    html.dsh-embed .ov-hero { height: 118px; left: 10px; }
+  }
+  @media (max-width: 760px) {
+    .hero { height: 110px; right: 2px; }
+    .ov-hero { height: 90px; opacity: .38; }
+  }
+  @media (max-height: 340px) {
+    html.dsh-embed .hero { height: 136px; right: 2px; opacity: .94; }
+    html.dsh-embed .ov-hero { height: 96px; opacity: .9; }
   }
 </style>
 </head>
@@ -362,6 +406,8 @@
       <button type="button" class="btn" id="btn-start">開始遊戲</button>
       <p class="meta">3 顆心 · 每間 2 顆球 · 一輪 6 間房 · 每球最多反彈 8 次 · 滿分 750</p>
     </div>
+    <img class="hero" src="art/hero.png" alt="" aria-hidden="true"
+         onload="this.classList.add('ready')" onerror="this.remove()">
   </section>
 
   <section id="scr-game" class="screen">
@@ -382,11 +428,15 @@
         <div><b>入射角 = 反射角</b></div>
       </div>
       <div class="overlay" id="ov-up" hidden>
+        <img class="hero ov-hero" src="art/hero.png" alt="" aria-hidden="true"
+             onload="this.classList.add('ready')" onerror="this.remove()">
         <h2 class="ov-title" id="up-title">過關 · 選一個升級</h2>
         <p class="ov-sub">本輪永久生效</p>
         <div class="up-row" id="up-row"></div>
       </div>
       <div class="overlay" id="ov-end" hidden>
+        <img class="hero ov-hero" src="art/hero.png" alt="" aria-hidden="true"
+             onload="this.classList.add('ready')" onerror="this.remove()">
         <h2 class="ov-title" id="end-title">本輪結束</h2>
         <p class="ov-sub" id="end-sub"></p>
         <div class="score"><span id="end-score">0</span><small>/ 750</small></div>
@@ -738,6 +788,60 @@
   var ovEnd = document.getElementById("ov-end");
   var btnRestart = document.getElementById("btn-restart");
 
+  /* ---------------- 像素素材：全部走 art/，任何一張失敗就退回原本的向量畫法 ---------------- */
+  var ART_SRC = {
+    cannon: "art/cannon.png",
+    mirror: "art/mirror.png",
+    target: "art/target.png",
+    wall: "art/wall.png",
+    floor: "art/floor.png",
+    burst: "art/burst.png"
+  };
+  var ART = {};
+  var PAT = { wall: null, floor: null };
+  var ART_PX = 128;       // 素材原尺寸
+  var FLOOR_TILE = 128;   // 地板在世界座標的平鋪尺寸
+  var WALL_TILE = 96;     // 牆磚在世界座標的平鋪尺寸
+  // 靜態房間（地板 / 牆 / 背景）快取：每幀只畫一次 drawImage，手機才跑得動
+  var BG = { canvas: document.createElement("canvas"), ctx: null, key: "" };
+  BG.ctx = BG.canvas.getContext("2d");
+  var ART_EPOCH = 0;
+
+  function art(k) {
+    var im = ART[k];
+    return im && im.ok && im.naturalWidth ? im : null;
+  }
+
+  function loadArt() {
+    Object.keys(ART_SRC).forEach(function (key) {
+      var im = new Image();
+      im.onload = function () {
+        im.ok = true;
+        ART_EPOCH++;
+        if (key === "wall" || key === "floor") {
+          try { PAT[key] = ctx.createPattern(im, "repeat"); } catch (e) { PAT[key] = null; }
+        }
+      };
+      im.onerror = function () { im.ok = false; };
+      im.src = ART_SRC[key];
+      ART[key] = im;
+    });
+  }
+
+  loadArt();
+
+  /* 用世界座標的 tile 尺寸平鋪圖樣；pattern 會跟著 CTM 縮放 */
+  function fillTile(pattern, x, y, w, h, tile) {
+    if (!pattern) return false;
+    var s = tile / ART_PX;
+    ctx.save();
+    ctx.scale(s, s);
+    ctx.fillStyle = pattern;
+    ctx.fillRect(x / s, y / s, w / s, h / s);
+    ctx.restore();
+    return true;
+  }
+
   var cssW = 1, cssH = 1, dpr = 1, scale = 1, ox = 0, oy = 0;
   var tutTimer = 0;
 
@@ -757,6 +861,7 @@
     pending: null,
     upPicks: [],
     allDown: false,
+    recoil: 0,
     aim: { active: false, dragging: false, mirror: -1, startCX: 0, startCY: 0, pid: 0 }
   };
 
@@ -879,7 +984,7 @@
     var total = L.balls + G.run.upgrades.ball;
     G.room = {
       level: L,
-      mirrors: L.mirrors.map(function (m) { return { x: m.x, y: m.y, d: m.d, flash: 0 }; }),
+      mirrors: L.mirrors.map(function (m) { return { x: m.x, y: m.y, d: m.d, flash: 0, pop: 0 }; }),
       targets: L.targets.map(function (t) { return { x: t.x, y: t.y, alive: true }; }),
       ballsLeft: total,
       ballsTotal: total
@@ -931,6 +1036,8 @@
     G.room.ballsLeft--;
     G.mode = "flight";
     G.acc = 0;
+    G.recoil = 0.18;
+    addFx("muzzle", m.x, m.y, { dur: 0.2 });
     updateHud();
     hideTut();
   }
@@ -982,9 +1089,9 @@
         else if (e.type === "hit") onHit(b, e);
       }
       if (G.allDown) break;
-      if (b.tick % 5 === 0) {
+      if (b.tick % 7 === 0) {
         b.trail.push({ x: b.x, y: b.y });
-        if (b.trail.length > 16) b.trail.shift();
+        if (b.trail.length > 6) b.trail.shift();
       }
       if (b.dead) G.balls.splice(i, 1);
     }
@@ -1140,6 +1247,7 @@
     if (!m) return;
     m.d = (m.d + 1) % 4;
     m.flash = 0.55;
+    m.pop = 0.12;   // 120ms 縮放回饋
     addFx("toggle", m.x, m.y, { dur: 0.5 });
     hideTut();
   }
@@ -1237,6 +1345,7 @@
   /* ---------------- 更新 ---------------- */
   function update(dt) {
     var i;
+    if (G.recoil > 0) G.recoil = Math.max(0, G.recoil - dt);
     for (i = G.effects.length - 1; i >= 0; i--) {
       G.effects[i].t += dt;
       if (G.effects[i].t >= G.effects[i].dur) G.effects.splice(i, 1);
@@ -1247,7 +1356,9 @@
     }
     if (G.room) {
       for (i = 0; i < G.room.mirrors.length; i++) {
-        if (G.room.mirrors[i].flash > 0) G.room.mirrors[i].flash -= dt;
+        var mm = G.room.mirrors[i];
+        if (mm.flash > 0) mm.flash -= dt;
+        if (mm.pop > 0) mm.pop = Math.max(0, mm.pop - dt);
       }
     }
     if (G.mode === "wait") {
@@ -1285,31 +1396,88 @@
 
   function draw() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    var L = G.room && G.room.level;
+    if (!L) {
+      var bg = ctx.createLinearGradient(0, 0, 0, cssH);
+      bg.addColorStop(0, "#0b1226");
+      bg.addColorStop(1, "#070b16");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, cssW, cssH);
+      return;
+    }
+    var key = [cssW, cssH, dpr, scale, ox, oy, L.id, ART_EPOCH].join(":");
+    if (key !== BG.key) {
+      BG.key = key;
+      renderBase(L);
+    }
+    ctx.drawImage(BG.canvas, 0, 0, BG.canvas.width / dpr, BG.canvas.height / dpr);
+    ctx.save();
+    ctx.translate(ox, oy);
+    ctx.scale(scale, scale);
+    drawRoomLive(L, G.t);
+    drawFrame(L);
+    ctx.restore();
+  }
+
+  /* 靜態底圖只畫一次：背景 + 地板 + 牆，之後每幀只 drawImage */
+  function renderBase(L) {
+    var c = BG.canvas;
+    var pw = Math.max(1, Math.round(cssW * dpr));
+    var ph = Math.max(1, Math.round(cssH * dpr));
+    if (c.width !== pw || c.height !== ph) {
+      c.width = pw;
+      c.height = ph;
+    }
+    var out = ctx;
+    ctx = BG.ctx;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, cssW, cssH);
+
     var bg = ctx.createLinearGradient(0, 0, 0, cssH);
     bg.addColorStop(0, "#0b1226");
     bg.addColorStop(1, "#070b16");
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, cssW, cssH);
-    var L = G.room && G.room.level;
-    if (!L) {
-      // 開始畫面的背景只留底色
-      return;
-    }
+
     drawBackdrop();
+
+    // 房間浮在石廊上的投影
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,.78)";
+    ctx.shadowBlur = 34;
+    ctx.shadowOffsetY = 10;
+    ctx.fillStyle = "#060a14";
+    ctx.fillRect(ox - 2, oy - 2, L.w * scale + 4, L.h * scale + 4);
+    ctx.restore();
+
     ctx.save();
     ctx.translate(ox, oy);
     ctx.scale(scale, scale);
-    drawRoom(L, G.t);
+    drawFloor(L);
+    drawWalls(L);
     ctx.restore();
+    ctx = out;
   }
 
   function drawBackdrop() {
+    if (PAT.wall) {
+      // 3:1 房間上下留白也有石材質感
+      ctx.save();
+      ctx.globalAlpha = .2;
+      ctx.fillStyle = PAT.wall;
+      ctx.fillRect(0, 0, cssW, cssH);
+      ctx.fillStyle = "rgba(5,9,19,.72)";
+      ctx.fillRect(0, 0, cssW, cssH);
+      ctx.restore();
+    }
     var g = ctx.createRadialGradient(cssW * 0.5, cssH * 0.32, 0, cssW * 0.5, cssH * 0.32, Math.max(cssW, cssH) * 0.72);
     g.addColorStop(0, "rgba(38,70,120,.32)");
     g.addColorStop(1, "rgba(6,10,20,0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, cssW, cssH);
-    ctx.strokeStyle = "rgba(94,224,255,.055)";
+    ctx.strokeStyle = "rgba(94,224,255,.04)";
     ctx.lineWidth = 1;
     ctx.beginPath();
     for (var x = 0; x < cssW; x += 48) {
@@ -1319,20 +1487,27 @@
     ctx.stroke();
   }
 
-  function drawRoom(L, t) {
-    var g = ctx.createLinearGradient(0, 0, 0, L.h);
-    g.addColorStop(0, "#14203f");
-    g.addColorStop(0.55, "#101a33");
-    g.addColorStop(1, "#0c1427");
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, L.w, L.h);
+  function drawFloor(L) {
+    // 地板：像素磚平鋪（載入失敗就退回原本的漸層 + 細格線）
+    if (!fillTile(PAT.floor, 0, 0, L.w, L.h, FLOOR_TILE)) {
+      var g = ctx.createLinearGradient(0, 0, 0, L.h);
+      g.addColorStop(0, "#14203f");
+      g.addColorStop(0.55, "#101a33");
+      g.addColorStop(1, "#0c1427");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, L.w, L.h);
 
-    ctx.strokeStyle = "rgba(94,224,255,.06)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (var gx = 60; gx < L.w; gx += 60) { ctx.moveTo(gx, 0); ctx.lineTo(gx, L.h); }
-    for (var gy = 60; gy < L.h; gy += 60) { ctx.moveTo(0, gy); ctx.lineTo(L.w, gy); }
-    ctx.stroke();
+      ctx.strokeStyle = "rgba(94,224,255,.06)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (var gx = 60; gx < L.w; gx += 60) { ctx.moveTo(gx, 0); ctx.lineTo(gx, L.h); }
+      for (var gy = 60; gy < L.h; gy += 60) { ctx.moveTo(0, gy); ctx.lineTo(L.w, gy); }
+      ctx.stroke();
+    }
+
+    // 壓暗一層，讓地板紋理低調、物件跳出來
+    ctx.fillStyle = "rgba(7,13,27,.30)";
+    ctx.fillRect(0, 0, L.w, L.h);
 
     var rg = ctx.createRadialGradient(L.w * 0.5, -40, 0, L.w * 0.5, -40, L.w * 0.8);
     rg.addColorStop(0, "rgba(94,224,255,.15)");
@@ -1340,7 +1515,14 @@
     ctx.fillStyle = rg;
     ctx.fillRect(0, 0, L.w, L.h);
 
-    drawWalls(L);
+    var vg = ctx.createRadialGradient(L.w * 0.5, L.h * 0.46, L.h * 0.15, L.w * 0.5, L.h * 0.5, L.w * 0.62);
+    vg.addColorStop(0, "rgba(0,0,0,0)");
+    vg.addColorStop(1, "rgba(2,5,13,.55)");
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, L.w, L.h);
+  }
+
+  function drawRoomLive(L, t) {
     drawMirrors(L, t);
     drawTargets(L, t);
     ctx.save();
@@ -1354,100 +1536,168 @@
     drawEffects(L);
     drawBanner();
     ctx.restore();
-    drawFrame(L);
   }
 
   function drawWalls(L) {
     for (var i = 0; i < L.walls.length; i++) {
       var r = L.walls[i];
-      ctx.fillStyle = "#1f2f55";
+      // 牆落在這塊地板上：先鋪一層投影
+      ctx.save();
+      ctx.shadowColor = "rgba(0,0,0,.55)";
+      ctx.shadowBlur = 11;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 5;
+      ctx.fillStyle = "#0b1220";
       ctx.fillRect(r.x, r.y, r.w, r.h);
-      var g = ctx.createLinearGradient(r.x, r.y, r.x, r.y + r.h);
-      g.addColorStop(0, "rgba(94,224,255,.18)");
-      g.addColorStop(0.5, "rgba(94,224,255,.03)");
-      g.addColorStop(1, "rgba(0,0,0,.18)");
-      ctx.fillStyle = g;
-      ctx.fillRect(r.x, r.y, r.w, r.h);
-      ctx.strokeStyle = "#3d5687";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(r.x + 1, r.y + 1, r.w - 2, r.h - 2);
-      ctx.fillStyle = "rgba(255,210,87,.18)";
-      ctx.fillRect(r.x + 2, r.y + 2, r.w - 4, 2);
+      ctx.restore();
+      if (!fillTile(PAT.wall, r.x, r.y, r.w, r.h, WALL_TILE)) {
+        ctx.fillStyle = "#1f2f55";
+        ctx.fillRect(r.x, r.y, r.w, r.h);
+        var g = ctx.createLinearGradient(r.x, r.y, r.x, r.y + r.h);
+        g.addColorStop(0, "rgba(94,224,255,.18)");
+        g.addColorStop(0.5, "rgba(94,224,255,.03)");
+        g.addColorStop(1, "rgba(0,0,0,.18)");
+        ctx.fillStyle = g;
+        ctx.fillRect(r.x, r.y, r.w, r.h);
+        ctx.strokeStyle = "#3d5687";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(r.x + 1, r.y + 1, r.w - 2, r.h - 2);
+        ctx.fillStyle = "rgba(255,210,87,.18)";
+        ctx.fillRect(r.x + 2, r.y + 2, r.w - 4, 2);
+      }
+      // 3px 內陰影 + 上緣高光，讓牆磚有厚度
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(r.x, r.y, r.w, r.h);
+      ctx.clip();
+      ctx.strokeStyle = "rgba(3,6,14,.6)";
+      ctx.lineWidth = 6;
+      ctx.strokeRect(r.x, r.y, r.w, r.h);
+      ctx.fillStyle = "rgba(94,224,255,.14)";
+      ctx.fillRect(r.x, r.y, r.w, 2);
+      ctx.fillStyle = "rgba(255,210,87,.10)";
+      ctx.fillRect(r.x, r.y + r.h - 2, r.w, 2);
+      ctx.restore();
+      ctx.strokeStyle = "rgba(94,224,255,.22)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(r.x + 0.5, r.y + 0.5, Math.max(0, r.w - 1), Math.max(0, r.h - 1));
     }
   }
 
   function drawMirrors(L, t) {
     var room = G.room;
+    var drawW = 84;
     for (var i = 0; i < room.mirrors.length; i++) {
       var m = room.mirrors[i];
       var u = RIC.unit(m.d);
-      var ax = m.x - u.x * RIC.LEN, ay = m.y - u.y * RIC.LEN;
-      var bx = m.x + u.x * RIC.LEN, by = m.y + u.y * RIC.LEN;
-      ctx.save();
-      ctx.lineCap = "round";
-      ctx.strokeStyle = "rgba(94,224,255,.16)";
-      ctx.lineWidth = 15;
-      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
-      ctx.strokeStyle = "#5ee0ff";
-      ctx.lineWidth = 4;
-      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
-      ctx.strokeStyle = "rgba(240,255,255,.9)";
-      ctx.lineWidth = 1.2;
-      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+      var ang = Math.atan2(u.y, u.x);
+      var pop = m.pop > 0 ? Math.sin(Math.PI * (1 - m.pop / 0.12)) : 0;
+      var sc = 1 + pop * 0.26;
+      var img = art("mirror");
+
+      // 鏡面光暈（脈動）
+      var gl = ctx.createRadialGradient(m.x, m.y, 2, m.x, m.y, 46);
+      gl.addColorStop(0, "rgba(94,224,255," + (0.18 + Math.sin(t * 2.2 + i) * 0.05 + (m.flash > 0 ? 0.22 : 0)).toFixed(3) + ")");
+      gl.addColorStop(1, "rgba(94,224,255,0)");
+      ctx.fillStyle = gl;
       ctx.beginPath();
-      ctx.arc(m.x, m.y, 11, 0, TAU);
-      ctx.fillStyle = "#08202f";
+      ctx.arc(m.x, m.y, 46, 0, TAU);
       ctx.fill();
-      ctx.strokeStyle = "#5ee0ff";
-      ctx.lineWidth = 2;
-      ctx.stroke();
+
+      ctx.save();
+      ctx.translate(m.x, m.y);
+      ctx.rotate(ang);
+      ctx.scale(sc, sc);
+      if (m.d === 0) ctx.scale(1, -1);   // ／ 鏡像
+      if (img) {
+        ctx.drawImage(img, -drawW / 2, -drawW / 2, drawW, drawW);
+      } else {
+        // 向量備援：原本的雙線鏡面
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "rgba(94,224,255,.16)";
+        ctx.lineWidth = 15;
+        ctx.beginPath(); ctx.moveTo(-RIC.LEN, 0); ctx.lineTo(RIC.LEN, 0); ctx.stroke();
+        ctx.strokeStyle = "#5ee0ff";
+        ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(-RIC.LEN, 0); ctx.lineTo(RIC.LEN, 0); ctx.stroke();
+        ctx.strokeStyle = "rgba(240,255,255,.9)";
+        ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(-RIC.LEN, 0); ctx.lineTo(RIC.LEN, 0); ctx.stroke();
+      }
+      ctx.restore();
+
+      if (!img) {
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, 11, 0, TAU);
+        ctx.fillStyle = "#08202f";
+        ctx.fill();
+        ctx.strokeStyle = "#5ee0ff";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = "#c8f6ff";
+        ctx.font = "bold 15px " + FONT;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(RIC.GLYPHS[m.d], m.x, m.y + 1);
+      }
+
       if (m.flash > 0) {
-        ctx.strokeStyle = "rgba(255,210,87," + Math.min(1, m.flash * 1.7) + ")";
+        ctx.strokeStyle = "rgba(255,210,87," + Math.min(1, m.flash * 1.7).toFixed(3) + ")";
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.arc(m.x, m.y, 15 + (0.55 - m.flash) * 30, 0, TAU);
         ctx.stroke();
       }
-      ctx.fillStyle = "#c8f6ff";
-      ctx.font = "bold 15px " + FONT;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(RIC.GLYPHS[m.d], m.x, m.y + 1);
-      ctx.restore();
     }
   }
 
   function drawTargets(L, t) {
     var room = G.room;
+    var img = art("target");
     for (var i = 0; i < room.targets.length; i++) {
       var tg = room.targets[i];
       if (!tg.alive) continue;
+      var bob = Math.sin(t * Math.PI) * 4;           // 上下浮動 ±4，2 秒一週期
       var pulse = 1 + Math.sin(t * 2.6 + i * 1.7) * 0.06;
       ctx.save();
-      ctx.translate(tg.x, tg.y);
-      var rg = ctx.createRadialGradient(0, 0, 2, 0, 0, 38);
-      rg.addColorStop(0, "rgba(255,210,87,.45)");
-      rg.addColorStop(0.55, "rgba(255,210,87,.10)");
-      rg.addColorStop(1, "rgba(255,210,87,0)");
+      ctx.translate(tg.x, tg.y + bob);
+      var rg = ctx.createRadialGradient(0, 0, 2, 0, 0, 54);
+      rg.addColorStop(0, "rgba(94,224,255," + (0.4 + Math.sin(t * 2.6 + i * 1.7) * 0.12).toFixed(3) + ")");
+      rg.addColorStop(0.55, "rgba(94,224,255,.11)");
+      rg.addColorStop(1, "rgba(94,224,255,0)");
       ctx.fillStyle = rg;
-      ctx.beginPath(); ctx.arc(0, 0, 38, 0, TAU); ctx.fill();
-      ctx.strokeStyle = "#ffd257";
-      ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.arc(0, 0, 12 * pulse, 0, TAU); ctx.stroke();
-      ctx.strokeStyle = "rgba(255,210,87,.5)";
-      ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.arc(0, 0, 18 * pulse, 0, TAU); ctx.stroke();
-      ctx.strokeStyle = "rgba(255,240,190,.85)";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      for (var k = 0; k < 4; k++) {
-        var a = t * 0.7 + k * Math.PI / 2;
-        ctx.moveTo(Math.cos(a) * 21, Math.sin(a) * 21);
-        ctx.lineTo(Math.cos(a) * 26, Math.sin(a) * 26);
+      ctx.beginPath(); ctx.arc(0, 0, 54, 0, TAU); ctx.fill();
+
+      if (img) {
+        var d = 62 * pulse;
+        ctx.drawImage(img, -d / 2, -d / 2, d, d);
+      } else {
+        // 向量備援：原本的同心圓 + 旋轉光芒
+        ctx.strokeStyle = "#ffd257";
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(0, 0, 12 * pulse, 0, TAU); ctx.stroke();
+        ctx.strokeStyle = "rgba(255,210,87,.5)";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(0, 0, 18 * pulse, 0, TAU); ctx.stroke();
+        ctx.strokeStyle = "rgba(255,240,190,.85)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (var k = 0; k < 4; k++) {
+          var a = t * 0.7 + k * Math.PI / 2;
+          ctx.moveTo(Math.cos(a) * 21, Math.sin(a) * 21);
+          ctx.lineTo(Math.cos(a) * 26, Math.sin(a) * 26);
+        }
+        ctx.stroke();
+        ctx.fillStyle = "#fff3c9";
+        ctx.beginPath(); ctx.arc(0, 0, 3.5, 0, TAU); ctx.fill();
       }
+
+      // 一圈細細的環，脈動光暈
+      ctx.strokeStyle = "rgba(160,245,255," + (0.18 + Math.sin(t * 2.6 + i * 1.7) * 0.08).toFixed(3) + ")";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(0, 0, (img ? 32 : 24) * pulse, 0, TAU);
       ctx.stroke();
-      ctx.fillStyle = "#fff3c9";
-      ctx.beginPath(); ctx.arc(0, 0, 3.5, 0, TAU); ctx.fill();
       ctx.restore();
     }
   }
@@ -1494,6 +1744,9 @@
   function drawCannon(L, t) {
     var c = L.cannon;
     var a = G.angle * Math.PI / 180;
+    var img = art("cannon");
+    var kick = G.recoil > 0 ? Math.sin(Math.PI * (G.recoil / 0.18)) * 6 : 0;
+
     ctx.save();
     ctx.strokeStyle = "rgba(255,210,87,.22)";
     ctx.lineWidth = 1.5;
@@ -1510,31 +1763,46 @@
     ctx.save();
     ctx.translate(c.x, c.y);
     ctx.rotate(-a);
-    ctx.fillStyle = "#c99a24";
-    rrect(0, -7, RIC.BARREL + 12, 14, 7);
-    ctx.fill();
-    ctx.fillStyle = "#ffd257";
-    rrect(1, -5.5, RIC.BARREL + 10, 11, 5.5);
-    ctx.fill();
-    ctx.fillStyle = "#fff0bd";
-    rrect(4, -2.8, RIC.BARREL + 3, 5.6, 2.8);
-    ctx.fill();
-    ctx.strokeStyle = "#ffe9a8";
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(RIC.BARREL + 7, 0, 7, 0, TAU); ctx.stroke();
+    if (img) {
+      var cw = 86;
+      ctx.drawImage(img, -4 - cw / 2 - kick, -cw / 2, cw, cw);
+      // 炮口的光，發射瞬間最亮
+      var mg = ctx.createRadialGradient(RIC.BARREL, 0, 0, RIC.BARREL, 0, 18);
+      var ma = 0.18 + (G.recoil > 0 ? (G.recoil / 0.18) * 0.7 : 0);
+      mg.addColorStop(0, "rgba(255,250,215," + ma.toFixed(3) + ")");
+      mg.addColorStop(0.4, "rgba(255,210,87," + (ma * 0.5).toFixed(3) + ")");
+      mg.addColorStop(1, "rgba(255,210,87,0)");
+      ctx.fillStyle = mg;
+      ctx.beginPath(); ctx.arc(RIC.BARREL, 0, 18, 0, TAU); ctx.fill();
+    } else {
+      ctx.fillStyle = "#c99a24";
+      rrect(-kick, -7, RIC.BARREL + 12, 14, 7);
+      ctx.fill();
+      ctx.fillStyle = "#ffd257";
+      rrect(1 - kick, -5.5, RIC.BARREL + 10, 11, 5.5);
+      ctx.fill();
+      ctx.fillStyle = "#fff0bd";
+      rrect(4 - kick, -2.8, RIC.BARREL + 3, 5.6, 2.8);
+      ctx.fill();
+      ctx.strokeStyle = "#ffe9a8";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(RIC.BARREL + 7 - kick, 0, 7, 0, TAU); ctx.stroke();
+    }
     ctx.restore();
 
-    ctx.beginPath();
-    ctx.arc(c.x, c.y, 16, 0, TAU);
-    ctx.fillStyle = "#182746";
-    ctx.fill();
-    ctx.strokeStyle = "#ffd257";
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(c.x, c.y, 7, 0, TAU);
-    ctx.fillStyle = "#5ee0ff";
-    ctx.fill();
+    if (!img) {
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, 16, 0, TAU);
+      ctx.fillStyle = "#182746";
+      ctx.fill();
+      ctx.strokeStyle = "#ffd257";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, 7, 0, TAU);
+      ctx.fillStyle = "#5ee0ff";
+      ctx.fill();
+    }
     ctx.restore();
 
     var txt = "角度 " + Math.round(G.angle) + "°";
@@ -1558,14 +1826,21 @@
   function drawBalls(L) {
     for (var i = 0; i < G.balls.length; i++) {
       var b = G.balls[i];
-      for (var k = 0; k < b.trail.length; k++) {
-        var p = b.trail[k];
-        var f = (k + 1) / b.trail.length;
-        ctx.fillStyle = "rgba(255,210,87," + (0.04 + 0.2 * f).toFixed(3) + ")";
+      var tr = b.trail;
+      // 最近 6 個位置的淡出拖尾
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      for (var k = 1; k < tr.length; k++) {
+        var f = k / tr.length;
+        ctx.strokeStyle = "rgba(255,214,96," + (0.05 + 0.38 * f * f).toFixed(3) + ")";
+        ctx.lineWidth = 1.5 + 8 * f;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 6 * f, 0, TAU);
-        ctx.fill();
+        ctx.moveTo(tr[k - 1].x, tr[k - 1].y);
+        ctx.lineTo(tr[k].x, tr[k].y);
+        ctx.stroke();
       }
+      ctx.restore();
       var rg = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, 26);
       rg.addColorStop(0, "rgba(255,236,160,.85)");
       rg.addColorStop(0.35, "rgba(255,210,87,.42)");
@@ -1603,19 +1878,44 @@
         if (ry < 22) ry = fx.y + 30 + 10 * p;
         ctx.fillText("反射", Math.max(30, Math.min(L.w - 30, fx.x)), ry);
       } else if (fx.kind === "hit") {
+        // 像素爆裂：0.35 秒放大淡出
+        var bimg = art("burst");
+        var bp = Math.min(1, fx.t / 0.35);
+        if (bimg) {
+          var bs = 64 + 76 * (1 - (1 - bp) * (1 - bp));
+          ctx.save();
+          ctx.globalCompositeOperation = "lighter";
+          ctx.globalAlpha = Math.max(0, 1 - bp) * 0.95;
+          ctx.drawImage(bimg, fx.x - bs / 2, fx.y - bs / 2, bs, bs);
+          ctx.restore();
+        }
         ctx.strokeStyle = "rgba(255,210,87," + (fade * 0.95).toFixed(3) + ")";
         ctx.lineWidth = 3;
         ctx.beginPath(); ctx.arc(fx.x, fx.y, 14 + 34 * p, 0, TAU); ctx.stroke();
         ctx.strokeStyle = "rgba(255,240,190," + (fade * 0.8).toFixed(3) + ")";
         ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.arc(fx.x, fx.y, 8 + 20 * p, 0, TAU); ctx.stroke();
-        ctx.fillStyle = "rgba(255,240,180," + fade.toFixed(3) + ")";
+        ctx.save();
+        ctx.shadowColor = "rgba(4,8,18,.85)";
+        ctx.shadowBlur = 8;
+        ctx.fillStyle = "rgba(255,246,205," + fade.toFixed(3) + ")";
         ctx.font = "bold 20px " + FONT;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         var hy = fx.y - 36 - 18 * p;
         if (hy < 26) hy = fx.y + 42 + 18 * p;
         ctx.fillText("命中 " + fx.deg + "°", Math.max(56, Math.min(L.w - 56, fx.x)), hy);
+        ctx.restore();
+      } else if (fx.kind === "muzzle") {
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        var mg = ctx.createRadialGradient(fx.x, fx.y, 0, fx.x, fx.y, 20);
+        mg.addColorStop(0, "rgba(255,250,215," + (fade * 0.85).toFixed(3) + ")");
+        mg.addColorStop(0.5, "rgba(255,210,87," + (fade * 0.35).toFixed(3) + ")");
+        mg.addColorStop(1, "rgba(255,210,87,0)");
+        ctx.fillStyle = mg;
+        ctx.beginPath(); ctx.arc(fx.x, fx.y, 20, 0, TAU); ctx.fill();
+        ctx.restore();
       } else if (fx.kind === "prism") {
         ctx.strokeStyle = "rgba(94,224,255," + (fade * 0.9).toFixed(3) + ")";
         ctx.lineWidth = 2;
@@ -1662,16 +1962,42 @@
 
   function drawFrame(L) {
     var p = RIC.PAD;
-    ctx.fillStyle = "#1a2647";
-    ctx.fillRect(0, 0, L.w, p);
-    ctx.fillRect(0, L.h - p, L.w, p);
-    ctx.fillRect(0, 0, p, L.h);
-    ctx.fillRect(L.w - p, 0, p, L.h);
-    ctx.fillStyle = "rgba(94,224,255,.14)";
-    ctx.fillRect(p, p, L.w - p * 2, 2);
-    ctx.fillRect(p, L.h - p - 2, L.w - p * 2, 2);
-    ctx.fillRect(p, p, 2, L.h - p * 2);
-    ctx.fillRect(L.w - p - 2, p, 2, L.h - p * 2);
+    var okWall = !!PAT.wall;
+    if (okWall) {
+      fillTile(PAT.wall, 0, 0, L.w, p, WALL_TILE);
+      fillTile(PAT.wall, 0, L.h - p, L.w, p, WALL_TILE);
+      fillTile(PAT.wall, 0, p, p, L.h - p * 2, WALL_TILE);
+      fillTile(PAT.wall, L.w - p, p, p, L.h - p * 2, WALL_TILE);
+    } else {
+      ctx.fillStyle = "#1a2647";
+      ctx.fillRect(0, 0, L.w, p);
+      ctx.fillRect(0, L.h - p, L.w, p);
+      ctx.fillRect(0, 0, p, L.h);
+      ctx.fillRect(L.w - p, 0, p, L.h);
+    }
+
+    // 3px 內陰影：房間內側的角落才不會像貼紙
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(p, p, L.w - p * 2, L.h - p * 2);
+    ctx.clip();
+    ctx.strokeStyle = "rgba(2,5,12,.72)";
+    ctx.lineWidth = 6;
+    ctx.strokeRect(p, p, L.w - p * 2, L.h - p * 2);
+    ctx.restore();
+
+    if (!okWall) {
+      ctx.fillStyle = "rgba(94,224,255,.14)";
+      ctx.fillRect(p, p, L.w - p * 2, 2);
+      ctx.fillRect(p, L.h - p - 2, L.w - p * 2, 2);
+      ctx.fillRect(p, p, 2, L.h - p * 2);
+      ctx.fillRect(L.w - p - 2, p, 2, L.h - p * 2);
+    } else {
+      ctx.fillStyle = "rgba(94,224,255,.13)";
+      ctx.fillRect(p, p, L.w - p * 2, 2);
+      ctx.fillRect(p, p, 2, L.h - p * 2);
+    }
+
     ctx.strokeStyle = "rgba(94,224,255,.3)";
     ctx.lineWidth = 2;
     ctx.strokeRect(p - 1, p - 1, L.w - p * 2 + 2, L.h - p * 2 + 2);
@@ -1784,6 +2110,13 @@
     },
     plan: reportPlan,
     solveLevel: solveLevel,
+    art: function () {
+      var out = {};
+      Object.keys(ART).forEach(function (k) { out[k] = !!(ART[k] && ART[k].ok); });
+      out.wallPattern = !!PAT.wall;
+      out.floorPattern = !!PAT.floor;
+      return out;
+    },
     snapshot: function () {
       return {
         screen: G.screen,
