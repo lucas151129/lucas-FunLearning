@@ -1558,11 +1558,20 @@
   var spriteCache = {};
   var coinArt = new Image();
   var pusherArt = new Image();
+  var feltArt = new Image();
+  var railArt = new Image();
+  var feltArtReady = false;
+  var railArtReady = false;
+  var feltPattern = null;
   var coinArtReady = false;
   var pusherArtReady = false;
   var COIN_FRAME = { gold: 0, silver: 1, ruby: 2, rainbow: 3 };
   coinArt.onload = function () { coinArtReady = true; paintPreviewCoins(); };
   pusherArt.onload = function () { pusherArtReady = true; };
+  feltArt.onload = function () { feltArtReady = true; };
+  railArt.onload = function () { railArtReady = true; };
+  feltArt.src = "felt.png";
+  railArt.src = "rail.png";
   coinArt.src = "coins.png";
   pusherArt.src = "pusher.png";
 
@@ -1637,11 +1646,14 @@
 
   function drawWorld() {
     ctx.imageSmoothingEnabled = false;
-    ctx.fillStyle = "#16924a";
-    ctx.fillRect(0, 0, F.w, F.h);
-    ctx.fillStyle = "#0e7438";
-    for (var y = 0; y < F.exitY; y += 8) {
-      for (var x = ((y / 8) % 2) ? 0 : 4; x < F.w; x += 8) ctx.fillRect(x, y, 4, 4);
+    if (false) {
+    } else {
+      ctx.fillStyle = "#16924a";
+      ctx.fillRect(0, 0, F.w, F.h);
+      ctx.fillStyle = "#0e7438";
+      for (var y = 0; y < F.exitY; y += 8) {
+        for (var x = ((y / 8) % 2) ? 0 : 4; x < F.w; x += 8) ctx.fillRect(x, y, 4, 4);
+      }
     }
     ctx.fillStyle = "#10141c";
     ctx.fillRect(0, F.exitY, F.w, F.h - F.exitY);
@@ -1653,13 +1665,23 @@
     ctx.textBaseline = "middle";
     ctx.fillText("掉落出口", F.w / 2, F.exitY + 22);
 
-    for (var by = 0; by < F.exitY; by += 12) {
-      ctx.fillStyle = (Math.floor(by / 12) % 2) ? "#e6c56a" : "#c4963a";
-      ctx.fillRect(0, by, F.wall, 12);
-      ctx.fillRect(F.w - F.wall, by, F.wall, 12);
-      ctx.fillStyle = "#6a4a16";
-      ctx.fillRect(0, by + 10, F.wall, 2);
-      ctx.fillRect(F.w - F.wall, by + 10, F.wall, 2);
+    if (railArtReady) {
+      var rw = Math.max(F.wall, Math.round(F.wall * 2.2));
+      ctx.drawImage(railArt, 0, 0, railArt.width, railArt.height, 0, 0, rw, F.exitY);
+      ctx.save();
+      ctx.translate(F.w, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(railArt, 0, 0, railArt.width, railArt.height, 0, 0, rw, F.exitY);
+      ctx.restore();
+    } else {
+      for (var by = 0; by < F.exitY; by += 12) {
+        ctx.fillStyle = (Math.floor(by / 12) % 2) ? "#e6c56a" : "#c4963a";
+        ctx.fillRect(0, by, F.wall, 12);
+        ctx.fillRect(F.w - F.wall, by, F.wall, 12);
+        ctx.fillStyle = "#6a4a16";
+        ctx.fillRect(0, by + 10, F.wall, 2);
+        ctx.fillRect(F.w - F.wall, by + 10, F.wall, 2);
+      }
     }
 
     var py = state.pusherY;
