@@ -12,6 +12,7 @@ html,body{height:100%;overflow:hidden;background:var(--deep);font-family:"Micros
 canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
 #hud{position:absolute;left:0;right:0;top:0;display:flex;gap:10px;align-items:center;padding:8px 12px;
  background:linear-gradient(#04121fdd,#04121f00);z-index:5;flex-wrap:wrap;font-size:14px;pointer-events:none}
+
 .chip{background:#0a2440cc;border:1px solid #1e4a7a;border-radius:10px;padding:4px 12px;white-space:nowrap}
 .chip b{color:var(--gold)}
 #coins.bump{animation:bump .25s}
@@ -115,6 +116,15 @@ h1.title{font-size:34px;background:linear-gradient(#fff8d8,#ffc63f,#ff8a1f);-web
     html.dsh-embed #help { max-height: 44vh; font-size: 12.5px; line-height: 1.7; }
     @keyframes shopIn { from { transform: translateX(18%); opacity: .5; } }
   }
+
+  /* 平台 iframe 矮螢幕（放在最後，蓋過上面的 embed 規則）：HUD 讓開左上角浮動鈕 */
+  @media (max-height: 400px) {
+    html.dsh-embed #hud { padding: 4px 10px 4px 92px; gap: 6px; font-size: 11px; flex-wrap: nowrap; }
+    html.dsh-embed #hud .chip { padding: 2px 8px; }
+    html.dsh-embed #hud .chip:nth-of-type(4),
+    html.dsh-embed #hud .chip:nth-of-type(5) { display: none; }
+    html.dsh-embed #examBtn, html.dsh-embed #shopBtn { padding: 4px 10px; font-size: 12px; }
+  }
 </style>
 </head>
 <body>
@@ -202,7 +212,23 @@ const QUESTS=[
 
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
 let W=0,H=0,DPR=Math.min(2,devicePixelRatio||1);
-function resize(){const r=cv.parentElement.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)}
+const DESIGN_H = 720;
+let resizeTries = 0;
+function resize(){
+  const r=cv.parentElement.getBoundingClientRect();
+  /* 剛切到遊戲畫面時容器可能還是 0，等下一帧再量 */
+  if ((r.width < 40 || r.height < 40) && resizeTries < 30) { resizeTries++; requestAnimationFrame(resize); return; }
+  resizeTries = 0;
+  const aspect = Math.max(1, Math.min(4, r.width / Math.max(1, r.height)));
+  H = DESIGN_H;
+  W = Math.round(H * aspect);
+  cv.width = Math.round(W * DPR);
+  cv.height = Math.round(H * DPR);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+try {
+  if (window.ResizeObserver) new ResizeObserver(() => resize()).observe(cv.parentElement);
+} catch (err) {}
 addEventListener('resize',resize);
 
 const G={ mode:'menu', coins:100, earned:0, caught:0, shots:0, hits:0, captures:0, sharkGot:0,
@@ -240,7 +266,7 @@ function drawFish(f){
  ctx.drawImage(img,fi*cellW,0,cellW,img.height,-w/2,-h/2,w,h);ctx.restore();
 }
 function drawCannon(){
- const bx=W/2,by=H-14,a=cannonAngle();
+ const bx=W/2,by=H-30,a=cannonAngle();
  ctx.save();ctx.translate(bx,by);
  ctx.fillStyle='#123a5e';ctx.strokeStyle='#7fc3ff';ctx.lineWidth=2;
  ctx.beginPath();ctx.roundRect(-46,-6,92,26,8);ctx.fill();ctx.stroke();
@@ -251,7 +277,7 @@ function drawCannon(){
  ctx.fillStyle='#e8b04f';ctx.beginPath();ctx.arc(0,-2,14,0,7);ctx.fill();
  ctx.strokeStyle='#fff0c0';ctx.stroke();ctx.restore();
 }
-function cannonAngle(){const dx=G.mouse.x-W/2,dy=G.mouse.y-(H-14);return Math.atan2(dy,dx)+Math.PI/2}
+function cannonAngle(){const dx=G.mouse.x-W/2,dy=G.mouse.y-(H-30);return Math.atan2(dy,dx)+Math.PI/2}
 
 /* ---------- effects ---------- */
 function coinBurst(x,y,n,mult){for(let i=0;i<n;i++)G.parts.push({t:'coin',x,y,vx:rnd(-160,160),vy:rnd(-320,-90),g:520,life:rnd(1.2,1.8),age:0,rot:rnd(0,6)})}
@@ -463,8 +489,8 @@ function resetAll(){Object.assign(G,{coins:100,earned:0,caught:0,shots:0,hits:0,
 function aimAt(e){
   const p = e.touches ? e.touches[0] : e;
   const r = cv.getBoundingClientRect();
-  G.mouse.x = p.clientX - r.left;
-  G.mouse.y = p.clientY - r.top;
+  G.mouse.x = (p.clientX - r.left) * (W / Math.max(1, r.width));
+  G.mouse.y = (p.clientY - r.top) * (H / Math.max(1, r.height));
 }
 cv.style.touchAction = "none";
 cv.addEventListener("pointermove", aimAt);
