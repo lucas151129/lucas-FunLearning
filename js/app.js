@@ -479,7 +479,8 @@ function renderPetPage() {
       <p class="pet-today">${esc(tf("pet.today", { got: pet.dayXp, cap: pet.daily }))}</p>
       <p class="coin-line">${esc(tf("shop.coins", { n: pet.coins || 0 }))}</p>
       <div class="pet-stage-wrap">
-        <img class="pet-still" src="${petSrc(pet.species, pet.stage)}" alt="${esc(speciesName)}">
+        <img class="pet-still" data-species="${esc(pet.species)}" data-stage="${pet.stage}"
+             src="${petSrc(pet.species, pet.stage)}" alt="${esc(speciesName)}">
       </div>
       <a class="btn btn-mint shop-open" href="#/shop">${esc(I18n.t("shop.open"))}</a>
       <a class="btn pet-go" href="#/c">${esc(I18n.t("pet.go"))}</a>
@@ -930,6 +931,14 @@ document.body.addEventListener("click", async (event) => {
   }
   if (event.target.closest(".sheet-veil")) {
     toggleSheet(false);
+    return;
+  }
+  const petStill = event.target.closest(".pet-still");
+  if (petStill) {
+    petStill.classList.remove("is-react");
+    void petStill.offsetWidth;
+    petStill.classList.add("is-react");
+    petStill.addEventListener("animationend", () => petStill.classList.remove("is-react"), { once: true });
     return;
   }
   const petButton = event.target.closest("[data-pet]");

@@ -1,0 +1,112 @@
+/* 寵物待機動畫
+   只用 CSS transform 讓現有的靜態 sprite 動起來：
+   - 每個物種有自己的動作（貓擺尾、狗彈跳、兔跳、熊貓搖擺、鸚鵡拍翼、陸龜伸頸）
+   - 每個成長階段有自己的節奏與幅度（泡泡期慢、幼年期活潑、學者期沉穩）
+   - 點一下會播放一個反應動作
+   零下載成本，11 個物種 × 5 個階段全覆蓋。 */
+
+.pet-still {
+  transform-origin: 50% 92%;
+  animation-duration: var(--pet-dur, 2.6s);
+  animation-timing-function: var(--pet-ease, ease-in-out);
+  animation-iteration-count: infinite;
+  will-change: transform;
+  cursor: pointer;
+}
+
+/* ---- 階段：越小越跳、越大越穩 ---- */
+.pet-still[data-stage="0"] { --pet-dur: 3.4s; --pet-amp: 0.55; --pet-ease: ease-in-out; }
+.pet-still[data-stage="1"] { --pet-dur: 1.6s; --pet-amp: 1.15; }
+.pet-still[data-stage="2"] { --pet-dur: 2.0s; --pet-amp: 1; }
+.pet-still[data-stage="3"] { --pet-dur: 2.8s; --pet-amp: 0.8; }
+.pet-still[data-stage="4"] { --pet-dur: 3.8s; --pet-amp: 0.6; }
+
+/* ---- 動作庫 ---- */
+@keyframes petBreathe {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  50% { transform: translateY(calc(-3px * var(--pet-amp))) scale(1.015, 0.975); }
+}
+
+@keyframes petBounce {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  20% { transform: translateY(calc(-10px * var(--pet-amp))) scale(0.97, 1.05); }
+  40% { transform: translateY(0) scale(1.05, 0.94); }
+  60% { transform: translateY(calc(-4px * var(--pet-amp))) scale(0.99, 1.01); }
+  80% { transform: translateY(0) scale(1.02, 0.98); }
+}
+
+@keyframes petSway {
+  0%, 100% { transform: rotate(-2.4deg) translateY(0); }
+  50% { transform: rotate(2.4deg) translateY(calc(-2px * var(--pet-amp))); }
+}
+
+@keyframes petWaddle {
+  0%, 100% { transform: rotate(-4deg) translateY(0) scale(1, 1); }
+  25% { transform: rotate(-1deg) translateY(calc(-3px * var(--pet-amp))); }
+  50% { transform: rotate(4deg) translateY(0); }
+  75% { transform: rotate(1deg) translateY(calc(-3px * var(--pet-amp))); }
+}
+
+@keyframes petHop {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  15% { transform: translateY(0) scale(1.06, 0.92); }
+  45% { transform: translateY(calc(-14px * var(--pet-amp))) scale(0.94, 1.08); }
+  70% { transform: translateY(0) scale(1.05, 0.95); }
+  85% { transform: translateY(calc(-3px * var(--pet-amp))) scale(0.99, 1.01); }
+}
+
+@keyframes petFlap {
+  0%, 100% { transform: translateY(0) scaleX(1) rotate(0deg); }
+  30% { transform: translateY(calc(-4px * var(--pet-amp))) scaleX(1.04) rotate(-1.5deg); }
+  60% { transform: translateY(0) scaleX(0.98) rotate(1.5deg); }
+}
+
+@keyframes petNeck {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  40% { transform: translateY(calc(-5px * var(--pet-amp))) scaleY(1.03); }
+  70% { transform: translateY(0) scaleY(0.99); }
+}
+
+@keyframes petNod {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  35% { transform: rotate(-1.8deg) translateY(calc(-2px * var(--pet-amp))); }
+  70% { transform: rotate(1.2deg) translateY(0); }
+}
+
+/* ---- 物種 → 動作 ---- */
+.pet-still[data-species="tabby"],
+.pet-still[data-species="fluff"] { animation-name: petSway; }
+
+.pet-still[data-species="dog"],
+.pet-still[data-species="shiba"] { animation-name: petBounce; }
+
+.pet-still[data-species="husky"],
+.pet-still[data-species="golden"] { animation-name: petBreathe; }
+
+.pet-still[data-species="bunny"] { animation-name: petHop; }
+
+.pet-still[data-species="panda"] { animation-name: petWaddle; }
+
+.pet-still[data-species="redpanda"] { animation-name: petNod; }
+
+.pet-still[data-species="macaw"] { animation-name: petFlap; }
+
+.pet-still[data-species="tortoise"] { animation-name: petNeck; }
+
+/* ---- 點一下的反應 ---- */
+.pet-still.is-react {
+  animation: petReact 620ms cubic-bezier(0.34, 1.56, 0.64, 1) 1;
+}
+
+@keyframes petReact {
+  0% { transform: translateY(0) scale(1, 1) rotate(0deg); }
+  25% { transform: translateY(0) scale(1.08, 0.9) rotate(0deg); }
+  55% { transform: translateY(-18px) scale(0.92, 1.1) rotate(-4deg); }
+  75% { transform: translateY(0) scale(1.05, 0.95) rotate(3deg); }
+  100% { transform: translateY(0) scale(1, 1) rotate(0deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pet-still,
+  .pet-still.is-react { animation: none; }
+}
