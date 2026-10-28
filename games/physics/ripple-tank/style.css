@@ -228,7 +228,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
   .brand-copy strong { font-size: 14px; }
   .view-tab { padding: 4px 6px; font-size: 7.5px; }
   .stage { height: auto; display: flex; flex-direction: column; }
-  .scene-wrap { height: 52vh; min-height: 270px; }
+  .scene-wrap { flex: none; width: 100%; height: auto; aspect-ratio: 4 / 3; min-height: 260px; }
   .panel { overflow: visible; }
 }
 
