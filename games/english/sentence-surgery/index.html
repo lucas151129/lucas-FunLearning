@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#eef2ef">
+  <title>Sentence Surgery · 句子急診室</title>
+  <script>if (new URLSearchParams(location.search).get("embed") === "1") document.documentElement.classList.add("is-embedded");</script>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body class="surgery-page">
+  <div class="shell">
+    <header class="topbar">
+      <a class="back-link" href="../../index.html#/c/english" target="_top" aria-label="Back to English Arcade">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+        <span>Arcade</span>
+      </a>
+      <a class="wordmark" href="#map" data-go-map>
+        <span class="wordmark-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 12h4l2-5 4 10 2-5h4"/></svg>
+        </span>
+        <span>
+          <b>Sentence Surgery</b>
+          <small>句子急診室</small>
+        </span>
+      </a>
+      <div class="top-progress" id="topProgress" aria-live="polite">0 <span>/ 15 cases</span></div>
+    </header>
+
+    <main class="main">
+      <!-- ================= MAP ================= -->
+      <section class="screen map-screen" id="mapScreen" aria-labelledby="mapTitle">
+        <div class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow">A 15-CASE GRAMMAR CLINIC</p>
+            <h1 id="mapTitle">Every sentence<br>can be saved.</h1>
+            <p class="hero-lead">Diagnose the one unhealthy token, choose the right treatment, and build a cleaner sentence. Three wards. Fifteen cases.</p>
+            <div class="hero-actions">
+              <button class="btn primary" id="continueBtn" type="button">Start first case</button>
+              <button class="btn ghost" id="howBtn" type="button">How to play</button>
+            </div>
+            <div class="hero-stats" aria-label="Course progress">
+              <div><b id="statCases">0</b><span>cases closed</span></div>
+              <div><b id="statStars">0</b><span>stars earned</span></div>
+              <div><b id="statBest">0</b><span>best points</span></div>
+            </div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <svg viewBox="0 0 300 300">
+              <circle cx="150" cy="150" r="126" class="art-ring" />
+              <circle cx="150" cy="150" r="100" class="art-ring dotted" />
+              <path class="art-steth" d="M77 62v35c0 24 18 42 42 42s42-18 42-42V62" />
+              <path class="art-steth" d="M77 62h-9M161 62h9" />
+              <path class="art-steth" d="M119 139v18c0 27 21 49 48 49h9" />
+              <circle cx="180" cy="206" r="18" class="art-disc" />
+              <path class="art-pulse" d="M72 202h28l8-16 12 32 10-22 8 10h38" />
+              <path class="art-note" d="M198 96h42M198 112h30M198 128h34" />
+              <circle cx="197" cy="80" r="5" class="art-dot" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="map-head">
+          <div>
+            <p class="eyebrow">WARD MAP</p>
+            <h2>Choose a ward</h2>
+          </div>
+          <p class="map-note">Complete all five cases in a ward to unlock the next one. You can replay any closed case.</p>
+        </div>
+        <div class="chapter-list" id="chapterList"></div>
+
+        <div class="map-footer">
+          <p><b>15 cases · 1500 points.</b> Progress and best scores stay on this device.</p>
+          <button class="text-btn" id="resetBtn" type="button">Reset progress</button>
+        </div>
+      </section>
+
+      <!-- ================= PLAY ================= -->
+      <section class="screen play-screen" id="playScreen" hidden aria-labelledby="caseTitle">
+        <div class="play-head">
+          <button class="text-btn back-text" id="mapBackBtn" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+            Ward map
+          </button>
+          <div class="play-kicker" id="playKicker">WARD I · CASE 01</div>
+          <div class="play-head-right">
+            <span class="score-chip">SCORE <b id="liveScore">0</b></span>
+            <span class="case-chip" id="liveCase">1 / 5</span>
+          </div>
+        </div>
+
+        <div class="play-grid">
+          <section class="chart-card">
+            <header class="case-head">
+              <span class="case-icon" id="caseIcon" aria-hidden="true"></span>
+              <div>
+                <h1 id="caseTitle">The Morning Routine</h1>
+                <p id="caseMeta">School corridor · 07:45 · <span id="caseConcept">Subject–verb agreement</span></p>
+              </div>
+            </header>
+
+            <div class="monitor" id="monitor" data-state="critical">
+              <div class="monitor-label">
+                <span><i class="live-dot" aria-hidden="true"></i> PATIENT STABILITY</span>
+                <b id="monitorStatus">UNSTABLE</b>
+              </div>
+              <div class="monitor-body">
+                <svg class="ecg" viewBox="0 0 280 54" preserveAspectRatio="none" aria-hidden="true">
+                  <path class="ecg-grid" d="M0 14h280M0 27h280M0 40h280"/>
+                  <path class="ecg-trace" d="M0 27h22l5-13 7 26 5-13h28l5 5 5-9 5 4h24l5-13 7 26 5-13h54l5-13 7 26 5-13h47"/>
+                </svg>
+                <div class="monitor-vitals">
+                  <span id="bpm">53 BPM</span>
+                  <div class="stability-track" id="stabilityBar" role="progressbar" aria-label="Patient stability" aria-valuemin="0" aria-valuemax="100" aria-valuenow="18">
+                    <i id="stabilityFill"></i>
+                  </div>
+                  <b id="stabilityPct">18%</b>
+                </div>
+              </div>
+            </div>
+
+            <p class="instruction" id="instruction">Tap the <b>one</b> token that is unwell.<span class="instruction-cn">找出令句子生病的唯一詞語。</span></p>
+
+            <div class="sentence-panel">
+              <div class="sentence-top">
+                <span class="chart-tag" id="chartTag">PRE-OP</span>
+                <span class="sentence-caption" id="sentenceCaption">X-RAY · TAP ONE TOKEN</span>
+              </div>
+              <div class="sentence" id="sentence" role="group" aria-label="Patient sentence"></div>
+            </div>
+
+            <div class="stage-foot" id="stageFoot"></div>
+            <p class="feedback" id="feedback" role="status" aria-live="polite">Patient is unstable. Diagnose the sentence to begin.</p>
+          </section>
+
+          <aside class="notes-card" aria-labelledby="notesTitle">
+            <p class="eyebrow">DOCTOR'S NOTES</p>
+            <h2 id="notesTitle">This case</h2>
+            <div class="notes-block">
+              <span class="notes-label">WARD</span>
+              <b id="sideWard">I · Vital Signs</b>
+              <span class="notes-label">CONCEPT</span>
+              <b id="sideConcept">Subject–verb agreement</b>
+              <span class="notes-label">TARGET</span>
+              <b id="sideTarget">One token</b>
+            </div>
+            <p class="notes-copy">A wrong diagnosis is not fatal. It costs points and brings the monitor down, but you can try again. Read the hint carefully.</p>
+            <div class="notes-rule" id="sideRule">he / she / it + verb-s</div>
+            <p class="notes-foot">Closed cases can be replayed from the ward map.</p>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ================= RESULT / CERTIFICATE ================= -->
+      <section class="screen result-screen" id="resultScreen" hidden aria-labelledby="resultTitle">
+        <p class="eyebrow" id="resultKicker">CASE CLOSED</p>
+        <div class="result-mark" id="resultMark" aria-hidden="true"></div>
+        <h1 id="resultTitle">Case closed.</h1>
+        <p class="result-copy" id="resultCopy"></p>
+        <div class="result-score-row">
+          <b id="resultScore">0</b><span id="resultMax">/ 100</span>
+          <div class="result-stars" id="resultStars" aria-label="Stars earned"></div>
+        </div>
+        <div class="result-log" id="resultLog"></div>
+        <div class="result-actions" id="resultActions"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="howModal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="howTitle">
+      <button class="modal-x" id="howClose" type="button" aria-label="Close">×</button>
+      <p class="eyebrow">HOW TO PLAY</p>
+      <h2 id="howTitle">Three steps, one clean sentence.</h2>
+      <ol class="how-list">
+        <li><span>1</span><div><b>Diagnose</b><p>Tap the one token that makes the sentence unwell. First try: 40 points.</p></div></li>
+        <li><span>2</span><div><b>Treat</b><p>Choose the treatment that repairs the sentence without changing its meaning. First try: 60 points.</p></div></li>
+        <li><span>3</span><div><b>Discharge</b><p>Read the note, then close the case. A 100-point case earns three stars.</p></div></li>
+      </ol>
+      <p class="how-note">This is formal written English. Where usage varies, the note explains the register, not just a rule.</p>
+      <button class="btn primary" id="howDone" type="button">Back to the ward</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <svg class="svg-sprite" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 10 2-5h6"/></symbol>
+      <symbol id="i-structure" viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="6" rx="1"/><rect x="14" y="4" width="7" height="6" rx="1"/><rect x="8.5" y="14" width="7" height="6" rx="1"/><path d="M6.5 10v2h11v-2M12 12v2"/></symbol>
+      <symbol id="i-precision" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></symbol>
+      <symbol id="i-agreement" viewBox="0 0 24 24"><path d="M4 8h6v8H4zM14 8h6v8h-6z"/><path d="M10 12h4"/></symbol>
+      <symbol id="i-tense" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></symbol>
+      <symbol id="i-fragment" viewBox="0 0 24 24"><path d="M4 8h6M14 8h6M9 16h6"/><path d="M12 4v4M12 16v4" stroke-dasharray="2 3"/></symbol>
+      <symbol id="i-comma" viewBox="0 0 24 24"><path d="M9 7c0 5-2 8-5 10M15 7c0 5-2 8-5 10"/></symbol>
+      <symbol id="i-connector" viewBox="0 0 24 24"><path d="M9 8H7a4 4 0 0 0 0 8h2M15 8h2a4 4 0 0 1 0 8h-2M8 12h8"/></symbol>
+      <symbol id="i-parallel" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+      <symbol id="i-relative" viewBox="0 0 24 24"><path d="M4 6h6v5H4zM14 13h6v5h-6z"/><path d="M10 8.5c4 0 3 7 7 7"/></symbol>
+      <symbol id="i-modifier" viewBox="0 0 24 24"><path d="M5 5c4 0 3 6 7 6s3 6 7 6"/><circle cx="5" cy="5" r="2"/><path d="M17 15v4"/></symbol>
+      <symbol id="i-register" viewBox="0 0 24 24"><path d="M4 5h16v10H9l-5 4z"/><path d="M8 9h8M8 12h5"/></symbol>
+      <symbol id="i-apostrophe" viewBox="0 0 24 24"><path d="M10 5c-2 3-3 5-3 7a3 3 0 0 0 6 0c0-2-1-3-3-3"/><path d="M16 10c0 3-1 5-3 7"/></symbol>
+      <symbol id="i-preposition" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m12 7 3 5-3 5-3-5z"/></symbol>
+      <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"/></symbol>
+      <symbol id="i-stethoscope" viewBox="0 0 24 24"><path d="M5 4v7a5 5 0 0 0 10 0V4M8 4h-3M15 4h-3M10 16v2a4 4 0 0 0 8 0v-2"/><circle cx="18" cy="13" r="2"/></symbol>
+      <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M8 10h8M8 14h8M8 18h5"/></symbol>
+    </defs>
+  </svg>
+
+  <script src="../shared.js"></script>
+  <script src="./game.js"></script>
+</body>
+</html>
+

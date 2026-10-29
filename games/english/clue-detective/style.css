@@ -1,0 +1,931 @@
+/* Clue Detective — noir case-file skin for the shared English Arcade shell. */
+
+body.detective-page {
+  overflow-x: hidden;
+  background:
+    radial-gradient(950px 520px at 84% -10%, rgba(255, 206, 106, 0.20), transparent 62%),
+    radial-gradient(720px 420px at 0% 108%, rgba(255, 145, 125, 0.10), transparent 62%),
+    repeating-linear-gradient(90deg, transparent 0 79px, rgba(114, 230, 255, 0.035) 79px 80px),
+    var(--bg);
+}
+
+.lamp-haze {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(420px 320px at 84% 0%, rgba(255, 206, 106, 0.15), transparent 72%),
+    linear-gradient(180deg, transparent 58%, rgba(0, 0, 0, 0.28));
+}
+
+.detective-page .demo-wrap {
+  position: relative;
+  z-index: 1;
+  padding-bottom: calc(30px + env(safe-area-inset-bottom));
+}
+
+/* ---------- Top bar ---------- */
+
+.detective-page .demo-top {
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 209, 102, 0.16);
+}
+
+.detective-page .demo-back {
+  min-height: 44px;
+  border-color: rgba(255, 209, 102, 0.35);
+}
+
+.detective-page .demo-back:hover {
+  border-color: var(--amber);
+  background: rgba(255, 209, 102, 0.08);
+}
+
+.detective-page .demo-kicker { color: #c7a45f; }
+.detective-page .demo-title strong { letter-spacing: -0.03em; }
+
+.detective-page :focus-visible {
+  outline: 3px solid #c8861a;
+  outline-offset: 2px;
+}
+
+.detective-page .demo-top :focus-visible { outline-color: var(--cyan); }
+
+.detective-page button,
+.detective-page a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.detective-page button { touch-action: manipulation; }
+
+/* ---------- Progress + phase rail ---------- */
+
+.phase-track {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 10px;
+}
+
+.phase-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  border: 2px solid rgba(23, 18, 38, 0.18);
+  border-radius: 999px;
+  background: #fffdf7;
+  color: #8b7f91;
+  font: 800 9px var(--mono);
+  letter-spacing: 0.1em;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.phase-chip b {
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: rgba(23, 18, 38, 0.08);
+  font-size: 8px;
+}
+
+.phase-chip.is-active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.phase-chip.is-active b {
+  background: var(--amber);
+  color: var(--ink);
+}
+
+.phase-chip.is-done {
+  border-color: rgba(59, 168, 107, 0.55);
+  background: #e8f9ee;
+  color: #1f6b45;
+}
+
+.phase-chip.is-done b {
+  background: var(--mint);
+  color: #1a5c3b;
+}
+
+.phase-chip.is-done::after {
+  content: "✓";
+  margin-left: 2px;
+  font-size: 10px;
+}
+
+.phase-chip.is-locked { opacity: 0.62; }
+.phase-sep { width: 14px; height: 2px; background: rgba(23, 18, 38, 0.2); }
+
+.detective-page .progress-track { max-width: none; }
+.detective-page .progress-track i { background: var(--amber); }
+
+/* ---------- Case file paper ---------- */
+
+.case-card {
+  position: relative;
+  margin-top: 2px;
+  padding: 12px 12px 10px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background:
+    radial-gradient(380px 210px at 0% 0%, rgba(255, 206, 106, 0.28), transparent 68%),
+    repeating-linear-gradient(0deg, transparent 0 27px, rgba(23, 18, 38, 0.035) 27px 28px),
+    #fffaf0;
+  box-shadow: 3px 3px 0 rgba(23, 18, 38, 0.85);
+}
+
+.case-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 18px;
+  width: 74px;
+  height: 5px;
+  border-radius: 0 0 4px 4px;
+  background: var(--amber);
+}
+
+.case-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 2px dashed rgba(23, 18, 38, 0.22);
+}
+
+.case-head > div { min-width: 0; }
+
+.case-kicker {
+  display: block;
+  color: #8a6d3b;
+  font: 800 9px var(--mono);
+  letter-spacing: 0.12em;
+}
+
+.case-title {
+  margin: 3px 0 0;
+  font-family: Georgia, "Times New Roman", "Noto Serif TC", serif;
+  font-size: clamp(20px, 3.2vw, 28px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.case-title .title-cn {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.case-scene {
+  display: block;
+  margin-top: 3px;
+  color: #9a8b78;
+  font: 700 9px var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.stamp {
+  flex: none;
+  margin-top: 2px;
+  padding: 3px 6px;
+  border: 2px solid rgba(179, 59, 59, 0.65);
+  border-radius: 4px;
+  color: #a3303b;
+  font: 800 9px/1.1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transform: rotate(-5deg);
+}
+
+.stamp.is-closed {
+  border-color: rgba(59, 168, 107, 0.7);
+  color: #247a4d;
+  transform: rotate(3deg);
+}
+
+/* ---------- Numbered evidence lines ---------- */
+
+.case-lines {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.case-lines::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 20px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, transparent, rgba(179, 59, 59, 0.55) 8%, rgba(179, 59, 59, 0.55) 92%, transparent);
+}
+
+.clue-item { position: relative; }
+
+.clue-line {
+  width: 100%;
+  min-height: 46px;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 7px 9px 7px 7px;
+  border: 2px solid rgba(23, 18, 38, 0.18);
+  border-radius: 10px;
+  background: #fffdf7;
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", "Noto Serif TC", serif;
+  font-size: 13.5px;
+  line-height: 1.4;
+  text-align: left;
+  transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+.clue-line:hover { border-color: var(--ink); }
+.clue-line:active { transform: translateY(1px); }
+
+.line-no {
+  z-index: 1;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-top: 1px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper-2);
+  color: var(--ink);
+  font: 800 11px var(--mono);
+}
+
+.line-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.line-mark {
+  flex: none;
+  align-self: center;
+  color: var(--good);
+  font: 800 9px var(--mono);
+  letter-spacing: 0.06em;
+}
+
+.clue-line.is-reading:hover .line-no { background: var(--amber); }
+
+.clue-line.is-tappable {
+  cursor: pointer;
+  border-color: rgba(23, 18, 38, 0.34);
+}
+
+.clue-line.is-tappable .line-no { background: var(--amber); }
+
+.clue-line.is-tappable:hover,
+.clue-line.is-tappable:focus-visible {
+  border-color: var(--ink);
+  background: #fff5dd;
+  transform: translateX(2px);
+}
+
+.clue-line.is-wrong {
+  border-color: var(--bad);
+  background: #fff0f1;
+}
+
+.clue-line.is-wrong .line-no {
+  border-color: var(--bad);
+  background: #ffd7dc;
+  color: #9b2835;
+}
+
+.clue-line.is-wrong .line-mark {
+  color: var(--bad);
+  font-size: 12px;
+}
+
+.clue-line.is-evidence {
+  border-color: var(--good);
+  background: #ecfbf1;
+  box-shadow: 3px 3px 0 rgba(59, 168, 107, 0.38);
+}
+
+.clue-line.is-evidence .line-no {
+  border-color: var(--good);
+  background: var(--mint);
+}
+
+.clue-line.is-evidence .line-mark { color: #1d7a4c; }
+
+.clue-line:disabled { cursor: default; }
+.clue-line:disabled:hover { transform: none; }
+
+.target-word {
+  padding: 0 2px;
+  border-bottom: 2px dotted rgba(179, 59, 59, 0.55);
+  background: linear-gradient(180deg, transparent 55%, rgba(255, 206, 106, 0.85) 55%);
+  color: var(--ink);
+  font-weight: 800;
+}
+
+/* ---------- Meaning question ---------- */
+
+.meaning-block {
+  margin-top: 12px;
+  padding: 11px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: #fff8e8;
+  box-shadow: 3px 3px 0 rgba(23, 18, 38, 0.85);
+}
+
+.meaning-q {
+  margin: 0 0 3px;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.q-tag {
+  display: inline-block;
+  margin-right: 5px;
+  padding: 2px 5px;
+  border: 1.5px solid var(--ink);
+  border-radius: 4px;
+  background: var(--amber);
+  font: 800 8px var(--mono);
+  letter-spacing: 0.08em;
+  vertical-align: 2px;
+}
+
+.focus-target:focus {
+  outline: 3px solid rgba(200, 134, 26, 0.55);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.meaning-note {
+  margin: 0 0 9px;
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 8px 9px;
+  border: 2px solid rgba(23, 18, 38, 0.3);
+  border-radius: 9px;
+  background: #fffdf7;
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: left;
+  transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+.option:hover:not(:disabled) {
+  border-color: var(--ink);
+  background: #fff5dd;
+  transform: translateY(-1px);
+}
+
+.option:active:not(:disabled) { transform: translateY(1px); }
+.option:disabled { cursor: default; }
+
+.opt-key {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  background: var(--paper-2);
+  font: 800 11px var(--mono);
+}
+
+.opt-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.opt-mark { flex: none; font-weight: 900; }
+
+.option.is-correct {
+  border-color: var(--good);
+  background: #e9f9ee;
+}
+
+.option.is-correct .opt-key {
+  border-color: var(--good);
+  background: var(--mint);
+}
+
+.option.is-wrong {
+  border-color: var(--bad);
+  background: #fff0f1;
+}
+
+.option.is-wrong .opt-key {
+  border-color: var(--bad);
+  background: #ffd7dc;
+  color: #9b2835;
+}
+
+.option.is-wrong .opt-mark { color: var(--bad); }
+.option.is-correct .opt-mark { color: var(--good); }
+.option.is-dim { opacity: 0.5; }
+
+/* ---------- Facts, evidence prompt, solved panel ---------- */
+
+.fact-strip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px 7px;
+  margin-top: 11px;
+  padding: 8px 10px;
+  border: 2px dashed rgba(59, 168, 107, 0.55);
+  border-radius: 10px;
+  background: #effaf2;
+  color: #215f3e;
+  font-size: 12px;
+}
+
+.fact-tag {
+  padding: 2px 5px;
+  border: 1.5px solid rgba(31, 107, 69, 0.4);
+  border-radius: 4px;
+  background: #fff;
+  color: #1f6b45;
+  font: 800 8px var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.fact-word {
+  color: var(--ink);
+  font: 800 13px var(--mono);
+}
+
+.fact-points {
+  margin-left: auto;
+  color: #1f6b45;
+  font: 800 9px var(--mono);
+  letter-spacing: 0.05em;
+}
+
+.evidence-block { margin-top: 12px; }
+
+.evidence-prompt {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.evidence-sub {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.solved-panel {
+  position: relative;
+  margin-top: 12px;
+  padding: 12px;
+  border: 2px solid var(--ink);
+  border-radius: 13px;
+  background:
+    radial-gradient(300px 170px at 100% 0%, rgba(142, 236, 192, 0.32), transparent 70%),
+    #fffdf7;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.solved-panel::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  width: 70px;
+  height: 13px;
+  border: 1px solid rgba(23, 18, 38, 0.12);
+  background: rgba(255, 209, 102, 0.68);
+  transform: translateX(-50%) rotate(-2deg);
+}
+
+.solved-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.solved-stamp {
+  padding: 3px 6px;
+  border: 2px solid rgba(59, 168, 107, 0.75);
+  border-radius: 4px;
+  color: #247a4d;
+  font: 800 9px var(--mono);
+  letter-spacing: 0.1em;
+  transform: rotate(-2deg);
+}
+
+.solved-file {
+  color: #9a8b78;
+  font: 800 9px var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.solved-title {
+  margin: 7px 0 3px;
+  font-family: Georgia, "Times New Roman", "Noto Serif TC", serif;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.solved-copy {
+  margin: 0;
+  color: #4f445c;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.verdict {
+  margin: 8px 0 0;
+  padding-left: 9px;
+  border-left: 3px solid var(--amber);
+  color: #6b5a3a;
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.score-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 9px;
+}
+
+.score-pill {
+  padding: 3px 6px;
+  border: 1.5px solid rgba(23, 18, 38, 0.2);
+  border-radius: 999px;
+  background: #fff;
+  font: 800 9px var(--mono);
+  letter-spacing: 0.03em;
+}
+
+.score-pill.is-total {
+  border-color: var(--ink);
+  background: var(--amber);
+}
+
+.phase-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.phase-actions .btn { font-size: 14px; }
+
+/* ---------- Result screen ---------- */
+
+.detective-page .result-screen { padding: 8px 2px 2px; }
+
+.result-eyebrow {
+  margin: 0;
+  color: #8a6d3b;
+  font: 800 9px var(--mono);
+  letter-spacing: 0.15em;
+}
+
+.result-screen h1 {
+  margin: 3px 0 4px;
+  font-family: Georgia, "Times New Roman", "Noto Serif TC", serif;
+  font-size: clamp(34px, 9vw, 58px);
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+}
+
+.result-screen h1 .dot { color: #c8861a; }
+
+.result-sub {
+  margin: 4px 0 12px;
+  color: #5b4f68;
+  font-size: 13px;
+}
+
+.result-score {
+  color: var(--ink);
+  font: 900 clamp(56px, 18vw, 94px)/0.9 var(--mono);
+  letter-spacing: -0.06em;
+}
+
+.result-score small {
+  margin-left: 3px;
+  color: var(--muted);
+  font-size: 0.27em;
+  letter-spacing: 0;
+}
+
+.result-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 6px;
+}
+
+.rank-badge {
+  padding: 4px 8px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--amber);
+  font: 800 10px var(--mono);
+  letter-spacing: 0.03em;
+}
+
+.new-best {
+  padding: 4px 8px;
+  border: 2px solid var(--good);
+  border-radius: 4px;
+  background: #e9f9ee;
+  color: #247a4d;
+  font: 800 9px var(--mono);
+  letter-spacing: 0.1em;
+  transform: rotate(-2deg);
+}
+
+.result-best {
+  margin: 10px 0 0;
+  color: #5b4f68;
+  font: 800 10px var(--mono);
+  letter-spacing: 0.06em;
+}
+
+.result-best b { color: var(--ink); }
+
+.result-sub2 {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.case-log {
+  display: grid;
+  gap: 4px;
+  max-width: 440px;
+  margin: 13px auto 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.case-log li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 5px 2px;
+  border-bottom: 1px dashed rgba(23, 18, 38, 0.18);
+  font-size: 11.5px;
+}
+
+.log-title {
+  min-width: 0;
+  color: #5b4f68;
+}
+
+.log-title b {
+  margin-right: 4px;
+  color: #8a6d3b;
+  font: 800 9px var(--mono);
+}
+
+.log-points {
+  flex: none;
+  color: var(--ink);
+  font: 800 10px var(--mono);
+}
+
+.detective-page .result-actions {
+  margin-top: 13px;
+}
+
+/* ---------- Detective's notebook ---------- */
+
+.notebook {
+  position: relative;
+  background:
+    radial-gradient(240px 150px at 100% 0%, rgba(255, 206, 106, 0.24), transparent 70%),
+    var(--paper);
+}
+
+.notebook-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.notebook-lamp {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 42%, #fff7d6 0 22%, #ffd166 55%, #c58b27 100%);
+  box-shadow: 0 0 16px rgba(255, 209, 102, 0.8);
+}
+
+.notebook-tip {
+  margin-top: 10px;
+  padding: 8px;
+  border: 2px dashed rgba(200, 134, 26, 0.55);
+  border-radius: 9px;
+  background: #fff6df;
+}
+
+.tip-kicker {
+  display: block;
+  color: #9a6a1f;
+  font: 800 8px var(--mono);
+  letter-spacing: 0.12em;
+}
+
+.notebook-tip p {
+  margin: 3px 0 0;
+  color: #5b4f68;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.notebook-tip b { color: var(--ink); }
+
+.notebook-stamp {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  padding: 2px 5px;
+  border: 2px solid rgba(179, 59, 59, 0.45);
+  border-radius: 4px;
+  color: rgba(179, 59, 59, 0.65);
+  font: 800 8px var(--mono);
+  letter-spacing: 0.12em;
+  transform: rotate(-7deg);
+}
+
+.noscript-note {
+  position: relative;
+  z-index: 2;
+  width: min(540px, calc(100% - 24px));
+  margin: 16px auto;
+  padding: 10px;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  background: var(--amber);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 760px) {
+  .detective-page .demo-wrap { padding-top: 8px; }
+  .detective-page .play-main { padding: 11px; }
+  .detective-page .play-side { padding: 11px; }
+  .case-card { padding: 10px 9px 9px; }
+  .case-title { font-size: 21px; }
+  .case-title .title-cn { font-size: 10.5px; }
+  .stamp { font-size: 8px; padding: 2px 5px; }
+  .clue-line { font-size: 13px; }
+  .meaning-block { padding: 9px; }
+  .solved-panel { padding: 10px; }
+  .notebook-stamp { display: none; }
+  .result-screen h1 { font-size: clamp(32px, 12vw, 48px); }
+}
+
+@media (max-width: 560px) {
+  .options { grid-template-columns: 1fr; }
+  .clue-line.is-evidence .line-mark { font-size: 0; }
+  .clue-line.is-evidence .line-mark::after { content: "✓"; font-size: 13px; }
+}
+
+@media (max-width: 380px) {
+  .case-title { font-size: 19px; }
+  .clue-line { font-size: 12.5px; padding-right: 7px; }
+  .meaning-q { font-size: 14px; }
+  .option { font-size: 12.5px; }
+  .phase-chip { letter-spacing: 0.05em; }
+}
+
+@media (max-height: 500px) and (min-width: 700px) {
+  .detective-page .demo-wrap {
+    width: min(100% - 20px, 1080px);
+    padding-top: 4px;
+    padding-bottom: 14px;
+  }
+
+  .detective-page .demo-top {
+    min-height: 38px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+  }
+
+  .detective-page .demo-kicker { display: none; }
+  .detective-page .demo-title strong { font-size: 20px; }
+  .detective-page .play-layout { grid-template-columns: minmax(0, 1fr) 218px; gap: 8px; }
+  .detective-page .play-main { min-height: 0; padding: 8px 10px; }
+  .detective-page .play-side { padding: 9px; }
+  .detective-page .round-line { display: none; }
+  .phase-track { margin-bottom: 6px; }
+
+  /* Landscape: keep the case file and the live question side by side. */
+  #game-stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(220px, 0.95fr);
+    gap: 10px;
+    align-items: start;
+  }
+
+  .case-card {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    margin-top: 0;
+    padding: 8px 9px 7px;
+  }
+
+  .meaning-block,
+  .fact-strip,
+  .evidence-block,
+  .solved-panel {
+    grid-column: 2;
+    margin-top: 0;
+  }
+
+  .meaning-note { display: none; }
+
+  .result-screen { grid-column: 1 / -1; }
+  .options { grid-template-columns: 1fr; }
+
+  /* The solved panel repeats the locked meaning, so the strip is extra here. */
+  #game-stage[data-phase="solved"] .fact-strip { display: none; }
+
+  .case-head { padding-bottom: 5px; }
+  .case-title { font-size: 18px; }
+  .case-title .title-cn,
+  .case-scene { display: none; }
+  .stamp { font-size: 7.5px; padding: 2px 4px; }
+  .case-lines { margin-top: 6px; gap: 4px; }
+  .clue-line { min-height: 44px; padding: 5px 7px; font-size: 12.5px; }
+
+  .meaning-block { margin-top: 7px; padding: 8px; }
+  .meaning-q { margin-bottom: 2px; font-size: 14px; }
+  .meaning-note { margin-bottom: 6px; font-size: 10.5px; }
+  .options { gap: 5px; }
+  .option { min-height: 44px; padding: 6px 8px; font-size: 12.5px; }
+  .fact-strip { margin-top: 7px; padding: 6px 8px; }
+  .evidence-block { margin-top: 7px; }
+  .solved-panel { margin-top: 7px; padding: 9px; }
+  .solved-title { font-size: 19px; }
+  .solved-copy { font-size: 12px; }
+  .feedback { min-height: 36px; margin-top: 6px; padding: 6px 8px; font-size: 12px; }
+  .side-copy { font-size: 11.5px; }
+  .side-list li { padding: 5px 7px; font-size: 11px; }
+  .notebook-tip { margin-top: 6px; padding: 6px 7px; }
+  .notebook-tip p { font-size: 11px; }
+  .result-screen { padding: 4px 2px 0; }
+  .result-score { font-size: clamp(48px, 13vw, 68px); }
+  .result-screen h1 { font-size: 30px; }
+  .result-sub { margin-bottom: 6px; }
+  .case-log { margin-top: 7px; }
+}

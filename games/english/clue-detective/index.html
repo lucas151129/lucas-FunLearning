@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07131c">
+  <title>Clue Detective · 閱讀線索偵探</title>
+  <script>if (new URLSearchParams(location.search).get("embed") === "1") document.documentElement.classList.add("is-embedded");</script>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../shared.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body class="demo-page detective-page">
+  <div class="lamp-haze" aria-hidden="true"></div>
+
+  <div class="demo-wrap">
+    <header class="demo-top">
+      <a class="demo-back" href="../../index.html#/c/english" target="_top" aria-label="Back to English Arcade">← Arcade</a>
+      <div class="demo-title">
+        <span class="demo-kicker">READING INFERENCE · 閱讀線索偵探</span>
+        <strong>Clue Detective</strong>
+      </div>
+      <div class="demo-hud" aria-label="Game status">
+        <span class="hud-chip">CASE <b id="hud-case">1/10</b></span>
+        <span class="hud-chip">SCORE <b id="hud-score">0</b></span>
+      </div>
+    </header>
+
+    <main class="play-layout">
+      <section class="play-main paper" aria-label="Case file play area">
+        <div class="round-line">
+          <span class="round-label" id="file-label">FILE 01 / 10</span>
+          <div class="progress-track" id="progress" role="progressbar" aria-label="Game progress"
+               aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <i id="progress-fill"></i>
+          </div>
+        </div>
+
+        <div class="phase-track" aria-label="Case phases">
+          <span class="phase-chip" id="chip-meaning"><b>01</b> MEANING</span>
+          <span class="phase-sep" aria-hidden="true"></span>
+          <span class="phase-chip" id="chip-evidence"><b>02</b> EVIDENCE</span>
+        </div>
+
+        <div id="game-stage"></div>
+
+        <div class="feedback" id="feedback" role="status" aria-live="polite">
+          Read the file, then choose the meaning of the marked word.
+        </div>
+      </section>
+
+      <aside class="play-side paper notebook" aria-labelledby="notebook-title">
+        <div class="notebook-head">
+          <span class="notebook-lamp" aria-hidden="true"></span>
+          <div>
+            <span class="side-kicker">DETECTIVE'S NOTEBOOK</span>
+            <h2 class="side-title" id="notebook-title">偵探筆記</h2>
+          </div>
+        </div>
+
+        <p class="side-copy">No outside knowledge needed. The file holds every clue.</p>
+
+        <ul class="side-list">
+          <li><b>Read the lines.</b> Numbers keep the evidence in order.</li>
+          <li><b>Phase 1 · Meaning.</b> 40 pts first try, 20 on retry.</li>
+          <li><b>Phase 2 · Evidence.</b> 60 pts first try, 30 on retry.</li>
+        </ul>
+
+        <div class="notebook-tip">
+          <span class="tip-kicker">CURRENT LEAD</span>
+          <p id="notebook-tip">Read the case, then pick the meaning that fits the scene.</p>
+        </div>
+
+        <div class="notebook-stamp" aria-hidden="true">PRIVATE</div>
+      </aside>
+    </main>
+  </div>
+
+  <noscript>
+    <p class="noscript-note">This demo needs JavaScript to open the case files.</p>
+  </noscript>
+
+  <script src="../shared.js"></script>
+  <script src="./game.js"></script>
+</body>
+</html>
+

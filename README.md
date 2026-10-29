@@ -19,6 +19,17 @@
 - `assets/pets-clean/`：去背後的寵物 sprite（保留原始 `assets/pets/`）。
 - `supabase/pet-care.sql`：Supabase 的 `pets.care` migration。
 
+## English Arcade
+
+英文科目新增四款遊戲，全部放在 `games/english/`，由 `js/catalog.js` 註冊：
+
+- 句子急診室 `sentence-surgery`：15 個病例、3 個病房，滿分 1500。
+- 閱讀線索偵探 `clue-detective`：10 宗閱讀案，滿分 1000。
+- 字根鍛造廠 `word-forge`：10 個構詞回合，滿分 1000。
+- 聽音配對 `minimal-pair`：5 組音近詞，滿分 500。
+
+四款都以 390×844 與 844×390 為目標，支援平台 iframe 的 `?embed=1` 模式；平台內由平台提供導覽，遊戲自己的 topbar 會收起。
+
 ## Supabase
 
 `pet-care.sql` 需要在 Supabase SQL Editor 執行一次，照顧狀態才會跨裝置同步。未執行時，XP／金幣仍會存雲端，但飽足、心情、任務、庫存會暫存在同一部裝置的 localStorage。

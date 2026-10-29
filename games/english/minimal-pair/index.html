@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07131c">
+  <title>Minimal Pair Arcade · 聽音配對</title>
+  <script>if (new URLSearchParams(location.search).get("embed") === "1") document.documentElement.classList.add("is-embedded");</script>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../shared.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body class="demo-page mp-page">
+  <div class="demo-wrap">
+    <header class="demo-top">
+      <a class="demo-back" href="../../index.html#/c/english" target="_top" aria-label="Back to English Arcade">← Arcade</a>
+      <div class="demo-title">
+        <span class="demo-kicker">04 / LISTENING · 聽音配對</span>
+        <strong>Minimal Pair Arcade</strong>
+      </div>
+      <div class="demo-hud">
+        <span class="hud-chip">ROUND <b id="hudRound">1/5</b></span>
+        <span class="hud-chip">SCORE <b id="hudScore">0</b></span>
+        <span class="hud-chip">BEST <b id="hudBest">0</b></span>
+      </div>
+    </header>
+
+    <main class="play-layout">
+      <section class="paper play-main" aria-labelledby="pageTitle">
+        <h1 class="vh" id="pageTitle">Minimal Pair Arcade — listening game</h1>
+
+        <div class="stage" id="stage">
+          <div class="round-line">
+            <span class="round-label" id="roundLabel">ROUND 1 / 5</span>
+            <div class="progress-track" id="progressTrack" role="progressbar" aria-label="Round progress"
+                 aria-valuemin="0" aria-valuemax="5" aria-valuenow="0"><i id="progressBar"></i></div>
+            <span class="round-label round-max" id="roundMax">MAX 100</span>
+          </div>
+
+          <section class="stage-panel" id="stagePanel" aria-label="Listening stage">
+            <div class="console">
+              <button type="button" class="play-btn" id="playBtn" aria-describedby="playNote">
+                <span class="play-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M4 9.5h3.6L13 5v14L7.6 14.5H4z" fill="currentColor"></path>
+                    <path d="M16.2 8.6a4.8 4.8 0 0 1 0 6.8M18.8 6a8.4 8.4 0 0 1 0 12" fill="none"
+                          stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                  </svg>
+                </span>
+                <span class="play-text">
+                  <b id="playLabel">Play word</b>
+                  <small id="playSub">tap to hear · en-US</small>
+                </span>
+              </button>
+
+              <div class="scope" id="scope" aria-hidden="true">
+                <div class="wave" id="wave"></div>
+                <span class="scope-label" id="scopeLabel">READY</span>
+              </div>
+            </div>
+
+            <p class="play-note" id="playNote">Press Play, listen once, then tap the lane. First-try answer = 100.</p>
+
+            <div class="lane-stage">
+              <div class="lane-stage-head">
+                <span>WHICH WORD DID YOU HEAR?</span>
+                <span>TAP A LANE</span>
+              </div>
+              <div class="lanes" id="lanes">
+                <button type="button" class="lane" data-lane="0">
+                  <span class="lane-tag" aria-hidden="true">LANE 1</span>
+                  <span class="lane-glow" aria-hidden="true"></span>
+                  <span class="lane-word">ship</span>
+                  <span class="lane-ipa">/ʃɪp/</span>
+                  <span class="lane-foot" aria-hidden="true">TAP IF YOU HEARD THIS</span>
+                  <span class="lane-road" aria-hidden="true"></span>
+                  <span class="lane-badge" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="lane" data-lane="1">
+                  <span class="lane-tag" aria-hidden="true">LANE 2</span>
+                  <span class="lane-glow" aria-hidden="true"></span>
+                  <span class="lane-word">sheep</span>
+                  <span class="lane-ipa">/ʃiːp/</span>
+                  <span class="lane-foot" aria-hidden="true">TAP IF YOU HEARD THIS</span>
+                  <span class="lane-road" aria-hidden="true"></span>
+                  <span class="lane-badge" aria-hidden="true"></span>
+                </button>
+              </div>
+            </div>
+
+            <div class="audio-error" id="audioError" role="alert" hidden>
+              <p><strong>Audio unavailable.</strong> This browser cannot play the demo audio. Try Chrome/Safari.</p>
+              <button type="button" class="btn" id="fallbackBtn">Show word (practice mode)</button>
+            </div>
+          </section>
+
+          <div class="answer-zone">
+            <div class="feedback" id="feedback" role="status" aria-live="polite" aria-atomic="true">
+              Press Play word, then tap the lane you heard.
+            </div>
+            <button type="button" class="btn next-btn" id="nextBtn" disabled>Next →</button>
+          </div>
+
+          <div class="tip-card" id="tipCard" hidden>
+            <span class="tip-kicker">PRONUNCIATION TIP</span>
+            <p class="tip-copy" id="tipCopy"></p>
+          </div>
+
+          <p class="key-hint mono" aria-hidden="true">KEYS · 1 / 2 · CHOOSE LANE · P · REPLAY · ENTER · NEXT</p>
+        </div>
+
+        <div class="result-screen" id="resultScreen" tabindex="-1" hidden>
+          <p class="eyebrow">SESSION COMPLETE · 5 ROUNDS</p>
+          <h2 class="vh">Results</h2>
+          <p class="score-big" id="finalScore">0<span>/500</span></p>
+          <p class="result-sub" id="finalLine"></p>
+          <div class="round-chips" id="roundChips"></div>
+          <div class="pair-review" id="pairReview" aria-label="Pair review"></div>
+          <p class="best-line" id="bestLine">
+            <span>BEST</span><b id="bestValue">0</b><span id="bestNote">saved on this device</span>
+          </p>
+          <div class="result-actions">
+            <button type="button" class="btn" id="replayBtn">Replay ↻</button>
+            <a class="btn ghost" href="../../index.html#/c/english" target="_top">Back to Arcade</a>
+          </div>
+        </div>
+
+        <p class="vh" role="status" aria-live="polite" id="srStatus"></p>
+      </section>
+
+      <aside class="paper play-side" id="tipsPanel" aria-labelledby="tipsTitle">
+        <span class="side-kicker">LISTENING TIPS</span>
+        <h2 class="side-title" id="tipsTitle">ship / sheep</h2>
+        <div class="ipa-stack" id="sideIpa"></div>
+        <p class="side-copy" id="sideTip"></p>
+        <ul class="side-list">
+          <li><b>100</b> first listen, first tap</li>
+          <li><b>70</b> correct after a replay</li>
+          <li><b>40</b> correct on the one retry</li>
+        </ul>
+        <p class="side-foot mono" id="sideFoot">VOICE · en-US · RATE 0.8</p>
+      </aside>
+    </main>
+  </div>
+
+  <script src="../shared.js"></script>
+  <script src="./game.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Word Forge · 字根鍛造廠</title>
+  <script>if (new URLSearchParams(location.search).get("embed") === "1") document.documentElement.classList.add("is-embedded");</script>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../shared.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body class="demo-page forge-page">
+  <div class="demo-wrap">
+    <header class="demo-top forge-top">
+      <a class="demo-back" href="../../index.html#/c/english" target="_top" aria-label="Back to English Arcade">← Arcade</a>
+      <div class="demo-title">
+        <span class="demo-kicker">⚒ 字根鍛造廠 · MORPHOLOGY</span>
+        <strong>Word Forge</strong>
+      </div>
+      <div class="demo-hud" aria-label="Round and score">
+        <span class="hud-chip">ROUND <b id="roundValue">1/10</b></span>
+        <span class="hud-chip" id="scoreChip">SCORE <b id="scoreValue">0</b><span class="hud-max">/1000</span></span>
+      </div>
+    </header>
+
+    <main class="play-layout" id="playLayout">
+      <section class="paper play-main forge-main" aria-labelledby="definition" tabindex="-1">
+        <div class="round-line forge-roundline">
+          <span class="round-label" id="roundLabel">ROUND 1 / 10</span>
+          <div class="progress-track" id="progressTrack" role="progressbar" aria-label="Round progress" aria-valuemin="0" aria-valuemax="10" aria-valuenow="1">
+            <i id="progressBar"></i>
+          </div>
+          <span class="round-label" id="partsLabel">3 PARTS</span>
+        </div>
+
+        <p class="instruction forge-instruction" id="instruction">Build the word: tap a prefix, a root and a suffix in order.</p>
+
+        <div class="clue-block">
+          <div class="clue-top">
+            <span class="clue-kicker">Definition</span>
+            <span class="clue-parts" id="clueParts">3 pieces</span>
+          </div>
+          <p class="clue-text" id="definition">cannot be broken</p>
+        </div>
+
+        <div class="forge-stage" id="forgeStage">
+          <span class="stage-stamp" id="stageStamp" hidden>FORGED</span>
+          <span class="spark s1" aria-hidden="true"></span>
+          <span class="spark s2" aria-hidden="true"></span>
+          <span class="spark s3" aria-hidden="true"></span>
+          <div class="slot-row" id="slots" role="group" aria-label="Word-part slots"></div>
+          <div class="anvil" aria-hidden="true"></div>
+        </div>
+
+        <div class="forged-bar">
+          <span class="forged-label">FORGED</span>
+          <strong class="forged-word is-empty" id="forgedWord" aria-live="polite" aria-atomic="true">—</strong>
+          <span class="forged-count" id="forgedCount">0 / 3</span>
+        </div>
+
+        <div class="pool-meta" id="poolMeta">
+          <span class="pool-label">PIECE POOL</span>
+          <span class="pool-note">Tap to load · tap again to pull back</span>
+        </div>
+        <div class="forge-pool" id="pool" role="group" aria-label="Word-part tiles"></div>
+
+        <div class="note-card" id="noteCard" hidden>
+          <span class="note-kicker">Morphology note</span>
+          <div class="note-breakdown" id="noteBreakdown"></div>
+          <p class="note-copy" id="noteCopy"></p>
+        </div>
+
+        <div class="forge-actions">
+          <span class="try-note" id="tryNote">TRY 1 / 3 · 100 PTS</span>
+          <div class="forge-buttons">
+            <button class="btn forge-check" id="checkBtn" type="button">Check word</button>
+            <button class="btn mint forge-next" id="nextBtn" type="button" hidden>Next Word →</button>
+          </div>
+        </div>
+
+        <div class="feedback" id="feedback" role="status" aria-live="polite">Round 1 of 10. Load the slots to forge the word.</div>
+      </section>
+
+      <aside class="paper play-side forge-side">
+        <span class="side-kicker">REFERENCE</span>
+        <h2 class="side-title">Forge notes</h2>
+        <p class="side-copy">English builds new words by bolting pieces onto a core. Read the clue, then pick pieces that fit both the meaning and the order.</p>
+        <ul class="side-list forge-legend">
+          <li data-role="prefix"><span><b>Prefix</b> — before the root. <em>un-</em> = not, <em>pre-</em> = before.</span></li>
+          <li data-role="root"><span><b>Root</b> — the core meaning. <em>port</em> = carry, <em>view</em> = see.</span></li>
+          <li data-role="suffix"><span><b>Suffix</b> — after the root; often changes the word class. <em>-able</em> = can be, <em>-less</em> = without.</span></li>
+        </ul>
+        <div class="side-tip">
+          <span class="side-tip-label">THIS ROUND</span>
+          <p id="sideTip">Find the prefix that means “not”.</p>
+        </div>
+      </aside>
+    </main>
+
+    <section class="paper result-screen forge-result" id="resultScreen" hidden tabindex="-1" aria-labelledby="resultHeading">
+      <span class="eyebrow">⚒ SHIFT COMPLETE · 字根鍛造廠</span>
+      <h1 id="resultHeading"><span id="resultScore">0</span><small>/1000</small></h1>
+      <p class="result-sub" id="resultSub">The forge is warm.</p>
+      <div class="result-best">
+        <span class="best-label">BEST ON THIS DEVICE</span>
+        <b id="resultBest">0</b>
+        <span class="new-best" id="resultBadge" hidden>NEW BEST</span>
+      </div>
+      <ul class="result-recap" id="resultRecap" aria-label="Round recap"></ul>
+      <div class="result-actions">
+        <button class="btn mint" id="replayBtn" type="button">Replay</button>
+        <a class="btn ghost" href="../../index.html#/c/english" target="_top">Back to Arcade</a>
+      </div>
+    </section>
+  </div>
+
+  <script src="../shared.js" defer></script>
+  <script src="./game.js" defer></script>
+</body>
+</html>
+
