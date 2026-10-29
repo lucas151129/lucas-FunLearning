@@ -196,7 +196,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 0 64px 0 10px;
+    padding: 0 112px 0 10px;
     overflow: hidden;
     white-space: nowrap;
     font-size: 12px;
@@ -227,6 +227,28 @@
   }
   .restart:active { transform: translateY(1px); }
   .restart:focus-visible { outline: 3px solid #fff3b0; outline-offset: 2px; }
+  /* 音效開關：和「重開」並排，40px 觸控目標，圖示直接顯示 🔊 / 🔇 */
+  .mute {
+    position: absolute;
+    top: 2px;
+    right: 66px;
+    z-index: 8;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid rgba(94, 224, 255, .5);
+    border-radius: 8px;
+    background: rgba(9, 15, 29, .92);
+    color: #dff7ff;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+  }
+  .mute:active { transform: translateY(1px); }
+  .mute:focus-visible { outline: 3px solid #fff3b0; outline-offset: 2px; }
   #hud-room { color: #d7e6ff; letter-spacing: .04em; }
   .hearts { font-size: 14px; line-height: 1; letter-spacing: 1px; }
   .hearts .on { color: #ff6f91; text-shadow: 0 0 8px rgba(255, 111, 145, .6); }
@@ -248,27 +270,51 @@
   .stage { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; }
   #room { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
 
-  .tut {
+  /* 3 張新手文字卡：浮在畫面上方左側，避開左中的炮台與右側的目標 */
+  .tut-card {
     position: absolute;
-    left: 8px;
-    top: 16px;
-    z-index: 4;
-    max-width: min(250px, 46%);
-    padding: 5px 10px;
-    border: 1px solid rgba(94, 224, 255, .42);
-    border-radius: 9px;
-    background: rgba(8, 14, 28, .84);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
-    font-size: 10.5px;
-    line-height: 1.5;
-    color: #d6e6ff;
+    left: 10px;
+    top: 8px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: min(380px, calc(100% - 132px));
+    padding: 8px 9px 8px 12px;
+    border: 1px solid rgba(94, 224, 255, .5);
+    border-radius: 10px;
+    background: rgba(8, 16, 32, .9);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, .45);
+    color: #e8f0ff;
+    font-size: 12px;
+    line-height: 1.45;
     text-align: left;
-    pointer-events: none;
-    -webkit-backdrop-filter: blur(3px);
-    backdrop-filter: blur(3px);
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity .35s ease, transform .35s ease;
+    pointer-events: auto;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
   }
-  .tut b { color: var(--gold); }
-  .tut .k { color: var(--cyan); letter-spacing: .1em; }
+  .tut-card.show { opacity: 1; transform: none; }
+  .tut-card b { color: var(--gold); }
+  .tut-card .k { color: var(--cyan); letter-spacing: .1em; }
+  .tut-skip {
+    flex: none;
+    min-width: 44px;
+    min-height: 40px;
+    padding: 0 9px;
+    border: 1px solid rgba(255, 210, 87, .55);
+    border-radius: 7px;
+    background: rgba(255, 210, 87, .12);
+    color: #ffe9a8;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .06em;
+    cursor: pointer;
+  }
+  .tut-skip:active { transform: translateY(1px); }
+  .tut-skip:focus-visible { outline: 2px solid #fff3b0; outline-offset: 2px; }
 
   .overlay {
     position: absolute;
@@ -404,7 +450,7 @@
         <p class="hint"><i>3</i><span><b>入射角 = 反射角</b>，一顆球只能命中一個目標</span></p>
       </div>
       <button type="button" class="btn" id="btn-start">開始遊戲</button>
-      <p class="meta">3 顆心 · 每間 2 顆球 · 一輪 6 間房 · 每球最多反彈 8 次 · 滿分 750</p>
+      <p class="meta">3 顆心 · 每間 2–3 顆球 · 一輪 8 間房（四章各 2 間）· 每球最多反彈 8 次 · 滿分 950</p>
     </div>
     <img class="hero" src="art/hero.png" alt="" aria-hidden="true"
          onload="this.classList.add('ready')" onerror="this.remove()">
@@ -412,20 +458,20 @@
 
   <section id="scr-game" class="screen">
     <div class="hud">
-      <span id="hud-room">第 1/6 間</span>
+      <span id="hud-room">第 1/8 間 · 基礎反射</span>
       <span class="hearts" id="hud-hearts"></span>
       <span id="hud-balls">球 ●●</span>
       <span id="hud-targets">目標 1/1</span>
-      <span class="hud-note">反彈上限 8</span>
+      <span class="hud-note" id="hud-limit">反彈上限 8</span>
       <span class="badges" id="hud-badges"></span>
     </div>
     <button type="button" class="restart" id="btn-restart" aria-label="重開本輪" title="重開本輪">重開</button>
+    <button type="button" class="mute" id="btn-mute" aria-label="音效開關" title="音效開關" aria-pressed="false">🔊</button>
     <div class="stage" id="stage">
       <canvas id="room" aria-label="稜鏡迴廊遊戲畫面"></canvas>
-      <div class="tut" id="tut" hidden>
-        <div><b>拖曳</b>畫布瞄準，放開就發射</div>
-        <div>點鏡座切換 <span class="k">／ ＼ ｜ ─</span></div>
-        <div><b>入射角 = 反射角</b></div>
+      <div class="tut-card" id="tut-card" hidden role="status" aria-live="polite">
+        <span id="tut-text"></span>
+        <button type="button" class="tut-skip" id="btn-tut-skip">跳過</button>
       </div>
       <div class="overlay" id="ov-up" hidden>
         <img class="hero ov-hero" src="art/hero.png" alt="" aria-hidden="true"
@@ -439,7 +485,7 @@
              onload="this.classList.add('ready')" onerror="this.remove()">
         <h2 class="ov-title" id="end-title">本輪結束</h2>
         <p class="ov-sub" id="end-sub"></p>
-        <div class="score"><span id="end-score">0</span><small>/ 750</small></div>
+        <div class="score"><span id="end-score">0</span><small>/ 950</small></div>
         <div class="ov-actions">
           <button type="button" class="btn" id="btn-again">再來一輪</button>
           <button type="button" class="btn ghost" id="btn-home">回開始</button>
@@ -461,7 +507,7 @@
   var RIC = {
     PAD: 12,          // 房間邊牆厚度
     BALL_R: 6,
-    TARGET_R: 12,
+    TARGET_R: 16,     // 命中容錯半徑（12 → 16：L9/L10 的艙間開口窄，整數角窗太薄）
     SPEED: 520,
     SLOW: 380,
     MAX_BOUNCE: 8,
@@ -499,7 +545,7 @@
       function pushBounce(x, y, kind) {
         b.bounces++;
         ev.push({ type: "bounce", x: x, y: y, kind: kind, n: b.bounces, vx: b.vx, vy: b.vy });
-        if (b.bounces > RIC.MAX_BOUNCE) {
+        if (b.bounces > (level.bounceLimit || RIC.MAX_BOUNCE)) {
           b.dead = true;
           ev.push({ type: "die", x: x, y: y });
         }
@@ -626,135 +672,136 @@
   /* =====================================================================
      RIC-LEVELS：10 個手寫關卡。w/h 為房間世界尺寸，炮台固定在左側。
      每關都先用 1° 窮舉 × 鏡向組合證明可解（tools/ric-solve.js）。
+     手感調整：L3–L10 的艙間開口加寬到 120，L9 下艙左側改成開放開口、
+     L10 第二個目標移到走廊可視位置，讓每一發的整數角容錯都 ≥ 12。
      ===================================================================== */
   /* RIC-LEVELS-BEGIN */
   var LEVELS = [
     {
-      id: 1, name: "直廊", w: 1200, h: 400, balls: 2,
+      id: 1, name: "直廊", chapter: 1, w: 1200, h: 400, balls: 2,
       cannon: { x: 56, y: 200 },
       walls: [{ x: 620, y: 170, w: 44, h: 218 }],
       targets: [{ x: 980, y: 330 }],
       mirrors: []
     },
     {
-      id: 2, name: "上折", w: 1200, h: 400, balls: 2,
+      id: 2, name: "上折", chapter: 1, w: 1200, h: 400, balls: 2,
       cannon: { x: 56, y: 200 },
       walls: [{ x: 600, y: 12, w: 44, h: 188 }],
       targets: [{ x: 1030, y: 70 }],
       mirrors: []
     },
     {
-      id: 3, name: "鏡門", w: 1200, h: 400, balls: 2,
+      id: 3, name: "鏡門", chapter: 2, w: 1200, h: 400, balls: 2,
       cannon: { x: 56, y: 200 },
       walls: [
         { x: 876, y: 24, w: 150, h: 16 },
         { x: 860, y: 24, w: 16, h: 126 },
         { x: 1010, y: 24, w: 16, h: 142 },
-        { x: 921, y: 150, w: 89, h: 16 },
+        { x: 996, y: 150, w: 14, h: 16 },
         { x: 400, y: 270, w: 40, h: 118 }
       ],
       targets: [{ x: 902, y: 80 }],
       mirrors: [{ x: 900, y: 186, d: 0 }]
     },
     {
-      id: 4, name: "下鏡", w: 1200, h: 400, balls: 2,
+      id: 4, name: "下鏡", chapter: 2, w: 1200, h: 400, balls: 2,
       cannon: { x: 56, y: 200 },
       walls: [
         { x: 876, y: 360, w: 150, h: 16 },
         { x: 860, y: 250, w: 16, h: 126 },
         { x: 1010, y: 234, w: 16, h: 142 },
-        { x: 921, y: 234, w: 89, h: 16 },
+        { x: 996, y: 234, w: 14, h: 16 },
         { x: 400, y: 12, w: 40, h: 120 }
       ],
       targets: [{ x: 902, y: 320 }],
       mirrors: [{ x: 900, y: 214, d: 1 }]
     },
     {
-      id: 5, name: "轉鏡", w: 1200, h: 400, balls: 2,
+      id: 5, name: "轉鏡", chapter: 2, w: 1200, h: 400, balls: 2,
       cannon: { x: 56, y: 200 },
       walls: [
         { x: 1026, y: 24, w: 150, h: 16 },
         { x: 1010, y: 24, w: 16, h: 126 },
         { x: 1160, y: 24, w: 16, h: 142 },
-        { x: 1071, y: 150, w: 89, h: 16 },
+        { x: 1146, y: 150, w: 14, h: 16 },
         { x: 500, y: 270, w: 40, h: 118 }
       ],
       targets: [{ x: 1052, y: 80 }],
       mirrors: [{ x: 1050, y: 186, d: 1 }]
     },
     {
-      id: 6, name: "雙鏡", w: 1200, h: 400, balls: 2,
+      id: 6, name: "雙鏡", chapter: 3, w: 1200, h: 400, balls: 2,
       cannon: { x: 56, y: 200 },
       walls: [
         { x: 876, y: 24, w: 150, h: 16 },
         { x: 860, y: 24, w: 16, h: 126 },
         { x: 1010, y: 24, w: 16, h: 142 },
-        { x: 921, y: 150, w: 89, h: 16 },
+        { x: 996, y: 150, w: 14, h: 16 },
         { x: 450, y: 12, w: 40, h: 120 }
       ],
       targets: [{ x: 902, y: 80 }],
       mirrors: [{ x: 900, y: 186, d: 0 }, { x: 600, y: 120, d: 2 }]
     },
     {
-      id: 7, name: "交錯", w: 1200, h: 400, balls: 2,
+      id: 7, name: "交錯", chapter: 3, w: 1200, h: 400, balls: 2,
       cannon: { x: 56, y: 200 },
       walls: [
         { x: 1026, y: 360, w: 150, h: 16 },
         { x: 1010, y: 250, w: 16, h: 126 },
         { x: 1160, y: 234, w: 16, h: 142 },
-        { x: 1071, y: 234, w: 89, h: 16 },
+        { x: 1146, y: 234, w: 14, h: 16 },
         { x: 450, y: 270, w: 40, h: 118 }
       ],
       targets: [{ x: 1052, y: 320 }],
       mirrors: [{ x: 1050, y: 214, d: 1 }, { x: 600, y: 300, d: 3 }]
     },
     {
-      id: 8, name: "折返", w: 1200, h: 400, balls: 2,
+      id: 8, name: "折返", chapter: 3, w: 1200, h: 400, balls: 2,
       cannon: { x: 56, y: 200 },
       walls: [
         { x: 776, y: 24, w: 150, h: 16 },
         { x: 760, y: 24, w: 16, h: 126 },
         { x: 910, y: 24, w: 16, h: 142 },
-        { x: 821, y: 150, w: 89, h: 16 },
+        { x: 896, y: 150, w: 14, h: 16 },
         { x: 450, y: 12, w: 40, h: 120 }
       ],
       targets: [{ x: 802, y: 80 }],
       mirrors: [{ x: 800, y: 186, d: 0 }, { x: 620, y: 320, d: 2 }]
     },
     {
-      id: 9, name: "三稜", w: 1200, h: 400, balls: 2,
+      id: 9, name: "三稜", chapter: 4, w: 1200, h: 400, balls: 2,
       cannon: { x: 56, y: 200 },
       walls: [
         { x: 826, y: 24, w: 150, h: 16 },
         { x: 810, y: 24, w: 16, h: 126 },
         { x: 960, y: 24, w: 16, h: 142 },
-        { x: 871, y: 150, w: 89, h: 16 },
+        { x: 946, y: 150, w: 14, h: 16 },
         { x: 1026, y: 360, w: 150, h: 16 },
-        { x: 1010, y: 250, w: 16, h: 126 },
         { x: 1160, y: 234, w: 16, h: 142 },
-        { x: 1071, y: 234, w: 89, h: 16 },
+        { x: 1092, y: 234, w: 68, h: 16 },
         { x: 420, y: 270, w: 40, h: 118 },
         { x: 700, y: 12, w: 40, h: 120 }
       ],
-      targets: [{ x: 852, y: 80 }, { x: 1052, y: 320 }],
+      targets: [{ x: 852, y: 100 }, { x: 1052, y: 320 }],
       mirrors: [{ x: 850, y: 186, d: 0 }, { x: 1050, y: 214, d: 1 }, { x: 600, y: 60, d: 2 }]
     },
     {
-      id: 10, name: "迴廊深處", w: 1200, h: 400, balls: 2,
+      id: 10, name: "迴廊深處", chapter: 4, w: 1200, h: 400, balls: 2,
       cannon: { x: 56, y: 200 },
       walls: [
         { x: 776, y: 24, w: 150, h: 16 },
         { x: 760, y: 24, w: 16, h: 126 },
         { x: 910, y: 24, w: 16, h: 142 },
-        { x: 821, y: 150, w: 89, h: 16 },
+        { x: 896, y: 150, w: 14, h: 16 },
         { x: 976, y: 360, w: 150, h: 16 },
         { x: 960, y: 250, w: 16, h: 126 },
         { x: 1110, y: 234, w: 16, h: 142 },
-        { x: 1021, y: 234, w: 89, h: 16 },
+        { x: 1042, y: 234, w: 68, h: 16 },
         { x: 420, y: 12, w: 40, h: 120 },
         { x: 700, y: 270, w: 40, h: 118 }
       ],
-      targets: [{ x: 802, y: 80 }, { x: 1002, y: 320 }],
+      targets: [{ x: 802, y: 80 }, { x: 820, y: 310 }],
       mirrors: [{ x: 800, y: 186, d: 1 }, { x: 1000, y: 214, d: 0 }, { x: 600, y: 340, d: 3 }]
     }
   ];
@@ -766,7 +813,15 @@
   var TAU = Math.PI * 2;
   var STEP = 1 / 240;
   var FONT = '"Microsoft JhengHei","PingFang TC","Noto Sans TC",system-ui,sans-serif';
-  var TUT_KEY = "ricochet-tut-v1";
+  var TUT_KEY = "ric_tut";
+  var ROOMS_PER_RUN = 8;
+  var CHAPTERS = [
+    null,
+    { n: 1, name: "基礎反射" },
+    { n: 2, name: "單鏡" },
+    { n: 3, name: "雙鏡" },
+    { n: 4, name: "混合" }
+  ];
   var UP_INFO = {
     ball: { title: "＋1 球", desc: "本輪每間多一顆球" },
     slow: { title: "慢速球", desc: "速度 520 → 380" },
@@ -783,10 +838,94 @@
   var hudBalls = document.getElementById("hud-balls");
   var hudTargets = document.getElementById("hud-targets");
   var hudBadges = document.getElementById("hud-badges");
-  var tutEl = document.getElementById("tut");
+  var hudLimit = document.getElementById("hud-limit");
+  var tutCard = document.getElementById("tut-card");
+  var tutText = document.getElementById("tut-text");
+  var btnTutSkip = document.getElementById("btn-tut-skip");
   var ovUp = document.getElementById("ov-up");
   var ovEnd = document.getElementById("ov-end");
   var btnRestart = document.getElementById("btn-restart");
+  var btnMute = document.getElementById("btn-mute");
+
+  /* ---------------- 音效：WebAudio 即時合成（無音檔、無背景音樂） ---------------- */
+  var SND_KEY = "ric_mute";
+  var SND = { ctx: null, master: null, muted: false, lastReflect: 0 };
+  try { SND.muted = localStorage.getItem(SND_KEY) === "1"; } catch (e) { /* ignore */ }
+
+  function ensureAudio() {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    if (!SND.ctx) {
+      try {
+        SND.ctx = new AC();
+        SND.master = SND.ctx.createGain();
+        SND.master.gain.value = 0.5;
+        SND.master.connect(SND.ctx.destination);
+      } catch (e) { SND.ctx = null; return; }
+    }
+    // iOS / Chrome：AudioContext 必須在使用者手勢裡 resume。
+    if (SND.ctx.state === "suspended") {
+      try { SND.ctx.resume(); } catch (e) { /* ignore */ }
+    }
+  }
+
+  function tone(type, f0, f1, dur, gain, delay) {
+    if (!SND.ctx || !SND.master) return;
+    var t0 = SND.ctx.currentTime + (delay || 0);
+    var o = SND.ctx.createOscillator();
+    var g = SND.ctx.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(f0, t0);
+    if (f1 && f1 !== f0) o.frequency.exponentialRampToValueAtTime(Math.max(18, f1), t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, gain), t0 + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g);
+    g.connect(SND.master);
+    o.start(t0);
+    o.stop(t0 + dur + 0.03);
+  }
+
+  function sfx(name) {
+    if (SND.muted || !SND.ctx || !SND.master) return;
+    var now = SND.ctx.currentTime;
+    if (name === "reflect") {
+      // 稜鏡分裂時同一 tick 可能多次反彈，略為節流避免爆音
+      if (now - SND.lastReflect < 0.028) return;
+      SND.lastReflect = now;
+      tone("triangle", 2300, 1500, 0.045, 0.055);
+      tone("sine", 3400, 2800, 0.03, 0.03);
+    } else if (name === "shoot") {
+      tone("square", 1450, 620, 0.09, 0.075);
+      tone("triangle", 2500, 1300, 0.04, 0.028);
+    } else if (name === "hit") {
+      tone("sine", 520, 720, 0.14, 0.1);
+      tone("triangle", 780, 1040, 0.1, 0.045);
+    } else if (name === "hurt") {
+      tone("sawtooth", 250, 68, 0.44, 0.075);
+      tone("sine", 170, 52, 0.5, 0.05);
+    }
+  }
+
+  function syncMute() {
+    btnMute.textContent = SND.muted ? "🔇" : "🔊";
+    btnMute.setAttribute("aria-pressed", SND.muted ? "true" : "false");
+    btnMute.setAttribute("aria-label", SND.muted ? "音效關閉，點擊開啟" : "音效開啟，點擊關閉");
+  }
+  syncMute();
+
+  // 第一次觸控 / 點擊 / 按鍵就把 AudioContext 解鎖（iOS 限制）。
+  document.addEventListener("pointerdown", ensureAudio, true);
+  document.addEventListener("click", ensureAudio, true);
+  window.addEventListener("keydown", ensureAudio, true);
+  btnMute.addEventListener("click", function (e) {
+    e.stopPropagation();
+    ensureAudio();
+    SND.muted = !SND.muted;
+    try { localStorage.setItem(SND_KEY, SND.muted ? "1" : "0"); } catch (err) { /* ignore */ }
+    syncMute();
+    if (!SND.muted) sfx("reflect");
+  });
 
   /* ---------------- 像素素材：全部走 art/，任何一張失敗就退回原本的向量畫法 ---------------- */
   var ART_SRC = {
@@ -807,6 +946,79 @@
   BG.ctx = BG.canvas.getContext("2d");
   var ART_EPOCH = 0;
 
+  /* 鏡子：碰撞線固定是 RIC.LEN*2 = 60 world。
+     這裡把 sprite 的「可見長軸」縮到剛好 60（用 alpha bbox 量測），
+     讓視覺端點 = 碰撞端點。不是把碰撞線延長到 73。 */
+  var MIRROR_FIT = { drawW: 60 / (154 / 160), offX: 0, offY: 0, span: 154 / 160 };
+
+  /* 炮台：整張 cannon.png 依固定矩形切成「機身」與「水晶」。
+     機身永遠直立；水晶以炮口（cannon 中心）為軸旋轉。 */
+  var CANNON_PARTS = { body: null, crystal: null };
+  var CANNON_SRC = 192;   // cannon.png 原尺寸
+  var CANNON_DRAW = 86;   // 原本整張圖在世界座標的繪製邊長
+
+  function alphaBox(im) {
+    try {
+      var c = document.createElement("canvas");
+      c.width = im.naturalWidth;
+      c.height = im.naturalHeight;
+      var g = c.getContext("2d", { willReadFrequently: true });
+      g.drawImage(im, 0, 0);
+      var data = g.getImageData(0, 0, c.width, c.height).data;
+      var minX = c.width, minY = c.height, maxX = -1, maxY = -1;
+      for (var y = 0; y < c.height; y++) {
+        for (var x = 0; x < c.width; x++) {
+          if (data[(y * c.width + x) * 4 + 3] > 16) {
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+      if (maxX < 0) return null;
+      return { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
+    } catch (e) { return null; }
+  }
+
+  function cropCanvas(im, x, y, w, h) {
+    var c = document.createElement("canvas");
+    c.width = w;
+    c.height = h;
+    c.getContext("2d").drawImage(im, x, y, w, h, 0, 0, w, h);
+    return c;
+  }
+
+  function fitMirrorArt(im) {
+    var box = alphaBox(im);
+    if (!box) return;
+    var span = box.w / im.naturalWidth;
+    if (span <= 0) return;
+    var drawW = (RIC.LEN * 2) / span;
+    var s = drawW / im.naturalWidth;
+    MIRROR_FIT = {
+      drawW: drawW,
+      offX: (box.x + box.w / 2 - im.naturalWidth / 2) * s,
+      offY: (box.y + box.h / 2 - im.naturalHeight / 2) * s,
+      span: span
+    };
+  }
+
+  function splitCannonArt(im) {
+    var s = CANNON_DRAW / CANNON_SRC;
+    var left = -4 - (CANNON_SRC / 2) * s;   // 舊版整張圖的左上角（置中偏移 -4）
+    var top = -CANNON_DRAW / 2;
+    // 固定矩形切法：左邊 0..108 是機身＋手臂，右邊 104..192 是水晶（重疊 4px 蓋住接縫）
+    CANNON_PARTS.body = cropCanvas(im, 0, 0, 108, 192);
+    // 機身切片的右上角會殘留一點水晶尖（水晶會另外旋轉），先清掉避免出現「第二塊水晶」
+    CANNON_PARTS.body.getContext("2d").clearRect(103, 44, 6, 86);
+    CANNON_PARTS.crystal = cropCanvas(im, 104, 48, 88, 100);
+    CANNON_PARTS.geom = {
+      bx: left, by: top, bw: 108 * s, bh: 192 * s,
+      cx: left + 104 * s, cy: top + 48 * s, cw: 88 * s, ch: 100 * s
+    };
+  }
+
   function art(k) {
     var im = ART[k];
     return im && im.ok && im.naturalWidth ? im : null;
@@ -820,6 +1032,10 @@
         ART_EPOCH++;
         if (key === "wall" || key === "floor") {
           try { PAT[key] = ctx.createPattern(im, "repeat"); } catch (e) { PAT[key] = null; }
+        } else if (key === "mirror") {
+          fitMirrorArt(im);
+        } else if (key === "cannon") {
+          splitCannonArt(im);
         }
       };
       im.onerror = function () { im.ok = false; };
@@ -843,7 +1059,6 @@
   }
 
   var cssW = 1, cssH = 1, dpr = 1, scale = 1, ox = 0, oy = 0;
-  var tutTimer = 0;
 
   var G = {
     screen: "start",
@@ -904,7 +1119,9 @@
   /* ---------------- HUD ---------------- */
   function updateHud() {
     if (!G.run || !G.room) return;
-    hudRoom.textContent = "第 " + (G.run.idx + 1) + "/6 間";
+    var ch = CHAPTERS[G.room.level.chapter] || CHAPTERS[1];
+    hudRoom.textContent = "第 " + (G.run.idx + 1) + "/" + ROOMS_PER_RUN + " 間 · " + ch.name;
+    hudLimit.textContent = "反彈上限 " + (G.room.level.bounceLimit || RIC.MAX_BOUNCE);
     var h = "";
     for (var i = 0; i < 3; i++) {
       h += '<span class="' + (i < G.run.hearts ? "on" : "off") + '">' + (i < G.run.hearts ? "♥" : "♡") + "</span>";
@@ -926,22 +1143,42 @@
     hudBadges.innerHTML = bd;
   }
 
-  /* ---------------- 教學 ---------------- */
+  /* ---------------- 新手引導：3 張文字卡（只有一輪的第 1 關／首次鏡座） ---------------- */
+  var TUT = { card1: false, card2: false, card3: false, timer: 0 };
   function tutSeen() {
     try { return localStorage.getItem(TUT_KEY) === "1"; } catch (e) { return true; }
   }
-  function showTutIfNeeded() {
-    if (tutSeen()) return;
-    tutEl.hidden = false;
-    clearTimeout(tutTimer);
-    tutTimer = setTimeout(hideTut, 8000);
-  }
-  function hideTut() {
-    if (tutEl.hidden) return;
-    tutEl.hidden = true;
-    clearTimeout(tutTimer);
+  function tutMarkSeen() {
     try { localStorage.setItem(TUT_KEY, "1"); } catch (e) { /* ignore */ }
   }
+  function hideTutCard() {
+    clearTimeout(TUT.timer);
+    TUT.timer = 0;
+    tutCard.classList.remove("show");
+    // 等 0.35s 淡出結束再 hidden，卡片才不會瞬間消失
+    setTimeout(function () {
+      if (!tutCard.classList.contains("show")) tutCard.hidden = true;
+    }, 380);
+  }
+  function showTutCard(text, ms) {
+    if (tutSeen()) return;
+    tutText.textContent = text;
+    tutCard.hidden = false;
+    void tutCard.offsetWidth; // 重新觸發 transition
+    tutCard.classList.add("show");
+    clearTimeout(TUT.timer);
+    if (ms) TUT.timer = setTimeout(hideTutCard, ms);
+  }
+  function skipTut() {
+    tutMarkSeen();
+    TUT.card1 = TUT.card2 = TUT.card3 = true;
+    hideTutCard();
+  }
+  btnTutSkip.addEventListener("click", function (e) {
+    e.stopPropagation();
+    this.blur();
+    skipTut();
+  });
 
   /* ---------------- 流程 ---------------- */
   function showScreen(name) {
@@ -952,11 +1189,16 @@
   }
 
   function pickRooms() {
-    var idx = [];
-    for (var i = 0; i < LEVELS.length; i++) idx.push(i);
-    shuffle(idx);
-    var pick = idx.slice(0, 6);
-    pick.sort(function (a, b) { return a - b; }); // 難度由淺到深
+    // 一輪 8 間：四章各抽 2 間（章內不重複，章節順序由淺到深）。
+    var pick = [];
+    for (var ch = 1; ch <= 4; ch++) {
+      var pool = [];
+      for (var i = 0; i < LEVELS.length; i++) {
+        if (LEVELS[i].chapter === ch) pool.push(i);
+      }
+      shuffle(pool);
+      pick.push(pool[0], pool[1]);
+    }
     return pick;
   }
 
@@ -975,6 +1217,8 @@
     G.mode = "idle";
     ovEnd.hidden = true;
     ovUp.hidden = true;
+    if (!tutSeen()) TUT.card1 = TUT.card2 = TUT.card3 = false;
+    hideTutCard();
     showScreen("game");
     startRoom();
   }
@@ -1002,7 +1246,19 @@
     updateHud();
     resize();
     updateView();
-    showTutIfNeeded();
+    // 教學卡只在一輪的第 1 關、以及第一次遇到鏡座時出現；已看過就完全不再打擾。
+    if (!tutSeen()) {
+      if (G.run.idx === 0 && !TUT.card1) {
+        TUT.card1 = true;
+        showTutCard("拖曳畫面瞄準，放開就發射", 2500);
+      } else if (L.mirrors.length && !TUT.card3) {
+        TUT.card3 = true;
+        showTutCard("點鏡子切換方向 ／ ＼ ｜ ─", 5000);
+        tutMarkSeen();
+      }
+    } else {
+      hideTutCard();
+    }
   }
 
   function resetRoom() {
@@ -1039,7 +1295,14 @@
     G.recoil = 0.18;
     addFx("muzzle", m.x, m.y, { dur: 0.2 });
     updateHud();
-    hideTut();
+    sfx("shoot");
+    // 第 1 關發射一次後，換成反射提示卡
+    if (!tutSeen() && G.run && G.run.idx === 0 && !TUT.card2) {
+      TUT.card2 = true;
+      showTutCard("箭會依入射角反射——入射角 = 反射角", 4200);
+    } else {
+      hideTutCard();
+    }
   }
 
   function addFx(kind, x, y, extra) {
@@ -1051,6 +1314,7 @@
 
   function onBounce(b, e) {
     addFx("reflect", e.x, e.y, { dur: 0.55 });
+    sfx("reflect");
     if (G.run.upgrades.prism && !b.split && (e.kind === "edge" || e.kind === "wall")) {
       b.split = true;
       var sp = speed();
@@ -1070,6 +1334,7 @@
     var tg = G.room.targets[e.idx];
     if (tg && tg.alive) tg.alive = false;
     addFx("hit", e.x, e.y, { dur: 1.1, deg: Math.round(G.angle) });
+    sfx("hit");
     updateHud();
     var left = 0;
     for (var i = 0; i < G.room.targets.length; i++) if (G.room.targets[i].alive) left++;
@@ -1133,6 +1398,7 @@
   }
 
   function loseHeart() {
+    sfx("hurt");
     G.run.hearts--;
     updateHud();
     if (G.run.hearts <= 0) { endRun(false); return; }
@@ -1192,12 +1458,12 @@
   function endRun(win) {
     G.mode = "over";
     btnRestart.hidden = true;
-    hideTut();
+    hideTutCard();
     var score = G.run.cleared * 100 + G.run.hearts * 50;
     G.run.score = score;
     document.getElementById("end-title").textContent = win ? "全數通過！" : "本輪結束";
     document.getElementById("end-sub").textContent =
-      "通過 " + G.run.cleared + " / 6 間 · 剩餘 " + G.run.hearts + " 顆心";
+      "通過 " + G.run.cleared + " / " + ROOMS_PER_RUN + " 間 · 剩餘 " + G.run.hearts + " 顆心";
     document.getElementById("end-score").textContent = String(score);
     ovEnd.hidden = false;
     reportScore(score);
@@ -1249,7 +1515,7 @@
     m.flash = 0.55;
     m.pop = 0.12;   // 120ms 縮放回饋
     addFx("toggle", m.x, m.y, { dur: 0.5 });
-    hideTut();
+    hideTutCard();
   }
 
   function onDown(e) {
@@ -1586,7 +1852,9 @@
 
   function drawMirrors(L, t) {
     var room = G.room;
-    var drawW = 84;
+    // drawW 由 mirror.png 的 alpha 可見長軸換算：可見長度 = 2*RIC.LEN = 碰撞線長度。
+    var fit = MIRROR_FIT;
+    var drawW = fit.drawW;
     for (var i = 0; i < room.mirrors.length; i++) {
       var m = room.mirrors[i];
       var u = RIC.unit(m.d);
@@ -1610,7 +1878,7 @@
       ctx.scale(sc, sc);
       if (m.d === 0) ctx.scale(1, -1);   // ／ 鏡像
       if (img) {
-        ctx.drawImage(img, -drawW / 2, -drawW / 2, drawW, drawW);
+        ctx.drawImage(img, -drawW / 2 - fit.offX, -drawW / 2 - fit.offY, drawW, drawW);
       } else {
         // 向量備援：原本的雙線鏡面
         ctx.lineCap = "round";
@@ -1760,13 +2028,31 @@
     ctx.fillStyle = rg;
     ctx.beginPath(); ctx.arc(c.x, c.y, 58, 0, TAU); ctx.fill();
 
-    ctx.save();
-    ctx.translate(c.x, c.y);
-    ctx.rotate(-a);
-    if (img) {
-      var cw = 86;
-      ctx.drawImage(img, -4 - cw / 2 - kick, -cw / 2, cw, cw);
-      // 炮口的光，發射瞬間最亮
+    var parts = CANNON_PARTS;
+    var canSplit = !!(img && parts.body && parts.crystal && parts.geom);
+    if (canSplit) {
+      var g = parts.geom;
+
+      // 機身：永遠直立，不隨角度旋轉（±80° 時機器人不會躺下）
+      ctx.save();
+      ctx.translate(c.x, c.y);
+      ctx.drawImage(parts.body, g.bx, g.by, g.bw, g.bh);
+      ctx.restore();
+
+      // 水晶：以炮口為軸心旋轉；待機時 1.0 → 1.04 呼吸，2 秒一週期
+      var breath = 1 + 0.02 * (1 - Math.cos(Math.PI * t));
+      ctx.save();
+      ctx.translate(c.x, c.y);
+      ctx.rotate(-a);
+      ctx.translate(-kick, 0);
+      ctx.scale(breath, breath);
+      ctx.drawImage(parts.crystal, g.cx, g.cy, g.cw, g.ch);
+      ctx.restore();
+
+      // 炮口的光，發射瞬間最亮（不跟著呼吸縮放，才對得上 RIC.BARREL）
+      ctx.save();
+      ctx.translate(c.x, c.y);
+      ctx.rotate(-a);
       var mg = ctx.createRadialGradient(RIC.BARREL, 0, 0, RIC.BARREL, 0, 18);
       var ma = 0.18 + (G.recoil > 0 ? (G.recoil / 0.18) * 0.7 : 0);
       mg.addColorStop(0, "rgba(255,250,215," + ma.toFixed(3) + ")");
@@ -1774,34 +2060,34 @@
       mg.addColorStop(1, "rgba(255,210,87,0)");
       ctx.fillStyle = mg;
       ctx.beginPath(); ctx.arc(RIC.BARREL, 0, 18, 0, TAU); ctx.fill();
+      ctx.restore();
     } else {
-      ctx.fillStyle = "#c99a24";
-      rrect(-kick, -7, RIC.BARREL + 12, 14, 7);
-      ctx.fill();
-      ctx.fillStyle = "#ffd257";
-      rrect(1 - kick, -5.5, RIC.BARREL + 10, 11, 5.5);
-      ctx.fill();
-      ctx.fillStyle = "#fff0bd";
-      rrect(4 - kick, -2.8, RIC.BARREL + 3, 5.6, 2.8);
-      ctx.fill();
-      ctx.strokeStyle = "#ffe9a8";
-      ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(RIC.BARREL + 7 - kick, 0, 7, 0, TAU); ctx.stroke();
-    }
-    ctx.restore();
-
-    if (!img) {
-      ctx.beginPath();
-      ctx.arc(c.x, c.y, 16, 0, TAU);
+      // 向量備援：同樣是「機身固定、炮管旋轉」
+      ctx.save();
+      ctx.translate(c.x, c.y);
       ctx.fillStyle = "#182746";
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(0, 0, 16, 0, TAU); ctx.fill();
       ctx.strokeStyle = "#ffd257";
       ctx.lineWidth = 3;
       ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(c.x, c.y, 7, 0, TAU);
       ctx.fillStyle = "#5ee0ff";
+      ctx.beginPath(); ctx.arc(0, 0, 7, 0, TAU); ctx.fill();
+
+      ctx.rotate(-a);
+      ctx.translate(-kick, 0);
+      ctx.fillStyle = "#c99a24";
+      rrect(0, -7, RIC.BARREL + 12, 14, 7);
       ctx.fill();
+      ctx.fillStyle = "#ffd257";
+      rrect(1, -5.5, RIC.BARREL + 10, 11, 5.5);
+      ctx.fill();
+      ctx.fillStyle = "#fff0bd";
+      rrect(4, -2.8, RIC.BARREL + 3, 5.6, 2.8);
+      ctx.fill();
+      ctx.strokeStyle = "#ffe9a8";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(RIC.BARREL + 7, 0, 7, 0, TAU); ctx.stroke();
+      ctx.restore();
     }
     ctx.restore();
 
@@ -1856,7 +2142,7 @@
         ctx.font = "bold 13px " + FONT;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(b.bounces + "/8", b.x, b.y - 18);
+        ctx.fillText(b.bounces + "/" + (L.bounceLimit || RIC.MAX_BOUNCE), b.x, b.y - 18);
       }
     }
   }
@@ -2098,7 +2384,7 @@
       for (var i = 0; i < LEVELS.length; i++) if (i !== levelIndex) rest.push(i);
       shuffle(rest);
       G.run = {
-        rooms: [levelIndex].concat(rest.slice(0, 5)),
+        rooms: [levelIndex].concat(rest.slice(0, ROOMS_PER_RUN - 1)),
         idx: 0, hearts: 3, cleared: 0, score: 0,
         upgrades: { ball: 0, slow: false, xray: false, prism: false }
       };
@@ -2123,7 +2409,10 @@
         mode: G.mode,
         angle: Math.round(G.angle * 10) / 10,
         room: G.room ? G.room.level.id : null,
+        chapter: G.room ? G.room.level.chapter : null,
+        bounceLimit: G.room ? (G.room.level.bounceLimit || RIC.MAX_BOUNCE) : null,
         roomIndex: G.run ? G.run.idx : null,
+        rooms: G.run ? G.run.rooms.map(function (i) { return LEVELS[i].id; }) : [],
         cleared: G.run ? G.run.cleared : 0,
         hearts: G.run ? G.run.hearts : 0,
         score: G.run ? G.run.cleared * 100 + G.run.hearts * 50 : 0,
@@ -2168,6 +2457,63 @@
       var m = G.room.mirrors[i];
       var r = canvas.getBoundingClientRect();
       return { x: r.left + ox + m.x * scale, y: r.top + oy + m.y * scale };
+    },
+    /* 回傳鏡子的碰撞端點與 sprite 可見端點（兩者應完全相同） */
+    mirrorVisual: function (i) {
+      if (!G.room || !G.room.mirrors[i]) return null;
+      var m = G.room.mirrors[i];
+      var u = RIC.unit(m.d);
+      var span = MIRROR_FIT.drawW * MIRROR_FIT.span;
+      return {
+        dir: m.d,
+        center: { x: m.x, y: m.y },
+        collision: [
+          { x: m.x - u.x * RIC.LEN, y: m.y - u.y * RIC.LEN },
+          { x: m.x + u.x * RIC.LEN, y: m.y + u.y * RIC.LEN }
+        ],
+        visual: [
+          { x: m.x - u.x * span / 2, y: m.y - u.y * span / 2 },
+          { x: m.x + u.x * span / 2, y: m.y + u.y * span / 2 }
+        ],
+        worldSpan: span,
+        drawW: MIRROR_FIT.drawW,
+        alphaSpanRatio: MIRROR_FIT.span
+      };
+    },
+    /* 對「視覺端點 + off world」連線角度試打一發，回傳是否在端點附近反彈 */
+    edgeTest: function (i, off) {
+      if (!G.room || !G.room.mirrors[i]) return null;
+      var m = G.room.mirrors[i];
+      var u = RIC.unit(m.d);
+      var end = { x: m.x + u.x * RIC.LEN, y: m.y + u.y * RIC.LEN };
+      var target = { x: end.x + u.x * (off || 0), y: end.y + u.y * (off || 0) };
+      var c = G.room.level.cannon;
+      var deg = Math.atan2(c.y - target.y, target.x - c.x) * 180 / Math.PI;
+      deg = Math.max(-85, Math.min(85, deg));
+      var targets = G.room.targets.map(function (tg) { return { x: tg.x, y: tg.y, alive: true }; });
+      var r = RIC.simShot(G.room.level, G.room.mirrors, deg, targets, RIC.SPEED);
+      var mb = [];
+      for (var k = 0; k < r.path.length; k++) {
+        var p = r.path[k];
+        if (p.kind !== "mirror") continue;
+        mb.push({ x: p.x, y: p.y, distToEnd: Math.hypot(p.x - end.x, p.y - end.y) });
+      }
+      return {
+        angle: deg, end: end, probe: target, bounces: r.bounces,
+        mirrorBounces: mb, bouncedAtEnd: mb.some(function (p) { return p.distToEnd < 4; })
+      };
+    },
+    audio: function () {
+      return { muted: SND.muted, state: SND.ctx ? SND.ctx.state : "none" };
+    },
+    tutorial: function () {
+      return {
+        seen: tutSeen(),
+        card1: TUT.card1, card2: TUT.card2, card3: TUT.card3,
+        hidden: tutCard.hidden,
+        visible: tutCard.classList.contains("show"),
+        text: tutText.textContent
+      };
     },
     fixDevicePixelRatio: function () {
       canvas.width = canvas.width;
