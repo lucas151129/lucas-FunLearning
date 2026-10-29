@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#141a30">
 <title>算式鍛造所</title>
-<link rel="preload" as="image" href="art/golem.png">
+<link rel="preload" as="image" href="art/golem-rust-sentinel.png">
 <link rel="preload" as="image" href="art/card-frame.png">
 <link rel="preload" as="image" href="art/anvil.png">
 <link rel="preload" as="image" href="art/hit.png">
@@ -201,8 +201,8 @@
     max-height: 46vh;
     object-fit: contain;
     image-rendering: pixelated;
-    opacity: .82;
-    filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .7)) saturate(.9) brightness(.88) hue-rotate(-8deg);
+    opacity: .9;
+    filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .7));
     animation: golemBob 4.6s ease-in-out infinite;
   }
   .start-foe span {
@@ -875,6 +875,101 @@
   #btn-hint { min-width: 64px; font-size: 12px; }
   #btn-hint img { width: 18px; height: 18px; image-rendering: pixelated; }
 
+  /* ---------------- 音效開關 ---------------- */
+  .snd {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin: -7px 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #dbe7ff;
+    cursor: pointer;
+    flex: none;
+  }
+  .snd span {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 22px;
+    border: 1px solid rgba(120, 150, 210, .45);
+    border-radius: 4px;
+    background: linear-gradient(180deg, rgba(46, 60, 96, .9), rgba(20, 28, 48, .95));
+    font-size: 12px;
+    line-height: 1;
+  }
+  .snd:hover span { filter: brightness(1.2); }
+  .snd.off span { color: #ff9a8a; border-color: rgba(255, 120, 100, .5); background: linear-gradient(180deg, rgba(72, 34, 34, .9), rgba(32, 16, 16, .95)); }
+
+  /* ---------------- 新手引導卡（浮在算式槽上，不遮手牌與敵人） ---------------- */
+  .slot-row { position: relative; }
+  #tut {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 8px 5px 6px;
+    border: 2px solid #6b5230;
+    border-radius: 7px;
+    background:
+      linear-gradient(180deg, rgba(44, 34, 24, .97), rgba(20, 17, 18, .985));
+    box-shadow: 0 0 0 1px #0a0c14, 0 8px 22px rgba(0, 0, 0, .62), inset 0 1px 0 rgba(255, 220, 150, .16);
+    color: #ffe9c4;
+    font-size: 11px;
+    line-height: 1.3;
+    animation: tutIn .22s ease both;
+  }
+  @keyframes tutIn {
+    from { opacity: 0; transform: translateY(7px) scale(.99); }
+    to { opacity: 1; transform: none; }
+  }
+  .tut-badge {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #ffe08a, #f0a537);
+    color: #2b1603;
+    font-size: 11px;
+    font-weight: 900;
+    box-shadow: 0 1px 0 #7f3d05;
+  }
+  .tut-text { flex: 1 1 auto; min-width: 0; margin: 0; text-shadow: 0 1px 0 #000; }
+  .tut-text b { color: #ffd06a; }
+  #tut-ok {
+    flex: none;
+    min-width: 62px;
+    min-height: 40px;
+    padding: 0 9px;
+    border: 1px solid #1a1206;
+    border-radius: 5px;
+    background: linear-gradient(180deg, #ffe293, #ffb342 55%, #e37a19);
+    color: #2b1603;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 2px 0 #7f3d05;
+  }
+  #tut-ok:active { transform: translateY(1px); box-shadow: 0 1px 0 #7f3d05; }
+  #tut-skip {
+    flex: none;
+    min-width: 44px;
+    min-height: 40px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: #9fb0cf;
+    font-size: 10.5px;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
   /* ---------------- 卡片飛行 / 命中 ---------------- */
   #fx { position: absolute; inset: 0; pointer-events: none; z-index: 30; overflow: hidden; }
   .spark {
@@ -1290,7 +1385,7 @@
         </div>
       </div>
       <div class="start-foe" aria-hidden="true">
-        <img src="art/golem.png" alt="" class="pix">
+        <img src="art/golem-forgemaster.png" alt="" class="pix">
         <span class="foe-tag">6 座魔像 · 各自機制 · 護甲 <b>24 → 120</b></span>
       </div>
     </div>
@@ -1313,6 +1408,7 @@
         <span class="hearts" id="hud-hearts" aria-label="生命"></span>
         <span class="hud-sep"></span>
         <span id="hud-foe">魔像</span>
+        <button id="btn-mute" class="snd" type="button" aria-pressed="false" title="音效開關" aria-label="音效開關"><span id="mute-face">🔊</span></button>
       </div>
     </header>
 
@@ -1325,7 +1421,7 @@
         <div class="enemy-stage">
           <div class="rune-ring"></div>
           <div class="golem-wrap" id="golem-wrap">
-            <img id="golem" src="art/golem.png" alt="鍛造廠魔像" class="pix">
+            <img id="golem" src="art/golem-rust-sentinel.png" alt="鏽鐵崗哨" class="pix">
           </div>
           <div class="enemy-info">
             <h2 class="enemy-name" id="enemy-name">鏽鐵崗哨<small>RUST SENTINEL</small></h2>
@@ -1352,6 +1448,12 @@
             <span class="slot-tag">算式槽</span>
             <div class="slot" id="slot"></div>
             <div class="slot-val"><span class="eq" id="slot-eq">算式值</span><b id="slot-val">—</b></div>
+          </div>
+          <div id="tut" hidden>
+            <span class="tut-badge" id="tut-badge">1</span>
+            <p class="tut-text" id="tut-text">點數字和運算子放進算式槽，排出一個算式</p>
+            <button id="tut-ok" type="button">知道了</button>
+            <button id="tut-skip" type="button">跳過</button>
           </div>
         </div>
         <div class="controls">
@@ -1414,15 +1516,23 @@
   }
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
-  /* ================= 音效（WebAudio，無外部檔案） ================= */
-  var AC = null;
+  /* ================= 音效（WebAudio 程序合成，無外部檔案） ================= */
+  var AC = null, MUTED = false;
+  try { MUTED = localStorage.getItem("forge_mute") === "1"; } catch (e) { MUTED = false; }
   function initAudio() {
-    if (AC) return;
-    try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { AC = null; }
+    if (!AC) {
+      try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { AC = null; }
+    }
+    if (AC && AC.state === "suspended") {
+      try { AC.resume(); } catch (e) { /* ignore */ }
+    }
   }
   document.addEventListener("pointerdown", initAudio, { once: true });
+  document.addEventListener("keydown", initAudio, { once: true });
+  document.addEventListener("touchstart", initAudio, { once: true, passive: true });
   function tone(freq, dur, type, vol, slide) {
-    if (!AC) return;
+    if (!AC || MUTED) return;
+    if (AC.state === "suspended") { try { AC.resume(); } catch (e) { /* ignore */ } }
     try {
       var o = AC.createOscillator(), g = AC.createGain();
       o.type = type || "square";
@@ -1436,7 +1546,7 @@
     } catch (e) { /* ignore */ }
   }
   function noise(dur, vol) {
-    if (!AC) return;
+    if (!AC || MUTED) return;
     try {
       var n = Math.floor(AC.sampleRate * dur), buf = AC.createBuffer(1, n, AC.sampleRate), d = buf.getChannelData(0);
       for (var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
@@ -1447,14 +1557,127 @@
   }
   var SFX = {
     tap: function () { tone(620, 0.05, "square", 0.028, 520); },
-    forge: function () { noise(0.16, 0.07); tone(120, 0.18, "sawtooth", 0.05, 60); tone(880, 0.08, "square", 0.02, 700); },
-    break: function () { noise(0.4, 0.1); tone(180, 0.36, "sawtooth", 0.06, 45); },
-    over: function () { tone(140, 0.4, "square", 0.06, 60); noise(0.3, 0.08); },
+    /* 命中護甲：短促金屬鏗聲 */
+    hit: function () {
+      noise(0.07, 0.05);
+      tone(1180, 0.05, "square", 0.034, 1660);
+      tone(430, 0.1, "triangle", 0.04, 300);
+      setTimeout(function () { tone(1520, 0.07, "sine", 0.02, 1150); }, 26);
+    },
+    /* 破甲：碎裂 + 低頻崩落 */
+    break: function () {
+      noise(0.3, 0.11);
+      tone(210, 0.32, "sawtooth", 0.06, 50);
+      tone(760, 0.16, "square", 0.03, 170);
+      setTimeout(function () {
+        noise(0.18, 0.075);
+        tone(120, 0.24, "triangle", 0.055, 46);
+      }, 85);
+    },
+    /* 超載：刺耳爆裂 + 爐心失控下滑 */
+    overload: function () {
+      noise(0.28, 0.1);
+      tone(92, 0.44, "square", 0.075, 30);
+      tone(320, 0.34, "sawtooth", 0.045, 920);
+      setTimeout(function () { noise(0.16, 0.09); tone(60, 0.3, "sawtooth", 0.05, 34); }, 140);
+    },
+    /* 扣心：低沉雙擊心跳 */
+    hurt: function () {
+      noise(0.08, 0.028);
+      tone(124, 0.2, "sine", 0.085, 62);
+      setTimeout(function () { tone(96, 0.26, "sine", 0.07, 46); }, 128);
+    },
     win: function () { [523, 659, 784, 1046].forEach(function (f, i) { setTimeout(function () { tone(f, 0.16, "square", 0.04); }, i * 90); }); },
     lose: function () { [392, 330, 262, 196].forEach(function (f, i) { setTimeout(function () { tone(f, 0.22, "triangle", 0.05); }, i * 120); }); },
-    heart: function () { tone(90, 0.22, "sine", 0.07, 55); },
+    bad: function () { tone(190, 0.16, "square", 0.05, 108); },
     hint: function () { tone(1046, 0.08, "sine", 0.035); }
   };
+
+  /* ================= 音效開關（🔊 / 🔇，記在 localStorage） ================= */
+  function renderMute() {
+    var b = $("btn-mute");
+    if (!b) return;
+    $("mute-face").textContent = MUTED ? "🔇" : "🔊";
+    b.setAttribute("aria-pressed", MUTED ? "true" : "false");
+    b.classList.toggle("off", MUTED);
+    b.title = MUTED ? "音效已關閉（點一下開啟）" : "音效已開啟（點一下靜音）";
+  }
+  $("btn-mute").addEventListener("click", function () {
+    this.blur();
+    MUTED = !MUTED;
+    try { localStorage.setItem("forge_mute", MUTED ? "1" : "0"); } catch (e) { /* ignore */ }
+    initAudio();
+    renderMute();
+    if (!MUTED) SFX.tap();
+  });
+
+  /* ================= 首次進入的 3 步引導（文字卡，浮在算式槽上） ================= */
+  var TUT_KEY = "forge_tut";
+  var TUT_TEXT = {
+    1: "點<b>數字</b>和<b>運算子</b>放進算式槽，排出一個算式",
+    2: "算式值 <b>≤ 護甲</b> → 削甲；<b>&gt; 護甲</b> → 超載扣心",
+    3: "護甲歸零 → 敵人 <b>−1 HP</b>，溢出帶到下一層"
+  };
+  var TUT = { on: false, seen: {}, q: [], showing: 0, timer: 0 };
+  function tutFirstTime() {
+    try { return localStorage.getItem(TUT_KEY) !== "1"; } catch (e) { return true; }
+  }
+  function tutHide() {
+    if (TUT.timer) { clearTimeout(TUT.timer); TUT.timer = 0; }
+    TUT.showing = 0;
+    var el = $("tut");
+    if (el) el.hidden = true;
+  }
+  function tutFinish() {
+    TUT.on = false;
+    TUT.q = [];
+    TUT.seen[1] = TUT.seen[2] = TUT.seen[3] = 1;
+    tutHide();
+    try { localStorage.setItem(TUT_KEY, "1"); } catch (e) { /* ignore */ }
+  }
+  function tutShow(step) {
+    var el = $("tut");
+    $("tut-badge").textContent = String(step);
+    $("tut-text").innerHTML = TUT_TEXT[step];
+    el.hidden = false;
+    el.style.animation = "none";
+    void el.offsetWidth;
+    el.style.animation = "";
+  }
+  function tutNext() {
+    if (!TUT.on || TUT.showing || !TUT.q.length) return;
+    var step = TUT.q.shift();
+    TUT.showing = step;
+    tutShow(step);
+    TUT.timer = setTimeout(tutDismiss, step === 1 ? 5200 : 4400);
+  }
+  function tutDismiss() {
+    var was = TUT.showing;
+    if (!was) return;
+    tutHide();
+    if (was === 3) { tutFinish(); return; }
+    if (TUT.q.length) setTimeout(tutNext, 180);
+  }
+  function tutQueue(step) {
+    if (!TUT.on || TUT.seen[step]) return;
+    TUT.seen[step] = 1;
+    TUT.q.push(step);
+    tutNext();
+  }
+  function tutStart() {
+    if (TUT.on || !tutFirstTime()) return;
+    TUT.on = true;
+    TUT.seen = {};
+    TUT.q = [];
+    TUT.showing = 0;
+    tutQueue(1);
+  }
+  $("tut-ok").addEventListener("click", function () { this.blur(); tutDismiss(); });
+  $("tut-skip").addEventListener("click", function () {
+    this.blur();
+    tutFinish();
+    toast("已跳過新手引導");
+  });
 
   /* ================= 卡片 ================= */
   var uidSeq = 0;
@@ -1532,7 +1755,8 @@
   function baseDeck() {
     var d = [];
     for (var i = 1; i <= 9; i++) d.push(cNum(i));
-    d.push(cOp("+"), cOp("-"), cOp("*"));
+    // 兩張「＋」：鐵鎖封印 × 時，玩家才有辦法用三個數字相加解掉護甲
+    d.push(cOp("+"), cOp("+"), cOp("-"), cOp("*"));
     return d;
   }
 
@@ -1778,27 +2002,31 @@
   }
 
   /* ================= 關卡資料 ================= */
-  /* 每場一個機制；護甲刻意混入需要 +／− 才能剛好削完的層，避免後期全是連乘。 */
+  /* 每場一個機制；護甲刻意混入需要 +／− 才能剛好削完的層，避免後期全是連乘。
+     鐵鎖層只能用「三個數字相加」解（× 卡被封），所以護甲壓在 24 以內。
+     難度基準：3 心、不回血，零失誤可打出滿分 750（bot 已驗證）。 */
   var BATTLES = [
-    { name: "鏽鐵崗哨", en: "RUST SENTINEL", mech: "none", mechName: "教學",
-      blurb: "沒有特殊機制，先熟悉削甲節奏", hp: 3, armor: [24, 27, 33],
-      tint: "none", scale: 1.0 },
-    { name: "煤渣衛兵", en: "CINDER GUARD", mech: "lock", mechName: "鐵鎖",
-      blurb: "每 2 回合，× 卡被鐵鎖封印", hp: 3, armor: [30, 36, 41],
-      tint: "hue-rotate(-12deg) saturate(1.08)", scale: 1.02 },
-    { name: "熔渣巨像", en: "SLAG COLOSSUS", mech: "heal", mechName: "癒合",
-      blurb: "該回合沒破甲，下回合護甲重鑄 +6", hp: 4, armor: [36, 44, 48, 58],
-      tint: "hue-rotate(16deg) saturate(1.15)", scale: 1.04 },
-    { name: "鐵砧守衛", en: "ANVIL WARDEN", mech: "reflect", mechName: "反擊",
-      blurb: "破甲當回合仍會反擊 1 心", hp: 2, armor: [47, 58],
-      tint: "hue-rotate(-28deg) saturate(.9)", scale: 1.06 },
-    { name: "爐心魔像", en: "CORE GOLEM", mech: "crit", mechName: "臨界",
-      blurb: "超載代價 2 心，寧可算準", hp: 3, armor: [54, 65, 72],
-      tint: "hue-rotate(30deg) saturate(1.2) brightness(1.04)", scale: 1.08 },
-    { name: "鍛造廠主", en: "THE FORGEMASTER", mech: "limit", mechName: "限牌",
-      blurb: "每回合只發 4 張手牌", hp: 5, armor: [64, 72, 88, 102, 120],
-      tint: "hue-rotate(48deg) saturate(1.28) brightness(1.05)", scale: 1.12 }
+    { id: "rust-sentinel",
+      name: "鏽鐵崗哨", en: "RUST SENTINEL", mech: "none", mechName: "教學",
+      blurb: "沒有特殊機制，先熟悉削甲節奏", hp: 3, armor: [24, 27, 33] },
+    { id: "cinder-guard",
+      name: "煤渣衛兵", en: "CINDER GUARD", mech: "lock", mechName: "鐵鎖",
+      blurb: "每 2 回合，× 卡被鐵鎖封印（只能加減）", hp: 4, armor: [15, 18, 21, 24] },
+    { id: "slag-colossus",
+      name: "熔渣巨像", en: "SLAG COLOSSUS", mech: "heal", mechName: "癒合",
+      blurb: "該回合沒破甲，下回合護甲重鑄 +6", hp: 4, armor: [36, 44, 48, 58] },
+    { id: "anvil-warden",
+      name: "鐵砧守衛", en: "ANVIL WARDEN", mech: "reflect", mechName: "反擊",
+      blurb: "超載破甲會被鐵砧反擊 1 心，算準就能壓制", hp: 2, armor: [47, 58] },
+    { id: "core-golem",
+      name: "爐心魔像", en: "CORE GOLEM", mech: "crit", mechName: "臨界",
+      blurb: "超載代價 2 心，寧可算準", hp: 3, armor: [54, 65, 72] },
+    { id: "forgemaster",
+      name: "鍛造廠主", en: "THE FORGEMASTER", mech: "limit", mechName: "限牌",
+      blurb: "每回合只發 4 張手牌", hp: 5, armor: [64, 72, 88, 102, 120] }
   ];
+  /* 每場的魔像圖就看 enemyId：art/golem-<id>.png */
+  function golemArt(id) { return "art/golem-" + id + ".png"; }
 
   var RELICS = {
     calc: { name: "計算機", desc: "每回合可看一次提示", glyph: "⊞" },
@@ -1841,7 +2069,7 @@
     rewardOpen: false,
     offers: [],
     over: false,
-    lastHeal: 0
+    lastDeal: null
   };
 
   function resetRun() {
@@ -1896,7 +2124,7 @@
     it.classList.remove("lock");
     if (e.brokeThisTurn) {
       it.classList.add("safe");
-      $("intent-text").textContent = e.cfg.mech === "reflect" ? "護甲已破 · 反擊仍會落下" : "護甲已破 · 本回合不反擊";
+      $("intent-text").textContent = e.cfg.mech === "reflect" ? "護甲已破 · 反擊被壓制" : "護甲已破 · 本回合不反擊";
       it.firstElementChild.textContent = "✓";
     } else {
       it.classList.remove("safe");
@@ -1907,7 +2135,7 @@
           else txt = "下回合 × 封印";
           break;
         case "heal": txt = "未破甲 → 護甲重鑄 +6"; break;
-        case "reflect": txt = "破甲仍反擊 −1 心"; break;
+        case "reflect": txt = "超載破甲 → 反擊 −1 心"; break;
         case "crit": txt = "超載代價 −2 心"; break;
         case "limit": txt = "限牌 · 每回合 4 張"; break;
         default: txt = "下回合 −1 心";
@@ -1916,8 +2144,10 @@
       it.firstElementChild.textContent = "⚔";
     }
     var img = $("golem");
-    var tint = e.cfg.tint === "none" ? "saturate(1)" : e.cfg.tint;
-    img.style.setProperty("--tint", tint);
+    var art = golemArt(e.cfg.id);
+    if (img.getAttribute("src") !== art) img.setAttribute("src", art);
+    img.alt = e.cfg.name;
+    img.style.setProperty("--tint", "saturate(1)");
   }
   function renderRelics() {
     var row = $("relic-row");
@@ -2115,25 +2345,60 @@
     shuffle(G.hand);
     return true;
   }
+  /* 重發：保留牌留著，其他牌塞回牌堆底，再補滿手牌 */
+  function returnNonKept() {
+    var keepIds = G.keep.slice();
+    var back = [], stay = [];
+    for (var i = 0; i < G.hand.length; i++) {
+      var c = G.hand[i];
+      if (keepIds.indexOf(c.uid) >= 0) stay.push(c);
+      else if (!c.tmp) back.push(c);
+    }
+    G.hand = stay;
+    G.draw = back.concat(G.draw);
+  }
   function dealHand() {
     var limit = handLimit();
+    var target = G.enemy ? G.enemy.armor : 0;
+    var opts = { lock: lockActive(), maxLen: limit, protect: G.keep.slice() };
+    var keptCount = G.keep.length;
     while (G.hand.length < limit) {
       var c = drawOne();
       if (!c) break;
       G.hand.push(c);
     }
-    var solvable = ensureSolvable(G.hand, G.enemy.armor, { lock: lockActive(), maxLen: limit, protect: G.keep.slice() });
+    var solvable = ensureSolvable(G.hand, target, opts);
+    var redealt = false;
+    if (!solvable) {
+      // 保留的牌把可解組合擠掉了：重發一次「非保留」牌（最多一次）
+      returnNonKept();
+      while (G.hand.length < limit) {
+        var n = drawOne();
+        if (!n) break;
+        G.hand.push(n);
+      }
+      solvable = ensureSolvable(G.hand, target, opts);
+      redealt = true;
+      logEvent("redeal", { armor: target, kept: keptCount, solved: solvable });
+      banner("重新發牌", "hint", 1.5);
+    }
+    G.lastDeal = {
+      armor: target, kept: keptCount, redealt: redealt,
+      solvable: !!solvable, locked: !!opts.lock
+    };
     G.usedHint = false;
     G.mirrorMode = false;
     G.keep = [];
     renderAll();
     var tempCount = G.hand.filter(function (x) { return x.tmp; }).length;
-    if (tempCount) {
-      logEvent("temp", { n: tempCount, armor: G.enemy.armor });
+    if (!solvable) {
+      logEvent("unsolvable", { armor: target });
+      toast("這一手湊不出剛好 · 可削甲，或再結束回合換一手");
+    } else if (tempCount) {
+      logEvent("temp", { n: tempCount, armor: target });
       toast("爐火補牌：" + tempCount + " 張臨時牌（結算後消失）");
-    } else if (!solvable && !lockActive()) {
-      logEvent("unsolvable", { armor: G.enemy.armor });
-      toast("這一手湊不出剛好 · 可削甲、保留或結束回合");
+    } else if (redealt) {
+      toast("重新發牌 · 這次湊得出剛好");
     }
   }
 
@@ -2147,6 +2412,7 @@
     G.screen = "battle";
     $("scr-start").classList.remove("active");
     $("scr-battle").classList.add("active");
+    tutStart();
     startBattle(0);
   }
   function startBattle(idx) {
@@ -2198,7 +2464,7 @@
     }
     void $("hud-hearts").offsetWidth;
     if (hearts.length) hearts[Math.min(2, Math.floor((G.run.units) / 2))].classList.add("loss");
-    if (!silent) SFX.heart();
+    if (!silent) SFX.hurt();
   }
   function banner(text, kind, dur) {
     var el = $("banner");
@@ -2211,6 +2477,8 @@
     else el.style.animationDuration = "";
   }
   function toast(text) {
+    // 引導卡正好蓋在算式槽上，這時候不要讓浮動提示壓在卡片上
+    if (TUT.showing) return;
     var el = $("toast");
     el.textContent = text;
     el.classList.remove("show");
@@ -2254,12 +2522,13 @@
     var app = $("app").getBoundingClientRect();
     return { x: r.left - app.left + r.width / 2, y: r.top - app.top + r.height * 0.46 };
   }
-  function damageGolem(amount, overload) {
+  function damageGolem(amount, kind) {
+    var over = kind === "overload";
     var p = golemPoint();
     $("golem-wrap").classList.remove("hurt");
     void $("golem-wrap").offsetWidth;
     $("golem-wrap").classList.add("hurt");
-    sparkAt(p.x, p.y, overload ? 170 : 140);
+    sparkAt(p.x, p.y, over ? 170 : kind === "break" ? 150 : 132);
     floatNumber("-" + amount, p.x - 20, p.y - 10, false);
     var pl = $("armor-plate");
     pl.classList.remove("cracked");
@@ -2268,7 +2537,9 @@
     $("armor-val").classList.remove("pop");
     void $("armor-val").offsetWidth;
     $("armor-val").classList.add("pop");
-    if (overload) SFX.over(); else SFX.forge();
+    if (over) SFX.overload();
+    else if (kind === "break") SFX.break();
+    else SFX.hit();
     setTimeout(function () { $("golem-wrap").classList.remove("hurt"); }, 460);
   }
 
@@ -2281,7 +2552,7 @@
       res.overflow = value - A;
       res.carry = value - A;
       e.hp -= 1; e.brokeThisTurn = true; res.broke = true;
-      damageGolem(A, true);
+      damageGolem(A, "overload");
       if (e.hp <= 0) { e.hp = 0; e.armor = 0; }
       else {
         nextArmor();
@@ -2289,12 +2560,12 @@
       }
     } else if (value === A) {
       e.hp -= 1; e.brokeThisTurn = true; res.broke = true;
-      damageGolem(A, false);
+      damageGolem(A, "break");
       if (e.hp <= 0) { e.hp = 0; e.armor = 0; }
       else nextArmor();
     } else {
       e.armor = A - value;
-      damageGolem(value, false);
+      damageGolem(value, "hit");
     }
     return res;
   }
@@ -2306,7 +2577,7 @@
     if (!ev.ok) {
       var box = $("slot-box");
       box.classList.remove("bad"); void box.offsetWidth;
-      if (ev.div) { toast("無法整除，算式無效"); banner("除不盡 · 卡牌退回", "bad", 1.2); SFX.over(); }
+      if (ev.div) { toast("無法整除，算式無效"); banner("除不盡 · 卡牌退回", "bad", 1.2); SFX.bad(); }
       else { toast("算式還不完整"); }
       // 卡牌退回手牌
       Array.prototype.push.apply(G.hand, G.slot);
@@ -2322,7 +2593,7 @@
     var value = ev.value;
     var used = G.slot.slice();
     renderHand();
-    SFX.forge();
+    tutHide();
 
     var res = applyWeapon(value);
     var A = G.enemy.armor;
@@ -2332,24 +2603,29 @@
       var cost = cfg.mech === "crit" ? 4 : 2;
       if (G.run.relics.fuse) cost = Math.max(1, Math.ceil(cost / 2));
       loseUnits(cost);
-      if (cfg.mech === "crit") {
+      if (cfg.mech === "reflect") {
+        logEvent("reflect", { armor: value, overflow: res.overflow });
+        banner("超載破甲！鐵砧反擊 −1 心", "bad", 1.7);
+        toast("溢出 " + res.overflow + " · 鐵砧把力量彈回");
+      } else if (cfg.mech === "crit") {
         logEvent("crit", { cost: cost, overflow: res.overflow });
         banner("臨界超載！−" + (cost / 2) + " 心", "bad", 1.6);
         toast("溢出 " + res.overflow + " · 爐心臨界");
       } else {
-        banner("超載！溢出 " + res.overflow, "bad", 1.5);
+        banner("超載！溢出 " + res.overflow + " · −1 心", "bad", 1.5);
       }
     } else if (res.broke) {
       if (cfg.mech === "reflect") {
-        logEvent("reflect", { armor: value });
-        loseUnits(2);
-        banner("破甲！鐵砧反擊 −1 心", "bad", 1.6);
+        logEvent("suppress", { armor: value });
+        banner("破甲！精準壓制鐵砧 · 不反擊", "good", 1.5);
       } else {
         banner("破甲！HP −1", "good", 1.4);
       }
     } else {
       banner("護甲 −" + value + " → " + A, "", 1.1);
     }
+    tutQueue(2);
+    if (res.broke) tutQueue(3);
     renderHud(); renderEnemy(); renderSlot();
     var wait = G.fast ? 120 : 820;
     return sleep(wait).then(function () {
@@ -2411,8 +2687,9 @@
       }
       // 讓保底發牌知道哪幾張是「保留」牌，不可以被換掉
       G.keep = kept.map(function (x) { return x.uid; });
-      dealHand();
+      // 先講保留，再發牌：發牌本身的提示（重新發牌／湊不出剛好）優先顯示
       if (keptCount) toast("保留 " + keptCount + " 張手牌 · 已帶入本回合");
+      dealHand();
       renderEnemy();
       if (e && e.cfg.mech === "limit") logEvent("limit", { hand: G.hand.length });
       return null;
@@ -2423,7 +2700,6 @@
       banner("魔像反擊！−1 心", "bad", 1.2);
       logEvent("counter", {});
       loseUnits(2);
-      SFX.heart();
       return sleep(wait).then(function () {
         $("golem-wrap").classList.remove("charge");
         return nextTurn();
@@ -2448,10 +2724,7 @@
 
   function victory() {
     G.run.wins += 1;
-    var before = G.run.units;
-    G.run.units = Math.min(HEART_UNITS, G.run.units + 2);
-    G.lastHeal = G.run.units - before;
-    banner(G.lastHeal ? "擊破！爐火回溫 +1 心" : "擊破！", "good", 1.5);
+    banner("擊破！", "good", 1.5);
     SFX.win();
     var wait = G.fast ? 150 : 1000;
     return sleep(wait).then(function () {
@@ -2500,8 +2773,7 @@
       btn.addEventListener("click", function () { chooseReward(i); });
       row.appendChild(btn);
     });
-    $("reward-sub").innerHTML = "擊碎 <b>" + BATTLES[G.battleIdx].name + "</b> · 選一張牌或一件遺物" +
-      (G.lastHeal ? " · <b>爐火回溫 +1 心</b>" : "");
+    $("reward-sub").innerHTML = "擊碎 <b>" + BATTLES[G.battleIdx].name + "</b> · 選一張牌或一件遺物";
     $("reward").hidden = false;
     SFX.tap();
   }
@@ -2567,6 +2839,7 @@
   function addToSlot(uid, el) {
     if (G.busy || G.screen !== "battle") return;
     if (G.mirrorMode) { mirrorPick(uid); return; }
+    tutHide();
     var idx = -1, i;
     for (i = 0; i < G.hand.length; i++) if (G.hand[i].uid === uid) { idx = i; break; }
     if (idx < 0) return;
@@ -2716,6 +2989,8 @@
       screen: G.screen,
       battle: G.battleIdx + 1,
       battleName: e ? e.cfg.name : null,
+      enemyId: e ? e.cfg.id : null,
+      enemyArt: e ? golemArt(e.cfg.id) : null,
       mech: e ? e.cfg.mech : null,
       mechName: e ? e.cfg.mechName : null,
       armor: e ? e.armor : null,
@@ -2734,6 +3009,15 @@
       slot: G.slot.map(function (c) { return cardGlyph(c); }),
       relics: G.run ? Object.keys(G.run.relics) : [],
       events: G.events.slice(),
+      lastDeal: G.lastDeal,
+      muted: MUTED,
+      audio: AC ? AC.state : null,
+      tut: {
+        on: TUT.on,
+        showing: TUT.showing,
+        seen: Object.keys(TUT.seen).map(Number),
+        done: !tutFirstTime()
+      },
       rewardOpen: G.rewardOpen,
       over: G.over,
       busy: G.busy
@@ -2974,6 +3258,16 @@
     winBattle: function () { G.busy = false; return victory(); },
     endRun: function (win) { return endRun(!!win); },
     addRelic: function (k) { G.run.relics[k] = true; renderAll(); },
+    setFast: function (on) { G.fast = !!on; return snapshot(); },
+    tutSkip: function () { tutFinish(); return snapshot(); },
+    tutReset: function () { try { localStorage.removeItem(TUT_KEY); } catch (e) { /* ignore */ } return snapshot(); },
+    mute: function (on) {
+      MUTED = !!on;
+      try { localStorage.setItem("forge_mute", MUTED ? "1" : "0"); } catch (e) { /* ignore */ }
+      renderMute();
+      return snapshot();
+    },
+    redeal: function () { dealHand(); return snapshot(); },
     audit: audit,
     bot: bot,
     chip: bestChip,
@@ -2990,14 +3284,17 @@
     pool: function (n) { return combosFor(n).map(exprString); },
     battleList: BATTLES.map(function (b) {
       return {
-        name: b.name, hp: b.hp, armor: b.armor.slice(), mech: b.mech,
+        id: b.id, art: golemArt(b.id), name: b.name, hp: b.hp, armor: b.armor.slice(), mech: b.mech,
         mechName: b.mechName, blurb: b.blurb, handLimit: b.mech === "limit" ? 4 : 5
       };
     })
   };
 
   // 讓直接開檔也能玩
+  renderMute();
   renderAll();
+  // 六張魔像圖先抓好，換場時不會閃一格
+  BATTLES.forEach(function (b) { var im = new Image(); im.src = golemArt(b.id); });
 })();
 </script>
 </body>

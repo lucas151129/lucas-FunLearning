@@ -5,7 +5,7 @@
    - 跨網域（Supabase / Google Fonts）：完全不攔截
    版本號改動時，舊快取會在 activate 清掉。 */
 
-const VERSION = "v9";
+const VERSION = "v10";
 const SHELL_CACHE = `fl-shell-${VERSION}`;
 const RUNTIME_CACHE = `fl-runtime-${VERSION}`;
 
