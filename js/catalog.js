@@ -209,7 +209,7 @@ const GAMES = [
     level: "middle",
     blurb: "五種作物、四個生長階段；讀植物反應，調整光照、水分、礦物質與授粉，做出好收成。",
     maxScore: 500,
-    icon: "assets/games/sci-leaf-lab.svg?v=1",
+    icon: "assets/games/sci-leaf-lab.png?v=1",
     entry: "games/science/leaf-lab/index.html",
     orientation: "any",
   },

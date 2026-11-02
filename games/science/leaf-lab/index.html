@@ -6,27 +6,28 @@
   <meta name="theme-color" content="#e8f0df">
   <title>Leaf Lab · 葉綠工坊</title>
   <script>if (new URLSearchParams(location.search).get("embed") === "1") document.documentElement.classList.add("is-embedded");</script>
-  <link rel="icon" href="../../assets/games/sci-leaf-lab.svg" type="image/svg+xml">
+  <link rel="icon" href="../../../assets/games/sci-leaf-lab.png" type="image/png">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body class="leaf-page">
   <div class="page-orbs" aria-hidden="true"><i></i><i></i><i></i></div>
   <div class="shell">
     <header class="topbar">
-      <a class="back" href="../../index.html#/c/science" target="_top" aria-label="Back to Science">
+      <a class="back" href="../../../index.html#/c/science" target="_top" aria-label="Back to Science">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
-        <span>Science</span>
+        <span data-i18n="nav.science">Science</span>
       </a>
       <div class="brand">
         <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 32 32"><path d="M16 27V13"/><path d="M16 18c-7 0-10-5-10-11 7 0 10 5 10 11zM16 15c7 0 10-5 10-10-7 0-10 4-10 10z"/></svg>
+          <img src="../../../assets/games/sci-leaf-lab.png" alt="">
         </span>
-        <span class="brand-copy"><b>Leaf Lab</b><small>葉綠工坊 · PLANT SCIENCE</small></span>
+        <span class="brand-copy"><b>Leaf Lab</b><small data-i18n="brand.sub">葉綠工坊 · PLANT SCIENCE</small></span>
       </div>
       <div class="hud">
-        <span class="hud-chip">DAY <b id="hudDay">1/4</b></span>
-        <span class="hud-chip">SCORE <b id="hudScore">0</b></span>
+        <span class="hud-chip"><i data-i18n="hud.day">DAY</i> <b id="hudDay">1/4</b></span>
+        <span class="hud-chip"><i data-i18n="hud.score">SCORE</i> <b id="hudScore">0</b></span>
       </div>
+      <button class="lang-toggle" type="button" data-lang-toggle aria-label="Switch language">EN</button>
     </header>
 
     <main>
@@ -34,40 +35,29 @@
       <section class="screen active start-screen" id="startScreen" aria-labelledby="startTitle">
         <div class="start-grid">
           <div class="start-copy">
-            <p class="eyebrow">GREENHOUSE 05 · INQUIRY &amp; NURTURE</p>
-            <h1 id="startTitle">Grow the<br><em>evidence.</em></h1>
-            <p class="lead">Five crops. Four decisions each. Read the plant, adjust one thing, and see what the greenhouse gives back.</p>
-            <p class="lead-cn">五種作物、四個生長階段。每步只做一個科學決定；收成不是按得快，而是按得對。</p>
+            <p class="eyebrow" data-i18n="start.eyebrow">GREENHOUSE 05 · INQUIRY &amp; NURTURE</p>
+            <h1 id="startTitle" data-i18n-html="start.title">Grow the<br><em>evidence.</em></h1>
+            <p class="lead" data-i18n="start.lead">Five crops. Four decisions each. Read the plant, adjust one thing, and see what the greenhouse gives back.</p>
+            <p class="lead-cn" data-i18n="start.leadSub">No real-time waiting: every decision moves the greenhouse clock forward one day.</p>
             <div class="start-actions">
-              <button class="primary-btn" id="startBtn" type="button">Start the season →</button>
-              <button class="ghost-btn" id="howBtn" type="button">How it works</button>
+              <button class="primary-btn" id="startBtn" type="button" data-i18n="start.cta">Start the season →</button>
+              <button class="ghost-btn" id="howBtn" type="button" data-i18n="start.how">How it works</button>
             </div>
             <div class="start-stats">
-              <span><b>5</b>crops</span>
-              <span><b>4</b>stages each</span>
-              <span><b>500</b>points</span>
+              <span><b>5</b><i data-i18n="start.crops">crops</i></span>
+              <span><b>4</b><i data-i18n="start.stages">stages each</i></span>
+              <span><b>500</b><i data-i18n="start.points">points</i></span>
             </div>
           </div>
-          <div class="start-art" aria-hidden="true">
-            <svg viewBox="0 0 320 320">
-              <path class="gh-frame" d="M44 275V96l116-64 116 64v179"/>
-              <path class="gh-frame" d="M44 118h232M44 204h232M160 32v243M90 275V118M230 275V118"/>
-              <path class="gh-glass" d="M58 112 160 54l102 58v76H58z"/>
-              <path class="gh-sun" d="M259 49v11M259 88v11M240 74h11M278 74h11M246 61l8 8M265 88l8 8M272 61l-8 8M254 88l-8 8"/>
-              <path class="gh-table" d="M68 244h184M86 244v28M234 244v28"/>
-              <path class="gh-pot" d="M117 216h34l-5 25h-24zM169 216h34l-5 25h-24z"/>
-              <path class="gh-stem" d="M134 216v-47M186 216v-54"/>
-              <path class="gh-leaf" d="M134 191c-18 0-25-10-25-21 17 0 25 9 25 21zM134 180c17 0 24-9 24-20-17 0-24 9-24 20z"/>
-              <path class="gh-leaf" d="M186 183c-19 0-27-10-27-22 18 0 27 10 27 22zM186 169c18 0 27-9 27-21-18 0-27 9-27 21z"/>
-              <circle class="gh-fruit" cx="134" cy="158" r="8"/><circle class="gh-fruit" cx="186" cy="148" r="8"/>
-            </svg>
+          <div class="start-art">
+            <img src="../../../assets/games/leaf-lab/greenhouse.png" alt="A greenhouse with tomato, strawberry and lettuce plants">
           </div>
         </div>
 
         <section class="crop-preview" aria-labelledby="previewTitle">
           <div class="section-head">
-            <div><p class="eyebrow">THE FIVE BEDS</p><h2 id="previewTitle">Meet the crops</h2></div>
-            <p>Every crop has a different limiting factor. The same “more” will not work twice.</p>
+            <div><p class="eyebrow" data-i18n="start.beds">THE FIVE BEDS</p><h2 id="previewTitle" data-i18n="start.meet">Meet the crops</h2></div>
+            <p data-i18n="start.bedsCopy">Every crop has a different limiting factor. The same “more” will not work twice.</p>
           </div>
           <div class="crop-grid" id="cropPreview"></div>
         </section>
@@ -82,9 +72,9 @@
             <p class="crop-cn" id="cropCn">生菜 · 光照與水分</p>
           </div>
           <div class="play-stats">
-            <span>DAY <b id="dayValue">1 / 4</b></span>
-            <span>BED <b id="cropValue">1 / 5</b></span>
-            <span>SCORE <b id="scoreValue">0</b></span>
+            <span><i data-i18n="play.day">DAY</i> <b id="dayValue">1 / 4</b></span>
+            <span><i data-i18n="play.bed">BED</i> <b id="cropValue">1 / 5</b></span>
+            <span><i data-i18n="play.score">SCORE</i> <b id="scoreValue">0</b></span>
           </div>
         </div>
 
@@ -94,12 +84,12 @@
           <section class="plant-card" aria-label="Plant status">
             <div class="plant-head">
               <span class="stage-tag" id="stageTag">DAY 1 · SPROUT</span>
-              <span class="health-tag" id="healthTag">HEALTHY</span>
+              <span class="health-tag" id="healthTag" data-i18n="play.health">HEALTHY</span>
             </div>
             <div class="plant-art" id="plantArt" aria-hidden="true"></div>
             <div class="sensor-row" id="sensorRow" aria-label="Growing conditions"></div>
             <div class="observation">
-              <span class="obs-label">FIELD OBSERVATION</span>
+              <span class="obs-label" data-i18n="play.observation">FIELD OBSERVATION</span>
               <p id="observation">The seedlings are leaning towards the light.</p>
             </div>
           </section>
@@ -107,35 +97,35 @@
           <aside class="decision-card" aria-labelledby="stageTitle">
             <div class="decision-top">
               <span class="day-mark" id="dayMark">01</span>
-              <div><p class="eyebrow">ONE DECISION</p><h2 id="stageTitle">Reach for the light</h2></div>
+              <div><p class="eyebrow" data-i18n="play.decision">ONE DECISION</p><h2 id="stageTitle">Reach for the light</h2></div>
             </div>
             <p class="stage-prompt" id="stagePrompt">What should you change first?</p>
             <div class="options" id="options" role="group" aria-label="Science decisions"></div>
             <p class="feedback" id="feedback" role="status" aria-live="polite">Read the observation and the sensors. Choose one action.</p>
             <div class="decision-foot">
               <span class="points-note" id="pointsNote">First try: 25 points</span>
-              <button class="primary-btn" id="nextBtn" type="button" hidden>Next day →</button>
+              <button class="primary-btn" id="nextBtn" type="button" hidden data-i18n="play.next">Next day →</button>
             </div>
           </aside>
         </div>
 
         <section class="notebook" aria-labelledby="notebookTitle">
           <div class="notebook-head">
-            <div><p class="eyebrow">SCIENTIST'S NOTEBOOK</p><h2 id="notebookTitle">What the crop is telling you</h2></div>
+            <div><p class="eyebrow" data-i18n="play.notebook">SCIENTIST'S NOTEBOOK</p><h2 id="notebookTitle" data-i18n="play.notebookTitle">What the crop is telling you</h2></div>
             <span id="noteCount">0 notes</span>
           </div>
-          <ol class="notes" id="notes"><li class="empty-note">Your observations will appear here.</li></ol>
+          <ol class="notes" id="notes"><li class="empty-note" data-i18n="play.noNotes">Your observations will appear here.</li></ol>
         </section>
       </section>
 
       <!-- HARVEST -->
       <section class="screen harvest-screen" id="harvestScreen" hidden aria-labelledby="harvestTitle">
         <div class="harvest-card">
-          <p class="eyebrow">CROP REPORT · ONE SEASON</p>
+          <p class="eyebrow" data-i18n="harvest.eyebrow">CROP REPORT · ONE SEASON</p>
           <div class="harvest-mark" id="harvestMark" aria-hidden="true">🌱</div>
           <h1 id="harvestTitle">Harvest day.</h1>
           <p class="harvest-copy" id="harvestCopy"></p>
-          <div class="harvest-score"><b id="harvestScore">0</b><span>/ 100 for this crop</span></div>
+          <div class="harvest-score"><b id="harvestScore">0</b><span data-i18n="harvest.of">/ 100 for this crop</span></div>
           <div class="stars" id="harvestStars" aria-label="Stars"></div>
           <div class="harvest-log" id="harvestLog"></div>
           <div class="harvest-actions">
@@ -147,18 +137,18 @@
       <!-- FINAL -->
       <section class="screen result-screen" id="resultScreen" hidden aria-labelledby="resultTitle">
         <div class="result-card">
-          <p class="eyebrow">SEASON COMPLETE · FIVE CROPS</p>
+          <p class="eyebrow" data-i18n="result.eyebrow">SEASON COMPLETE · FIVE CROPS</p>
           <div class="result-mark" aria-hidden="true">🌿</div>
-          <h1 id="resultTitle">The greenhouse is alive.</h1>
+          <h1 id="resultTitle" data-i18n="result.title">The greenhouse is alive.</h1>
           <p class="result-copy" id="resultCopy"></p>
-          <div class="result-score"><b id="finalScore">0</b><span>/ 500</span></div>
+          <div class="result-score"><b id="finalScore">0</b><span data-i18n="result.of">/ 500</span></div>
           <div class="stars" id="finalStars" aria-label="Stars"></div>
           <div class="result-log" id="resultLog"></div>
           <div class="result-actions">
-            <button class="primary-btn" id="replayBtn" type="button">Grow another season</button>
-            <a class="ghost-btn" href="../../index.html#/c/science" target="_top">Back to Science</a>
+            <button class="primary-btn" id="replayBtn" type="button" data-i18n="result.replay">Grow another season</button>
+            <a class="ghost-btn" href="../../../index.html#/c/science" target="_top" data-i18n="result.back">Back to Science</a>
           </div>
-          <p class="result-note">Best on this device: <b id="bestValue">0</b> / 500</p>
+          <p class="result-note"><span data-i18n="result.best">Best on this device:</span> <b id="bestValue">0</b> / 500</p>
         </div>
       </section>
     </main>
@@ -167,19 +157,20 @@
   <div class="how-modal" id="howModal" hidden>
     <div class="how-card" role="dialog" aria-modal="true" aria-labelledby="howTitle">
       <button class="modal-x" id="howClose" type="button" aria-label="Close">×</button>
-      <p class="eyebrow">HOW IT WORKS</p>
-      <h2 id="howTitle">One change at a time.</h2>
+      <p class="eyebrow" data-i18n="how.eyebrow">HOW IT WORKS</p>
+      <h2 id="howTitle" data-i18n="how.title">One change at a time.</h2>
       <ol>
-        <li><b>Read.</b> Look at the plant, the observation and the sensors.</li>
-        <li><b>Choose.</b> Pick the action that addresses the limiting factor, not just “more”.</li>
-        <li><b>Record.</b> The notebook explains what happened. Four decisions make one harvest.</li>
+        <li data-i18n-html="how.step1"><b>Read.</b> Look at the plant, the observation and the sensors.</li>
+        <li data-i18n-html="how.step2"><b>Choose.</b> Pick the action that addresses the limiting factor, not just “more”.</li>
+        <li data-i18n-html="how.step3"><b>Record.</b> The notebook explains what happened. Four decisions make one harvest.</li>
       </ol>
-      <p class="how-note">No real-time waiting in this classroom build: the greenhouse clock advances when you make a decision.</p>
-      <button class="primary-btn" id="howDone" type="button">Back to the greenhouse</button>
+      <p class="how-note" data-i18n="how.note">No real-time waiting in this classroom build: the greenhouse clock advances when you make a decision.</p>
+      <button class="primary-btn" id="howDone" type="button" data-i18n="how.back">Back to the greenhouse</button>
     </div>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <button class="lang-fab" type="button" data-lang-toggle aria-label="Switch language">EN</button>
 
   <script src="./game.js"></script>
 </body>

@@ -314,12 +314,407 @@
     },
   ];
 
+  const ZH = {
+    lettuce: {
+      focus: "光照 · 水分 · 礦物質",
+      blurb: "葉菜類，最快把壓力寫在葉片上。",
+      stages: [
+        {
+          tag: "發芽", title: "向光伸展",
+          observation: "幼苗的莖又長又細，葉片細小偏淡，整株向窗戶傾斜。",
+          prompt: "你應該先改變哪一項？",
+          note: "這個階段限制生長的是光照。",
+          options: [
+            { text: "把苗盤移到全日照位置", feedback: "正確。幼苗已經徒長：光線不足時，植物會把莖拉長去追光，葉片卻長不壯。" },
+            { text: "用遮光布蓋住苗盤", feedback: "這會令限制因子更嚴重。光更少，光合作用更弱，幼苗只會繼續徒長。" },
+            { text: "一次加大量肥料", feedback: "肥料提供礦物質，不是光。大量施肥更會提高鹽分，傷害幼根。" },
+          ],
+        },
+        {
+          tag: "水分", title: "乾裂的表土",
+          observation: "表土乾裂、和盆邊分離；中午葉片下垂，過夜後又恢復。",
+          prompt: "你會怎樣澆水？",
+          note: "這個階段限制生長的是水分。",
+          options: [
+            { text: "澆透水，直到盆底排水", feedback: "正確。一次澆透才能到達根區；多餘水分從盆底排出，根部不會長時間浸水。" },
+            { text: "每小時只噴少量水", feedback: "表面噴水只會令根變淺，深層根系仍然缺水。" },
+            { text: "完全停止澆水", feedback: "植株已經萎蔫；沒有水，細胞無法維持膨壓，也無法運送礦物質。" },
+          ],
+        },
+        {
+          tag: "礦物質", title: "老葉變黃",
+          observation: "最老的外葉先變黃，中央新葉仍然翠綠，生長速度變慢。",
+          prompt: "最好的處理是甚麼？",
+          note: "礦物質不足限制了生長；肥料不是食物。",
+          options: [
+            { text: "加入腐熟堆肥，薄肥勤施", feedback: "正確。老葉先黃、新葉仍綠，符合氮等可移動礦物質被送往新葉的情況；堆肥可緩慢補充養分。" },
+            { text: "一次加入大量水溶性肥料", feedback: "更多不等於更好。過量肥料會提高泥土鹽分，燒傷根部。" },
+            { text: "只加水", feedback: "水不是礦物質補充劑；這個黃化模式比較像養分不足。" },
+          ],
+        },
+        {
+          tag: "收成", title: "結實的葉球",
+          observation: "用手輕按葉球，感覺結實；外葉仍然翠綠爽脆。",
+          prompt: "何時收成？",
+          note: "收成時機也是決定：成熟度和品質同樣重要。",
+          options: [
+            { text: "現在收成", feedback: "正確。葉球已成熟而仍然嫩；再等下去，天氣一熱就可能抽苔，葉片變苦。" },
+            { text: "再等兩星期", feedback: "葉球可能抽苔變苦；結實的葉球已經到了食用階段。" },
+            { text: "只摘中央葉片", feedback: "這樣會破壞葉球，也不是乾淨的收成方式；結球生菜應在基部整棵切下。" },
+          ],
+        },
+      ],
+    },
+    tomato: {
+      focus: "光照 · 水分 · 授粉",
+      blurb: "結果類作物，藏著一個授粉步驟。",
+      stages: [
+        {
+          tag: "發芽", title: "徒長的幼苗",
+          observation: "番茄幼苗的節間拉長，莖又細又長，葉片之間距離很大。",
+          prompt: "幼苗需要甚麼？",
+          note: "光照是限制因子；番茄需要強光才長得矮壯。",
+          options: [
+            { text: "移到全日照位置或強植物燈下", feedback: "正確。幼苗正在追光；番茄需要強光，植株才會緊湊、莖部粗壯。" },
+            { text: "放在更暗的角落", feedback: "光更少，幼苗會繼續拉長去找光，問題只會惡化。" },
+            { text: "多澆水", feedback: "水不能取代光；澆得太多更可能令根部缺氧，葉片反而萎蔫。" },
+          ],
+        },
+        {
+          tag: "水分", title: "濕泥與萎蔫的葉",
+          observation: "泥土濕透，葉片卻萎蔫；提起花盆有水流出，根部有霉味。",
+          prompt: "最好的做法是？",
+          note: "根部呼吸需要泥土中的空氣。",
+          options: [
+            { text: "停止澆水，改善排水與通風", feedback: "正確。根部需要氧氣；泥土積水會填滿空氣空隙，根無法呼吸，植株便會萎蔫。" },
+            { text: "再澆水讓葉片恢復", feedback: "這會令積水更嚴重；葉片萎蔫不一定代表缺水。" },
+            { text: "加更多肥料", feedback: "肥料不能恢復泥土中的氧氣，還可能增加鹽分壓力。" },
+          ],
+        },
+        {
+          tag: "開花", title: "有花無果",
+          observation: "植株開了許多黃花，但花柄變黃，沒有小番茄形成。",
+          prompt: "缺少了甚麼？",
+          note: "授粉是花粉的轉移；沒有授粉，花不會結果。",
+          options: [
+            { text: "輕彈花梗，或放熊蜂入溫室", feedback: "正確。番茄花可自花授粉，但花粉仍需要震動才會落下；輕彈或熊蜂都能做到。" },
+            { text: "加更多氮肥", feedback: "過量氮肥會推動長葉，反而減少開花和結果；花需要的是授粉。" },
+            { text: "把所有花摘掉", feedback: "摘掉花就沒有果；那些花正是會發育成果實的構造。" },
+          ],
+        },
+        {
+          tag: "收成", title: "顏色與硬度",
+          observation: "大部分果實已轉紅，但肩部仍青；按下去有彈性，不算硬。",
+          prompt: "何時採摘？",
+          note: "成熟度不只靠大小，顏色和硬度也是線索。",
+          options: [
+            { text: "等整顆轉色、略軟才採", feedback: "正確。番茄在藤上成熟時風味和顏色最好；整顆轉色、稍軟便是適合採收的時候。" },
+            { text: "現在採青肩果", feedback: "它可以在離株後繼續熟，但未到最佳狀態；青肩表示成熟不均。" },
+            { text: "等到非常軟", feedback: "過熟的番茄容易塌陷和腐壞；略有彈性就足夠。" },
+          ],
+        },
+      ],
+    },
+    radish: {
+      focus: "泥土 · 水分 · 間距",
+      blurb: "根菜類，最怕板結泥土與過密。",
+      stages: [
+        {
+          tag: "根部", title: "硬土開局",
+          observation: "蘿蔔的根短而分叉，泥土表面硬實。",
+          prompt: "你應該改變甚麼？",
+          note: "根部需要疏鬆、含空氣的泥土。",
+          options: [
+            { text: "鬆土並混入堆肥", feedback: "正確。蘿蔔的根要向下肥大，需要疏鬆、透氣的泥土；堆肥可改善結構。" },
+            { text: "把泥土壓實", feedback: "板結的泥土會令根分叉、長不大；根無法推開硬土。" },
+            { text: "只加更多水", feedback: "水不能鬆開板結的泥土；根仍然沒有足夠空間和空氣。" },
+          ],
+        },
+        {
+          tag: "水分", title: "乾裂的泥土",
+          observation: "泥土乾至指節深，葉片暗淡；已經幾日沒有下雨。",
+          prompt: "你會怎樣澆水？",
+          note: "深層澆水比表面噴水有效。",
+          options: [
+            { text: "一次澆透，之後讓表層稍乾", feedback: "正確。深層澆水可鼓勵根向下生長；表層稍乾可減少真菌問題。" },
+            { text: "每天只噴少量水", feedback: "表面噴水只會濕潤表層，根區仍然缺水。" },
+            { text: "等植株萎蔫才澆水", feedback: "萎蔫已經代表受壓；產量在明顯萎蔫前已經受損。" },
+          ],
+        },
+        {
+          tag: "間距", title: "幼苗太密",
+          observation: "幼苗擠在一起，葉片互相遮蓋，根部仍然很細。",
+          prompt: "最好的做法是？",
+          note: "間苗可減少植株之間的競爭。",
+          options: [
+            { text: "間苗，保留足夠距離", feedback: "正確。每株植物都需要光、水和礦物質；太密會令根部長不大。" },
+            { text: "全部保留，植物越多越好", feedback: "同一空間的資源有限，植株越多，每株分到的越少。" },
+            { text: "只加肥料，不間苗", feedback: "肥料不能創造更多光和空間；擁擠仍然是限制因子。" },
+          ],
+        },
+        {
+          tag: "收成", title: "根肩露出土面",
+          observation: "蘿蔔頂部露出土面，直徑約三厘米，摸起來結實。",
+          prompt: "你會怎樣做？",
+          note: "根菜要在過熟前收成。",
+          options: [
+            { text: "現在收成", feedback: "正確。蘿蔔趁嫩採收最爽脆；再等下去可能木質化或裂開。" },
+            { text: "等它開花", feedback: "開花代表植株把能量轉向繁殖，根部會變木質化。" },
+            { text: "只摘葉", feedback: "可收成的是根部，不是只有葉；摘葉會減少植株製造養分的能力。" },
+          ],
+        },
+      ],
+    },
+    beans: {
+      focus: "氮素 · 水分 · 光照",
+      blurb: "豆科作物，可以與固氮細菌合作。",
+      stages: [
+        {
+          tag: "氮素", title: "淡葉與貧瘠泥土",
+          observation: "豆葉偏淡，生長慢；上一造是生菜，泥土缺氮。",
+          prompt: "最聰明的處理是？",
+          note: "根瘤菌可把空氣中的氮轉為植物可用形式。",
+          options: [
+            { text: "接種根瘤菌，或與豆科輪作", feedback: "正確。根瘤菌會在根瘤內把空氣中的氮轉成植物可用的形式；豆科可以靠這個合作取得氮。" },
+            { text: "大量施氮肥", feedback: "豆科可以自行固氮；過量氮肥會推動長葉，反而減少結莢。" },
+            { text: "不處理，泥土會自己恢復", feedback: "植株已經出現缺氮；沒有根瘤菌或氮源，生長會繼續受限制。" },
+          ],
+        },
+        {
+          tag: "水分", title: "乾旱的泥土",
+          observation: "表土乾，豆葉邊緣捲曲。",
+          prompt: "你會怎樣澆水？",
+          note: "澆在根區，不要只噴葉。",
+          options: [
+            { text: "在基部澆透", feedback: "正確。水要進入根區，而不是只濕葉面；深層澆水有助開花和結莢。" },
+            { text: "每小時噴葉", feedback: "葉面噴水到不了根部，還可能增加真菌病害。" },
+            { text: "等開花才澆水", feedback: "植株已經受壓；開花前和開花期間都需要水分。" },
+          ],
+        },
+        {
+          tag: "光照", title: "葉多花少",
+          observation: "豆株高而多葉，但花少，部分花蕾脫落；高籬笆遮住田。",
+          prompt: "最好的做法是？",
+          note: "光照不足會減少開花和結莢。",
+          options: [
+            { text: "移到全日照，或拉開遮陰", feedback: "正確。豆類需要強光進行光合作用，也需要足夠光線支持開花和結莢。" },
+            { text: "加氮肥", feedback: "額外氮肥可能令植株長更多葉、開更少花；現在缺的是光。" },
+            { text: "多澆水", feedback: "泥土不乾；多水不會取代光，還可能令根部缺氧。" },
+          ],
+        },
+        {
+          tag: "收成", title: "青綠豆莢",
+          observation: "豆莢飽滿，仍然青綠；裡面的豆粒柔軟，未變硬。",
+          prompt: "何時採收？",
+          note: "收成階段取決於你要青豆莢還是乾豆。",
+          options: [
+            { text: "現在採青豆莢", feedback: "正確。青豆莢要在豆粒變硬、莢變黃之前採；這時最嫩。" },
+            { text: "等豆莢變黃乾", feedback: "那是收乾豆的階段；青豆莢會變得纖維化。" },
+            { text: "只摘葉", feedback: "豆莢才是收成；摘葉也會減少光合作用。" },
+          ],
+        },
+      ],
+    },
+    strawberry: {
+      focus: "濕度 · 水分 · 授粉",
+      blurb: "嬌嫩的果類作物，通風與授粉同樣重要。",
+      stages: [
+        {
+          tag: "濕度", title: "灰霉",
+          observation: "溫室悶熱潮濕，部分葉片出現灰白色霉斑，空氣停滯。",
+          prompt: "你應該改變甚麼？",
+          note: "真菌在悶熱、潮濕、無風的環境最易傳播。",
+          options: [
+            { text: "開窗通風，降低濕度", feedback: "正確。灰霉喜歡停滯而潮濕的空氣；通風可吹乾葉面，減少病害壓力。" },
+            { text: "向葉面噴更多水", feedback: "葉面更濕會幫助真菌擴散；應澆根部，不是噴葉。" },
+            { text: "關窗保溫", feedback: "關窗會困住濕氣，令病害更嚴重。" },
+          ],
+        },
+        {
+          tag: "水分", title: "葉面積水",
+          observation: "泥土濕潤，但澆水後葉片仍積著水珠，葉緣開始變褐。",
+          prompt: "下次怎樣澆水？",
+          note: "澆根不澆葉，可減少病害。",
+          options: [
+            { text: "澆根區，保持葉片乾爽", feedback: "正確。草莓容易感染葉斑和果腐；滴灌或基部澆水可保持葉冠乾爽。" },
+            { text: "噴濕葉片降溫", feedback: "葉面長期濕潤會有利真菌；這不是深層澆水。" },
+            { text: "完全停止澆水", feedback: "植株仍需要水；完全斷水會造成乾旱壓力。" },
+          ],
+        },
+        {
+          tag: "授粉", title: "有花少果",
+          observation: "植株開花，但很多花掉落；結出的果細小、畸形。",
+          prompt: "最好的做法是？",
+          note: "授粉不完全會令果實畸形。",
+          options: [
+            { text: "放蜜蜂，或輕輕刷花", feedback: "正確。草莓需要花粉轉移才能完整結果；蜜蜂是高效授粉者，封閉溫室可用軟刷協助。" },
+            { text: "向花噴農藥", feedback: "農藥可能殺死授粉昆蟲，令問題更嚴重；花需要的是授粉，不是毒藥。" },
+            { text: "加更多氮肥", feedback: "氮肥不能取代授粉；過量氮還可能令植株長葉多於結果。" },
+          ],
+        },
+        {
+          tag: "收成", title: "紅果白尖",
+          observation: "果實鮮紅、香氣濃，但尖端仍然白色，摸起來結實。",
+          prompt: "何時採摘？",
+          note: "成熟度由顏色和硬度判斷，不是大小。",
+          options: [
+            { text: "等尖端也轉紅才採", feedback: "正確。白尖表示果實未完全成熟；顏色和風味會最後在尖端發展。" },
+            { text: "現在採", feedback: "果實會偏硬、偏酸；白尖顯示它未完全成熟。" },
+            { text: "等它變軟爛", feedback: "過熟草莓容易腐壞和發霉；應在全面轉紅、仍然結實時採。" },
+          ],
+        },
+      ],
+    },
+  };
+
+  for (const crop of CROPS) {
+    const zh = ZH[crop.id];
+    if (!zh) continue;
+    crop.focusZh = zh.focus;
+    crop.blurbZh = zh.blurb;
+    if (crop.id === "beans") crop.cn = "豆類";
+    crop.stages.forEach((stage, i) => {
+      const z = zh.stages[i];
+      if (!z) return;
+      stage.tagZh = z.tag;
+      stage.titleZh = z.title;
+      stage.observationZh = z.observation;
+      stage.promptZh = z.prompt;
+      stage.noteZh = z.note;
+      stage.options.forEach((option, j) => {
+        const o = z.options[j];
+        if (!o) return;
+        option.textZh = o.text;
+        option.feedbackZh = o.feedback;
+      });
+    });
+  }
+
+  const UI = {
+    en: {
+      "nav.science": "Science",
+      "brand.sub": "GREENHOUSE 05 · PLANT SCIENCE",
+      "start.eyebrow": "GREENHOUSE 05 · INQUIRY & NURTURE",
+      "start.title": "Grow the<br><em>evidence.</em>",
+      "start.lead": "Five crops. Four decisions each. Read the plant, adjust one thing, and see what the greenhouse gives back.",
+      "start.leadSub": "No real-time waiting: every decision moves the greenhouse clock forward one day.",
+      "start.cta": "Start the season →",
+      "start.how": "How it works",
+      "start.crops": "crops",
+      "start.stages": "stages each",
+      "start.points": "points",
+      "start.beds": "THE FIVE BEDS",
+      "start.meet": "Meet the crops",
+      "start.bedsCopy": "Every crop has a different limiting factor. The same “more” will not work twice.",
+      "hud.day": "DAY",
+      "hud.score": "SCORE",
+      "play.day": "DAY",
+      "play.bed": "BED",
+      "play.score": "SCORE",
+      "play.observation": "FIELD OBSERVATION",
+      "play.decision": "ONE DECISION",
+      "play.health": "HEALTHY",
+      "play.stressed": "STRESSED",
+      "play.first": "First try: 25 points",
+      "play.next": "Next day →",
+      "play.harvest": "Harvest →",
+      "play.retry": "Retry: 12 points available",
+      "play.noPoints": "No points this stage — choose the best remaining action.",
+      "play.stagePoints": "{n} points this stage",
+      "play.zeroPoints": "No points this stage",
+      "play.defaultFeedback": "Read the observation and the sensors. Choose one action.",
+      "play.note": "{n} note",
+      "play.notes": "{n} notes",
+      "play.notebook": "SCIENTIST'S NOTEBOOK",
+      "play.notebookTitle": "What the crop is telling you",
+      "play.noNotes": "Your observations will appear here.",
+      "feedback.good": "+{n} points.",
+      "feedback.bad": "Not the limiting factor.",
+      "harvest.eyebrow": "CROP REPORT · ONE SEASON",
+      "harvest.title": "{crop} harvest.",
+      "harvest.of": "/ 100 for this crop",
+      "harvest.next": "Next crop →",
+      "harvest.report": "See season report →",
+      "result.eyebrow": "SEASON COMPLETE · FIVE CROPS",
+      "result.title": "The greenhouse is alive.",
+      "result.of": "/ 500",
+      "result.replay": "Grow another season",
+      "result.back": "Back to Science",
+      "result.best": "Best on this device:",
+      "how.eyebrow": "HOW IT WORKS",
+      "how.title": "One change at a time.",
+      "how.step1": "<b>Read.</b> Look at the plant, the observation and the sensors.",
+      "how.step2": "<b>Choose.</b> Pick the action that addresses the limiting factor, not just “more”.",
+      "how.step3": "<b>Record.</b> The notebook explains what happened. Four decisions make one harvest.",
+      "how.note": "No real-time waiting in this classroom build: the greenhouse clock advances when you make a decision.",
+      "how.back": "Back to the greenhouse",
+    },
+    zh: {
+      "nav.science": "科學",
+      "brand.sub": "葉綠工坊 · 植物科學",
+      "start.eyebrow": "溫室 05 · 探究與養成",
+      "start.title": "種出<br><em>證據。</em>",
+      "start.lead": "五種作物，四個決定。讀植物給你的線索，每次只調整一件事，再看溫室怎樣回應。",
+      "start.leadSub": "不用等真實時間：每做一個決定，溫室時鐘就行一日。",
+      "start.cta": "開始這一季 →",
+      "start.how": "怎樣玩",
+      "start.crops": "種作物",
+      "start.stages": "個階段",
+      "start.points": "分",
+      "start.beds": "五塊田",
+      "start.meet": "認識五種作物",
+      "start.bedsCopy": "每種作物的限制因子都不同；同一招「加多一點」不會次次有效。",
+      "hud.day": "日",
+      "hud.score": "分",
+      "play.day": "日",
+      "play.bed": "田",
+      "play.score": "分",
+      "play.observation": "田間觀察",
+      "play.decision": "一個決定",
+      "play.health": "健康",
+      "play.stressed": "受壓",
+      "play.first": "首次答對：25 分",
+      "play.next": "下一日 →",
+      "play.harvest": "收成 →",
+      "play.retry": "再試：仍有 12 分",
+      "play.noPoints": "本階段沒有分數 — 選出最好的行動。",
+      "play.stagePoints": "本階段 {n} 分",
+      "play.zeroPoints": "本階段 0 分",
+      "play.defaultFeedback": "先讀觀察和感測讀數，再選一個行動。",
+      "play.note": "{n} 則筆記",
+      "play.notes": "{n} 則筆記",
+      "play.notebook": "科學家筆記",
+      "play.notebookTitle": "作物正在告訴你甚麼",
+      "play.noNotes": "你的觀察會記錄在這裡。",
+      "feedback.good": "+{n} 分。",
+      "feedback.bad": "這不是限制因子。",
+      "harvest.eyebrow": "作物報告 · 一季",
+      "harvest.title": "{crop}收成了。",
+      "harvest.of": "/ 100（本作物）",
+      "harvest.next": "下一種作物 →",
+      "harvest.report": "查看季度報告 →",
+      "result.eyebrow": "季度完成 · 五種作物",
+      "result.title": "溫室活起來了。",
+      "result.of": "/ 500",
+      "result.replay": "再種一季",
+      "result.back": "返回科學",
+      "result.best": "本裝置最佳：",
+      "how.eyebrow": "怎樣玩",
+      "how.title": "每次只改一件事。",
+      "how.step1": "<b>觀察。</b> 看植物、田間觀察和感測讀數。",
+      "how.step2": "<b>選擇。</b> 選一個針對限制因子的行動，而不是盲目「加多一點」。",
+      "how.step3": "<b>記錄。</b> 筆記會解釋發生甚麼事；四個決定合成一次收成。",
+      "how.note": "這個課堂版本不用等真實時間：每做一個決定，溫室時鐘就行一日。",
+      "how.back": "返回溫室",
+    },
+  };
+
   const SENSOR_META = {
-    light: { label: "LIGHT", cn: "光照", values: { low: ["LOW", "is-low"], ok: ["GOOD", "is-ok"], high: ["TOO HIGH", "is-high"] } },
-    water: { label: "WATER", cn: "水分", values: { dry: ["DRY", "is-low"], ok: ["GOOD", "is-ok"], wet: ["TOO WET", "is-high"] } },
-    soil: { label: "MINERALS", cn: "礦物質", values: { poor: ["LOW", "is-low"], ok: ["GOOD", "is-ok"], rich: ["EXCESS", "is-high"] } },
-    temp: { label: "AIR", cn: "溫度／通風", values: { cool: ["COOL", "is-low"], ok: ["GOOD", "is-ok"], warm: ["HUMID", "is-high"] } },
-    pollination: { label: "POLLEN", cn: "授粉", values: { none: ["LOW", "is-low"], good: ["GOOD", "is-ok"] } },
+    light: { label: "LIGHT", cn: "光照", values: { low: ["LOW", "is-low"], ok: ["GOOD", "is-ok"], high: ["TOO HIGH", "is-high"] }, zhValues: { low: ["偏低", "is-low"], ok: ["充足", "is-ok"], high: ["過強", "is-high"] } },
+    water: { label: "WATER", cn: "水分", values: { dry: ["DRY", "is-low"], ok: ["GOOD", "is-ok"], wet: ["TOO WET", "is-high"] }, zhValues: { dry: ["偏乾", "is-low"], ok: ["適中", "is-ok"], wet: ["過濕", "is-high"] } },
+    soil: { label: "MINERALS", cn: "礦物質", values: { poor: ["LOW", "is-low"], ok: ["GOOD", "is-ok"], rich: ["EXCESS", "is-high"] }, zhValues: { poor: ["不足", "is-low"], ok: ["適中", "is-ok"], rich: ["過量", "is-high"] } },
+    temp: { label: "AIR", cn: "溫度／通風", values: { cool: ["COOL", "is-low"], ok: ["GOOD", "is-ok"], warm: ["HUMID", "is-high"] }, zhValues: { cool: ["偏低", "is-low"], ok: ["適中", "is-ok"], warm: ["悶熱", "is-high"] } },
+    pollination: { label: "POLLEN", cn: "授粉", values: { none: ["LOW", "is-low"], good: ["GOOD", "is-ok"] }, zhValues: { none: ["不足", "is-low"], good: ["良好", "is-ok"] } },
   };
 
   const state = {
@@ -334,7 +729,74 @@
     notes: [],
     stageResults: [],
     results: [],
+    lastFeedback: null,
+    lastPoints: 0,
+    tried: new Set(),
+    lastHarvest: null,
   };
+
+  let lang = (() => {
+    try { return localStorage.getItem("leaf-lab-lang") === "en" ? "en" : "zh"; } catch (err) { return "zh"; }
+  })();
+
+  function t(key, vars = {}) {
+    const dict = UI[lang] || UI.en;
+    let value = dict[key] ?? UI.en[key] ?? key;
+    Object.entries(vars).forEach(([name, replacement]) => {
+      value = value.replaceAll(`{${name}}`, String(replacement));
+    });
+    return value;
+  }
+
+  function tx(en, zh) {
+    return lang === "zh" ? zh : en;
+  }
+
+  function stageText(stage, field) {
+    return lang === "zh" ? (stage[field + "Zh"] ?? stage[field]) : stage[field];
+  }
+
+  function optionText(option) {
+    return lang === "zh" ? (option.textZh ?? option.text) : option.text;
+  }
+
+  function optionFeedback(option) {
+    return lang === "zh" ? (option.feedbackZh ?? option.feedback) : option.feedback;
+  }
+
+  function noteText(note) {
+    if (typeof note === "string") return note;
+    return lang === "zh" ? (note.zh ?? note.en) : note.en;
+  }
+
+  function cropName(crop) { return lang === "zh" ? crop.cn : crop.name; }
+  function cropFocus(crop) { return lang === "zh" ? (crop.focusZh ?? crop.focus) : crop.focus; }
+  function cropBlurb(crop) { return lang === "zh" ? (crop.blurbZh ?? crop.blurb) : crop.blurb; }
+
+  function setLanguage(next) {
+    lang = next === "en" ? "en" : "zh";
+    try { localStorage.setItem("leaf-lab-lang", lang); } catch (err) { /* private mode */ }
+    applyLanguage();
+  }
+
+  function applyLanguage() {
+    document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
+    document.title = lang === "zh" ? "Leaf Lab · 葉綠工坊" : "Leaf Lab · Plant Science";
+    document.querySelectorAll("[data-i18n]").forEach((node) => {
+      node.textContent = t(node.dataset.i18n);
+    });
+    document.querySelectorAll("[data-i18n-html]").forEach((node) => {
+      node.innerHTML = t(node.dataset.i18nHtml);
+    });
+    document.querySelectorAll("[data-lang-toggle]").forEach((button) => {
+      button.textContent = lang === "zh" ? "EN" : "繁中";
+      button.setAttribute("aria-label", lang === "zh" ? "Switch to English" : "切換成繁體中文");
+    });
+    renderCropPreview();
+    if (!el.playScreen.hidden) renderStage(true);
+    if (!el.harvestScreen.hidden) renderHarvestSummary();
+    if (!el.resultScreen.hidden) renderResultSummary();
+  }
 
   const el = {
     startScreen: document.getElementById("startScreen"),
@@ -420,18 +882,22 @@
   }
 
   function renderCropPreview() {
-    el.cropPreview.innerHTML = CROPS.map((crop) => `
+    el.cropPreview.innerHTML = CROPS.map((crop) => {
+      const primary = lang === "zh" ? crop.cn : crop.name;
+      const secondary = lang === "zh" ? crop.name : crop.cn;
+      return `
       <article class="crop-preview-card" style="--accent:${crop.accent};--accent-soft:${crop.soft}">
         <span class="crop-icon">${crop.icon}</span>
-        <b>${crop.name}</b><small>${crop.cn}</small>
-        <span>${crop.focus}</span>
-      </article>`).join("");
+        <b>${primary}</b><small>${secondary}</small>
+        <span>${cropFocus(crop)}</span>
+      </article>`;
+    }).join("");
   }
 
   function renderBench() {
     el.bench.innerHTML = CROPS.map((crop, i) => `
       <span class="bench-bed ${i === state.cropIndex ? "is-current" : ""} ${i < state.cropIndex ? "is-done" : ""}">
-        <i></i>${crop.icon} ${crop.cn}
+        <i></i>${crop.icon} ${cropName(crop)}
       </span>`).join("");
   }
 
@@ -449,6 +915,7 @@
     state.cropIndex = 0;
     state.total = 0;
     state.results = [];
+    state.lastHarvest = null;
     startCrop();
   }
 
@@ -462,32 +929,53 @@
     state.notes = [];
     state.stageResults = [];
     state.tried = new Set();
+    state.lastFeedback = null;
+    state.lastPoints = 0;
     state.readings = { ...crop.readings };
-    el.seasonLabel.textContent = `SEASON · BED ${state.cropIndex + 1} OF 5`;
-    el.cropTitle.textContent = crop.name;
-    el.cropCn.textContent = `${crop.cn} · ${crop.focus}`;
+    el.seasonLabel.textContent = lang === "zh"
+      ? `季度 · 第 ${state.cropIndex + 1} 塊田，共 5 塊`
+      : `SEASON · BED ${state.cropIndex + 1} OF 5`;
+    el.cropTitle.textContent = cropName(crop);
+    el.cropCn.textContent = lang === "zh"
+      ? `${crop.name} · ${cropFocus(crop)}`
+      : `${crop.cn} · ${cropFocus(crop)}`;
     renderHud();
-    renderStage();
+    renderStage(false);
     showScreen("play");
   }
 
-  function renderStage() {
+  function renderStage(preserve = false) {
     const crop = currentCrop();
     const stage = currentStage();
-    state.attempts = 0;
-    state.solved = false;
-    el.stageTag.textContent = `DAY ${state.stageIndex + 1} · ${stage.tag}`;
-    el.healthTag.textContent = state.health < 55 ? "STRESSED" : "HEALTHY";
+    if (!preserve) {
+      state.attempts = 0;
+      state.solved = false;
+      state.tried = new Set();
+      state.lastFeedback = null;
+      state.lastPoints = 0;
+    }
+    el.seasonLabel.textContent = lang === "zh"
+      ? `季度 · 第 ${state.cropIndex + 1} 塊田，共 5 塊`
+      : `SEASON · BED ${state.cropIndex + 1} OF 5`;
+    el.cropTitle.textContent = cropName(crop);
+    el.cropCn.textContent = lang === "zh"
+      ? `${crop.name} · ${cropFocus(crop)}`
+      : `${crop.cn} · ${cropFocus(crop)}`;
+    el.stageTag.textContent = lang === "zh"
+      ? `第 ${state.stageIndex + 1} 日 · ${stageText(stage, "tag")}`
+      : `DAY ${state.stageIndex + 1} · ${stageText(stage, "tag")}`;
+    el.healthTag.textContent = state.health < 55 ? t("play.stressed") : t("play.health");
     el.healthTag.classList.toggle("is-stressed", state.health < 55);
     el.dayMark.textContent = String(state.stageIndex + 1).padStart(2, "0");
-    el.stageTitle.textContent = stage.title;
-    el.stagePrompt.textContent = stage.prompt;
-    el.observation.textContent = stage.observation;
-    el.nextBtn.hidden = true;
-    el.nextBtn.textContent = state.stageIndex === 3 ? "Harvest →" : "Next day →";
-    el.pointsNote.textContent = "First try: 25 points";
-    setFeedback("", "Read the observation and the sensors. Choose one action.");
-    el.plantArt.innerHTML = plantArt(crop, state.stageIndex, state.health);
+    el.stageTitle.textContent = stageText(stage, "title");
+    el.stagePrompt.textContent = stageText(stage, "prompt");
+    el.observation.textContent = stageText(stage, "observation");
+    el.nextBtn.textContent = state.stageIndex === 3 ? t("play.harvest") : t("play.next");
+    el.nextBtn.hidden = !state.solved;
+    el.pointsNote.textContent = pointsNoteText();
+    if (state.lastFeedback) renderFeedback();
+    else setFeedback("", t("play.defaultFeedback"));
+    renderPlant();
     renderSensors();
     renderOptions();
     renderNotes();
@@ -499,20 +987,22 @@
     el.sensorRow.innerHTML = crop.sensors.map((key) => {
       const meta = SENSOR_META[key];
       const value = state.readings[key] || "ok";
-      const detail = meta.values[value] || ["—", ""];
-      return `<div class="sensor"><span>${meta.cn} · ${meta.label}</span><b class="${detail[1]}">${detail[0]}</b></div>`;
+      const detail = (lang === "zh" ? meta.zhValues : meta.values)[value] || ["—", ""];
+      const label = lang === "zh" ? meta.cn : meta.label;
+      return `<div class="sensor"><span>${label}</span><b class="${detail[1]}">${detail[0]}</b></div>`;
     }).join("");
   }
 
   function renderOptions() {
     const stage = currentStage();
+    const correctIndex = stage.options.findIndex((o) => o.correct);
     el.options.innerHTML = "";
     stage.options.forEach((option, i) => {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "option";
       button.dataset.option = String(i);
-      button.innerHTML = `<span class="opt-mark">${String.fromCharCode(65 + i)}</span><span>${esc(option.text)}</span>`;
+      button.innerHTML = `<span class="opt-mark">${String.fromCharCode(65 + i)}</span><span>${esc(optionText(option))}</span>`;
       if (state.solved && option.correct) button.classList.add("is-correct");
       if (state.solved) button.disabled = true;
       if (state.tried && state.tried.has(i) && !option.correct) {
@@ -523,8 +1013,32 @@
       el.options.append(button);
     });
     if (state.tried && state.solved) {
-      const correctButton = el.options.querySelector(".option[data-option='" + stage.options.findIndex((o) => o.correct) + "']");
+      const correctButton = el.options.querySelector(".option[data-option='" + correctIndex + "']");
       if (correctButton) correctButton.classList.add("is-correct");
+    }
+  }
+
+  function pointsNoteText() {
+    if (state.solved) {
+      return state.lastPoints ? t("play.stagePoints", { n: state.lastPoints }) : t("play.zeroPoints");
+    }
+    if (state.attempts >= 2) return t("play.noPoints");
+    if (state.attempts === 1) return t("play.retry");
+    return t("play.first");
+  }
+
+  function renderFeedback() {
+    const feedback = state.lastFeedback;
+    if (!feedback) {
+      setFeedback("", t("play.defaultFeedback"));
+      return;
+    }
+    const option = currentStage().options[feedback.optionIndex];
+    const detail = option ? esc(optionFeedback(option)) : "";
+    if (feedback.kind === "good") {
+      setFeedback("good", `<b>${t("feedback.good", { n: feedback.points })}</b> ${detail}`);
+    } else {
+      setFeedback("bad", `<b>${t("feedback.bad")}</b> ${detail}`);
     }
   }
 
@@ -537,18 +1051,21 @@
     if (option.correct) {
       const points = state.attempts === 0 ? 25 : state.attempts === 1 ? 12 : 0;
       state.cropScore += points;
+      state.lastPoints = points;
       state.health = Math.min(100, state.health + (state.attempts === 0 ? 7 : 2));
       Object.entries(option.effects || {}).forEach(([key, value]) => { state.readings[key] = value; });
       state.solved = true;
-      state.stageResults.push({ title: stage.title, points, note: stage.note });
-      state.notes.push(stage.note);
+      state.lastFeedback = { kind: "good", optionIndex: index, points };
+      state.stageResults.push({ titleEn: stage.title, titleZh: stage.titleZh, points });
+      state.notes.push({ en: stage.note, zh: stage.noteZh });
       renderOptions();
       renderSensors();
-      el.plantArt.innerHTML = plantArt(currentCrop(), state.stageIndex, state.health);
-      el.healthTag.textContent = state.health < 55 ? "STRESSED" : "HEALTHY";
+      renderPlant();
+      el.healthTag.textContent = state.health < 55 ? t("play.stressed") : t("play.health");
       el.healthTag.classList.toggle("is-stressed", state.health < 55);
-      setFeedback("good", `<b>+${points} points.</b> ${esc(option.feedback)}`);
-      el.pointsNote.textContent = points ? `${points} points this stage` : "No points this stage";
+      renderFeedback();
+      el.pointsNote.textContent = pointsNoteText();
+      el.nextBtn.textContent = state.stageIndex === 3 ? t("play.harvest") : t("play.next");
       el.nextBtn.hidden = false;
       renderNotes();
       renderHud();
@@ -558,27 +1075,24 @@
     state.attempts += 1;
     state.health = Math.max(20, state.health - 6);
     state.tried.add(index);
+    state.lastFeedback = { kind: "bad", optionIndex: index };
     button.classList.add("is-wrong");
     button.disabled = true;
-    el.plantArt.innerHTML = plantArt(currentCrop(), state.stageIndex, state.health);
-    el.healthTag.textContent = state.health < 55 ? "STRESSED" : "HEALTHY";
+    renderPlant();
+    el.healthTag.textContent = state.health < 55 ? t("play.stressed") : t("play.health");
     el.healthTag.classList.toggle("is-stressed", state.health < 55);
-    setFeedback("bad", `<b>Not the limiting factor.</b> ${esc(option.feedback)}`);
-    if (state.attempts >= 2) {
-      el.pointsNote.textContent = "No points this stage — choose the best remaining action.";
-    } else {
-      el.pointsNote.textContent = "Retry: 12 points available";
-    }
+    renderFeedback();
+    el.pointsNote.textContent = pointsNoteText();
     renderHud();
   }
 
   function renderNotes() {
-    el.noteCount.textContent = `${state.notes.length} note${state.notes.length === 1 ? "" : "s"}`;
+    el.noteCount.textContent = t(state.notes.length === 1 ? "play.note" : "play.notes", { n: state.notes.length });
     if (!state.notes.length) {
-      el.notes.innerHTML = '<li class="empty-note">Your observations will appear here.</li>';
+      el.notes.innerHTML = `<li class="empty-note">${esc(t("play.noNotes"))}</li>`;
       return;
     }
-    el.notes.innerHTML = state.notes.map((note) => `<li>${esc(note)}</li>`).join("");
+    el.notes.innerHTML = state.notes.map((note) => `<li>${esc(noteText(note))}</li>`).join("");
   }
 
   function nextStage() {
@@ -586,34 +1100,57 @@
     state.tried = new Set();
     if (state.stageIndex < 3) {
       state.stageIndex += 1;
-      renderStage();
+      renderStage(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
+    const crop = currentCrop();
     const cropScore = state.cropScore;
     state.total += cropScore;
     state.cropScore = 0;
     const stars = starsFor(cropScore);
-    state.results.push({ name: currentCrop().name, cn: currentCrop().cn, score: cropScore, stars });
-    el.harvestMark.textContent = currentCrop().icon;
-    el.harvestTitle.textContent = `${currentCrop().name} harvest.`;
-    el.harvestCopy.textContent = stars === 3
-      ? "A clean crop: you identified the limiting factor at every stage and adjusted the environment."
-      : stars === 2
-        ? "A good crop. One or two decisions missed the limiting factor, but the plant recovered."
-        : stars === 1
-          ? "An edible crop, but the plant spent energy coping with the wrong conditions. Read the notes before the next bed."
-          : "A weak crop. The environment was rarely matched to the plant's needs; review the notebook and try again.";
-    el.harvestScore.textContent = String(cropScore);
-    el.harvestStars.innerHTML = starMarkup(stars);
-    el.harvestStars.setAttribute("aria-label", `${stars} out of 3 stars`);
-    el.harvestLog.innerHTML = state.stageResults.map((row) => `<div class="harvest-row"><span>${esc(row.title)}</span><b>+${row.points}</b></div>`).join("");
-    el.nextCropBtn.textContent = state.cropIndex === CROPS.length - 1 ? "See season report →" : "Next crop →";
+    state.results.push({ name: crop.name, cn: crop.cn, score: cropScore, stars });
+    state.lastHarvest = { cropId: crop.id, score: cropScore, stars };
+    renderHarvestSummary();
     showScreen("harvest");
     renderHud();
     if (state.cropIndex === CROPS.length - 1) {
       el.nextCropBtn.focus({ preventScroll: true });
     }
+  }
+
+  function harvestCopy(stars) {
+    const copies = {
+      en: {
+        3: "A clean crop: you identified the limiting factor at every stage and adjusted the environment.",
+        2: "A good crop. One or two decisions missed the limiting factor, but the plant recovered.",
+        1: "An edible crop, but the plant spent energy coping with the wrong conditions. Read the notes before the next bed.",
+        0: "A weak crop. The environment was rarely matched to the plant's needs; review the notebook and try again.",
+      },
+      zh: {
+        3: "一次乾淨的收成：每個階段都找出限制因子，並把環境調整到植物需要的位置。",
+        2: "不錯的收成。有一兩個決定捉錯了限制因子，但植物總算恢復過來。",
+        1: "仍然有收成，但植物花了很多能量去應付不合適的環境。下一塊田之前，先讀筆記。",
+        0: "這次收成很弱。環境很少配合植物的需要；重看筆記，再試一次。",
+      },
+    };
+    return copies[lang][stars];
+  }
+
+  function renderHarvestSummary() {
+    const harvest = state.lastHarvest;
+    if (!harvest) return;
+    const crop = CROPS.find((item) => item.id === harvest.cropId) || currentCrop();
+    el.harvestMark.textContent = crop.icon;
+    el.harvestTitle.textContent = t("harvest.title", { crop: cropName(crop) });
+    el.harvestCopy.textContent = harvestCopy(harvest.stars);
+    el.harvestScore.textContent = String(harvest.score);
+    el.harvestStars.innerHTML = starMarkup(harvest.stars);
+    el.harvestStars.setAttribute("aria-label", `${harvest.stars} / 3`);
+    el.harvestLog.innerHTML = state.stageResults.map((row) => `
+      <div class="harvest-row"><span>${esc(lang === "zh" ? (row.titleZh ?? row.titleEn) : row.titleEn)}</span><b>+${row.points}</b></div>
+    `).join("");
+    el.nextCropBtn.textContent = state.cropIndex === CROPS.length - 1 ? t("harvest.report") : t("harvest.next");
   }
 
   function nextCrop() {
@@ -625,25 +1162,45 @@
     startCrop();
   }
 
-  function showFinal() {
+  function resultCopy(stars) {
+    const copies = {
+      en: {
+        3: "Five strong harvests. You read the crops instead of guessing, and matched each treatment to the limiting factor.",
+        2: "A healthy season. A few decisions missed the cause, but the greenhouse recovered.",
+        1: "The greenhouse produced a crop, but several stages were stressed. The notebook has the evidence for a better season.",
+        0: "The season was difficult. Use the notebook to review each limiting factor, then grow again.",
+      },
+      zh: {
+        3: "五次結實的收成。你不是靠猜，而是讀懂作物，並把每次處理對準限制因子。",
+        2: "健康的一季。有幾個決定捉錯了原因，但溫室整體恢復得不錯。",
+        1: "溫室仍然有收成，但有幾個階段受壓。筆記裡有證據，下一次可以種得更好。",
+        0: "這一季很困難。用筆記重看每個限制因子，然後再種一次。",
+      },
+    };
+    return copies[lang][stars];
+  }
+
+  function renderResultSummary() {
     const total = state.total;
     const stars = total >= 450 ? 3 : total >= 350 ? 2 : total >= 200 ? 1 : 0;
     el.finalScore.textContent = String(total);
     el.finalStars.innerHTML = starMarkup(stars);
-    el.finalStars.setAttribute("aria-label", `${stars} out of 3 stars`);
-    el.resultCopy.textContent = stars === 3
-      ? "Five strong harvests. You read the crops instead of guessing, and matched each treatment to the limiting factor."
-      : stars === 2
-        ? "A healthy season. A few decisions missed the cause, but the greenhouse recovered."
-        : stars === 1
-          ? "The greenhouse produced a crop, but several stages were stressed. The notebook has the evidence for a better season."
-          : "The season was difficult. Use the notebook to review each limiting factor, then grow again.";
-    el.resultLog.innerHTML = state.results.map((row) => `<div class="result-row"><span>${esc(row.name)} · ${esc(row.cn)}</span><b>${row.score} / 100</b></div>`).join("");
+    el.finalStars.setAttribute("aria-label", `${stars} / 3`);
+    el.resultCopy.textContent = resultCopy(stars);
+    el.resultLog.innerHTML = state.results.map((row) => {
+      const label = lang === "zh" ? `${row.cn} · ${row.name}` : `${row.name} · ${row.cn}`;
+      return `<div class="result-row"><span>${esc(label)}</span><b>${row.score} / 100</b></div>`;
+    }).join("");
     try {
       const previous = Number(localStorage.getItem("leaf-lab-best") || 0);
       if (total > previous) localStorage.setItem("leaf-lab-best", String(total));
       el.bestValue.textContent = String(Math.max(previous, total));
     } catch (err) { el.bestValue.textContent = String(total); }
+  }
+
+  function showFinal() {
+    const total = state.total;
+    renderResultSummary();
     try {
       if (window.parent && window.parent !== window) window.parent.postMessage({ type: "game-score", score: total }, location.origin);
     } catch (err) { /* standalone */ }
@@ -651,54 +1208,12 @@
     el.replayBtn.focus({ preventScroll: true });
   }
 
-  function plantArt(crop, stage, health) {
-    const stressed = health < 55;
-    const leaf = stressed ? "#c6c27a" : "#b9d88b";
-    const leafDark = "#2f664a";
-    const pot = `<path class="pot" d="M82 208h76l-9 27H91z"/><path class="soil" d="M79 202h82v10H79z"/>`;
-    const sprout = `<path class="seed" d="M120 202c0-7 4-11 0-15-4 4 0 8 0 15z"/>`;
-    let plant = "";
-    if (crop.id === "lettuce") {
-      const size = [10, 23, 36, 44][stage];
-      const leaves = [];
-      for (let i = 0; i < 7; i += 1) {
-        const angle = -76 + i * 25;
-        leaves.push(`<ellipse class="leaf" cx="120" cy="${188 - i % 3 * 8}" rx="${size}" ry="${size * .55}" transform="rotate(${angle} 120 188)"/>`);
-      }
-      plant = leaves.join("") + (stage === 3 ? '<ellipse class="leaf" cx="120" cy="164" rx="23" ry="17"/>' : "");
-    } else if (crop.id === "tomato" || crop.id === "beans") {
-      const h = [20, 48, 78, 98][stage];
-      plant = `<path class="stem" d="M120 202V${202 - h}"/>`;
-      for (let i = 0; i < 5; i += 1) {
-        const y = 190 - i * 18;
-        plant += `<path class="leaf" d="M120 ${y}c-18 0-28-8-31-20 18 0 29 8 31 20zM120 ${y + 8}c18 0 28-8 31-20-18 0-29 8-31 20z"/>`;
-      }
-      if (crop.id === "tomato" && stage >= 2) {
-        if (stage === 2) plant += '<circle class="flower" cx="94" cy="152" r="7"/><circle class="flower" cx="146" cy="163" r="7"/>';
-        else plant += '<circle class="fruit" cx="94" cy="146" r="10"/><circle class="fruit" cx="148" cy="158" r="9"/><circle class="fruit" cx="118" cy="132" r="8"/>';
-      }
-      if (crop.id === "beans" && stage === 3) {
-        plant += '<path class="fruit" d="M93 148c-15 0-19 8-17 14 13 2 19-5 17-14zM148 157c15 0 19 8 17 14-13 2-19-5-17-14z"/>';
-      }
-    } else if (crop.id === "radish") {
-      const h = [10, 38, 67, 85][stage];
-      plant = `<path class="stem" d="M120 202V${202 - h}"/>`;
-      for (let i = 0; i < 4; i += 1) {
-        const y = 186 - i * 19;
-        plant += `<path class="leaf" d="M120 ${y}c-18 0-29-7-31-19 18 0 29 7 31 19zM120 ${y + 7}c18 0 29-7 31-19-18 0-29 7-31 19z"/>`;
-      }
-      if (stage === 3) plant += '<ellipse class="fruit" cx="120" cy="196" rx="18" ry="12"/>';
-    } else if (crop.id === "strawberry") {
-      plant = '<path class="stem" d="M120 202V171"/>';
-      plant += '<path class="leaf" d="M120 186c-23 0-35-9-37-23 21 0 34 9 37 23zM120 181c23 0 35-9 37-23-21 0-34 9-37 23z"/>';
-      if (stage >= 2) plant += '<circle class="flower" cx="93" cy="165" r="7"/><circle class="flower" cx="147" cy="169" r="7"/>';
-      if (stage === 3) plant += '<path class="fruit" d="M86 180c-8 0-11 9-5 15 5 5 10 0 12-6 2 6 7 11 12 6 6-6 3-15-5-15z"/>';
-    }
-    return `<svg viewBox="20 100 200 140" role="img" aria-label="${esc(crop.name)} at stage ${stage + 1}">
-      <ellipse cx="120" cy="238" rx="74" ry="8" fill="rgba(32,54,45,.10)"/>
-      ${plant}${pot}
-      <path d="M70 228h100" fill="none" stroke="rgba(32,54,45,.22)" stroke-width="2" stroke-linecap="round"/>
-    </svg>`;
+  function renderPlant() {
+    const crop = currentCrop();
+    const stage = state.stageIndex + 1;
+    const stressed = state.health < 55 ? " is-stressed" : "";
+    const alt = lang === "zh" ? `${crop.cn}，第 ${stage} 個生長階段` : `${crop.name} at growth stage ${stage}`;
+    el.plantArt.innerHTML = `<img src="../../../assets/games/leaf-lab/${crop.id}-${stage}.png" alt="${esc(alt)}" class="plant-sprite${stressed}">`;
   }
 
   // Events
@@ -710,9 +1225,12 @@
   el.nextBtn.addEventListener("click", nextStage);
   el.nextCropBtn.addEventListener("click", nextCrop);
   el.replayBtn.addEventListener("click", startGame);
+  document.querySelectorAll("[data-lang-toggle]").forEach((button) => {
+    button.addEventListener("click", () => setLanguage(lang === "zh" ? "en" : "zh"));
+  });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !el.howModal.hidden) el.howModal.hidden = true; });
 
-  renderCropPreview();
+  applyLanguage();
   window.__LEAF_LAB__ = {
     crops: CROPS,
     get state() { return { cropIndex: state.cropIndex, stageIndex: state.stageIndex, total: state.total, cropScore: state.cropScore, solved: state.solved, health: state.health, notes: state.notes.slice(), results: state.results.slice() }; },
