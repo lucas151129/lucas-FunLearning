@@ -492,6 +492,18 @@
       html.dsh-embed .game-actions { display: none !important; }
     }
 
+    /* Direct mobile-landscape use (outside the platform iframe): keep the
+       square board inside the short viewport instead of letting it grow to
+       the full width and push the game off-screen. */
+    @media (max-height: 520px) and (max-width: 860px) {
+      html:not(.dsh-embed) .board-wrap {
+        width: min(100%, 78vh);
+        max-height: 78vh;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
     }
@@ -678,14 +690,20 @@
         const w = Math.max(240, Math.round(rect.width));
         const h = Math.max(160, Math.round(rect.height));
         /* 每格邊長同時受寬與高限制，格子才會是正方形；橫屏時盤面自然變寬扁。 */
-        CELL = Math.max(14, Math.min(34, Math.floor(Math.min(w / 24, h / 10))));
+        /* Keep fewer, larger cells: the food labels are part of the gameplay,
+           so a 24-column board made every number too small to read on phones. */
+        CELL = Math.max(20, Math.min(34, Math.floor(Math.min(w / 14, h / 10))));
         COLS = Math.max(10, Math.floor(w / CELL));
         ROWS = Math.max(6, Math.floor(h / CELL));
         SIZE = COLS * CELL;
-        canvas.width = SIZE;
-        canvas.height = ROWS * CELL;
+        /* Phone screens are high-DPI. Draw into a 2× backing store and keep
+           the CSS board at logical size; otherwise the food numbers blur. */
+        const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+        canvas.width = Math.round(SIZE * dpr);
+        canvas.height = Math.round(ROWS * CELL * dpr);
         canvas.style.width = SIZE + "px";
         canvas.style.height = ROWS * CELL + "px";
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         if (snake.some((s) => s.x >= COLS || s.y >= ROWS)) {
           resetSnake();
         }
@@ -997,8 +1015,8 @@
       }
 
       function draw() {
-        const W = canvas.width;
-        const H = canvas.height;
+        const W = SIZE;
+        const H = ROWS * CELL;
         ctx.clearRect(0, 0, W, H);
         ctx.fillStyle = '#f2fff9'; ctx.fillRect(0, 0, W, H);
         ctx.strokeStyle = 'rgba(39,155,133,.12)'; ctx.lineWidth = 1;
@@ -1015,7 +1033,7 @@
           ctx.shadowColor = powerUp.color; ctx.shadowBlur = 18;
           ctx.fillStyle = powerUp.color; ctx.strokeStyle = '#233052'; ctx.lineWidth = 2.5;
           roundedRect(px, py, CELL - 4, CELL - 4, 11); ctx.fill(); ctx.stroke();
-          ctx.shadowBlur = 0; ctx.font = '18px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.shadowBlur = 0; ctx.font = `${Math.max(11, Math.min(18, Math.round(CELL * .62)))}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
           ctx.fillText(powerUp.icon, px + (CELL - 4) / 2, py + (CELL - 4) / 2 + 1);
           ctx.restore();
         }
@@ -1031,12 +1049,20 @@
             ctx.shadowColor = '#22c58b'; ctx.shadowBlur = 18;
           }
           ctx.strokeStyle = '#233052'; ctx.lineWidth = 2.5;
-          roundedRect(1, 1, CELL - 6, CELL - 6, 9); ctx.fill(); ctx.stroke();
+          roundedRect(1, 1, CELL - 4, CELL - 4, 9); ctx.fill(); ctx.stroke();
           ctx.fillStyle = '#233052';
           const label = fmt(food.value);
-          ctx.font = `900 ${label.length > 3 ? 13 : 16}px "Trebuchet MS", sans-serif`;
+          /* Scale with the cell, then let canvas condense the very long
+             two-digit labels so they never spill outside the jelly. */
+          const labelSize = Math.max(11, Math.min(22, Math.round(CELL * .64)));
+          ctx.font = `900 ${label.length > 2 ? labelSize - 2 : labelSize}px "Trebuchet MS", sans-serif`;
           ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-          ctx.fillText(label, (CELL - 5) / 2, (CELL - 5) / 2 + .5);
+          const labelWidth = Math.max(12, CELL - 6);
+          const naturalWidth = ctx.measureText(label).width;
+          if (naturalWidth > labelWidth) {
+            ctx.font = `900 ${Math.max(9, Math.floor(labelSize * labelWidth / naturalWidth))}px "Trebuchet MS", sans-serif`;
+          }
+          ctx.fillText(label, (CELL - 4) / 2, (CELL - 4) / 2 + .5, labelWidth);
           if (Date.now() < revealUntil && food.value === question.answer) {
             ctx.fillStyle = '#178a63'; ctx.font = '900 10px sans-serif'; ctx.fillText('✓', CELL - 9, 6);
           }
