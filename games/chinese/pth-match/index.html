@@ -201,7 +201,7 @@
       <div class="stars" id="stars"></div>
       <div class="hint" id="match-hint">👆 先點詞語，再點圖片</div>
       <div class="board" id="board"></div>
-      <button class="big-btn" id="btn-replay">🔄 再玩一次</button>
+      <button class="big-btn" id="btn-replay">🔄 換一組</button>
     </section>
 
     <section id="sec-listen">
@@ -215,24 +215,50 @@
 
 <script>
 /* ============================================================
-   詞語表（示範資料）
-   - word  ：詞語（普通話用字）
-   - pinyin：拼音
+   詞語表（K1 詞語二，30 個）
+   - word  ：詞語（繁體）
+   - pinyin：拼音（放在詞語下面的小字）
    - img   ：詞語插圖（生圖，放 images/ 資料夾）
-   - pic   ：emoji 後備（img 載入失敗時手動留空 img 即用 emoji）
+   - pic   ：emoji 後備（圖片載入失敗時自動換上）
    - audio ：發音檔，放 audio/ 資料夾
-   要加詞語：照格式加一筆，再用 make_audio.py 生成對應 MP3。
+   要加詞語：照格式加一筆，跑 make_images.py 與 make_audio.py。
    ============================================================ */
 const ITEMS = [
-  { id: 0, word: "蘋果",  pinyin: "píng guǒ",   img: "images/apple.png",   pic: "🍎", audio: "audio/pingguo.mp3" },
-  { id: 1, word: "香蕉",  pinyin: "xiāng jiāo", img: "images/banana.png",  pic: "🍌", audio: "audio/xiangjiao.mp3" },
-  { id: 2, word: "小貓",  pinyin: "xiǎo māo",   img: "images/cat.png",     pic: "🐱", audio: "audio/xiaomao.mp3" },
-  { id: 3, word: "小狗",  pinyin: "xiǎo gǒu",   img: "images/dog.png",     pic: "🐶", audio: "audio/xiaogou.mp3" },
-  { id: 4, word: "眼睛",  pinyin: "yǎn jīng",   img: "images/eye.png",     pic: "👀", audio: "audio/yanjing.mp3" },
-  { id: 5, word: "鼻子",  pinyin: "bí zi",      img: "images/nose.png",    pic: "👃", audio: "audio/bizi.mp3" },
+  { id:  0, word: "早上好", pinyin: "zǎo shang hǎo", img: "images/zaoshanghao.png", pic: "🌅" },
+  { id:  1, word: "同學",   pinyin: "tóng xué",      img: "images/tongxue.png",     pic: "👫" },
+  { id:  2, word: "老師",   pinyin: "lǎo shī",       img: "images/laoshi.png",      pic: "👩‍🏫" },
+  { id:  3, word: "遊戲",   pinyin: "yóu xì",        img: "images/youxi.png",       pic: "🧩" },
+  { id:  4, word: "唱歌",   pinyin: "chàng gē",      img: "images/changge.png",     pic: "🎤" },
+  { id:  5, word: "學習",   pinyin: "xué xí",        img: "images/xuexi.png",       pic: "📚" },
+  { id:  6, word: "眼睛",   pinyin: "yǎn jing",      img: "images/yanjing.png",     pic: "👀" },
+  { id:  7, word: "耳朵",   pinyin: "ěr duo",        img: "images/erduo.png",       pic: "👂" },
+  { id:  8, word: "嘴巴",   pinyin: "zuǐ ba",        img: "images/zuiba.png",       pic: "👄" },
+  { id:  9, word: "刷牙",   pinyin: "shuā yá",       img: "images/shuaya.png",      pic: "🪥" },
+  { id: 10, word: "洗臉",   pinyin: "xǐ liǎn",       img: "images/xilian.png",      pic: "🚿" },
+  { id: 11, word: "洗手",   pinyin: "xǐ shǒu",       img: "images/xishou.png",      pic: "🧼" },
+  { id: 12, word: "爸爸",   pinyin: "bà ba",         img: "images/baba.png",        pic: "👨" },
+  { id: 13, word: "媽媽",   pinyin: "mā ma",         img: "images/mama.png",        pic: "👩" },
+  { id: 14, word: "哥哥",   pinyin: "gē ge",         img: "images/gege.png",        pic: "🧑" },
+  { id: 15, word: "弟弟",   pinyin: "dì di",         img: "images/didi.png",        pic: "👦" },
+  { id: 16, word: "姐姐",   pinyin: "jiě jie",       img: "images/jiejie.png",      pic: "👱‍♀️" },
+  { id: 17, word: "妹妹",   pinyin: "mèi mei",       img: "images/meimei.png",      pic: "👧" },
+  { id: 18, word: "麵包",   pinyin: "miàn bāo",      img: "images/mianbao.png",     pic: "🍞" },
+  { id: 19, word: "蛋糕",   pinyin: "dàn gāo",       img: "images/dangao.png",      pic: "🍰" },
+  { id: 20, word: "餅乾",   pinyin: "bǐng gān",      img: "images/binggan.png",     pic: "🍪" },
+  { id: 21, word: "麵條",   pinyin: "miàn tiáo",     img: "images/miantiao.png",    pic: "🍜" },
+  { id: 22, word: "牛奶",   pinyin: "niú nǎi",       img: "images/niunai.png",      pic: "🥛" },
+  { id: 23, word: "果汁",   pinyin: "guǒ zhī",       img: "images/guozhi.png",      pic: "🧃" },
+  { id: 24, word: "水果",   pinyin: "shuǐ guǒ",      img: "images/shuiguo.png",     pic: "🧺" },
+  { id: 25, word: "蘋果",   pinyin: "píng guǒ",      img: "images/pingguo.png",     pic: "🍎" },
+  { id: 26, word: "香蕉",   pinyin: "xiāng jiāo",    img: "images/xiangjiao.png",   pic: "🍌" },
+  { id: 27, word: "西瓜",   pinyin: "xī guā",        img: "images/xigua.png",       pic: "🍉" },
+  { id: 28, word: "葡萄",   pinyin: "pú táo",        img: "images/putao.png",       pic: "🍇" },
+  { id: 29, word: "樹葉",   pinyin: "shù yè",        img: "images/shuye.png",       pic: "🍃" },
 ];
+// 發音檔名 = 圖檔名，換 .png 為 .mp3
+ITEMS.forEach(it => { it.audio = "audio/" + it.img.slice(7).replace(/\.png$/, ".mp3"); });
 
-const PAIRS = 4; // 每輪配對數量（低年級 4 對最合適）
+const PAIRS = 4; // 每局配對數量（低年級 4 對最合適）
 
 /* ---- 工具 ---- */
 function shuffle(a) {
@@ -244,9 +270,26 @@ function shuffle(a) {
   return r;
 }
 function picHTML(it) {
-  return it.img
-    ? `<img class="pic" src="${it.img}" alt="${it.word}">`
-    : `<div class="pic pic-emoji">${it.pic}</div>`;
+  return `<img class="pic" src="${it.img}" alt="${it.word}" loading="lazy" decoding="async"
+            onerror="picFallback(this,'${it.pic}')">`;
+}
+function picFallback(img, emoji) {
+  const d = document.createElement("div");
+  d.className = "pic pic-emoji";
+  d.textContent = emoji;
+  img.replaceWith(d);
+}
+
+/* 一疊 30 個詞，每次抽 4 個；抽完再洗，保證玩得齊全部詞語 */
+let deck = [];
+function drawItems(n) {
+  const out = [];
+  while (out.length < n && out.length < ITEMS.length) {
+    if (!deck.length) deck = shuffle(ITEMS);
+    const it = deck.pop();
+    if (!out.some(x => x.id === it.id)) out.push(it);
+  }
+  return out;
 }
 
 /* ---- 音效 ---- */
@@ -321,7 +364,7 @@ function buildMatch() {
   board.innerHTML = "";
   renderStars();
 
-  roundItems = shuffle(ITEMS).slice(0, PAIRS);
+  roundItems = drawItems(PAIRS);
   const left = document.createElement("div");
   left.className = "col";
   left.innerHTML = '<div class="col-title">詞語</div>';
@@ -427,8 +470,9 @@ function buildListen() {
     listenGrid.appendChild(c);
   });
 }
+// 每個音檔約 1.9 秒（edge-tts 有固定的前後靜音），間隔取 2.1 秒才不會疊聲
 document.getElementById("btn-listen-all").addEventListener("click", () => {
-  ITEMS.forEach((it, i) => setTimeout(() => play(it.audio), i * 1300));
+  ITEMS.forEach((it, i) => setTimeout(() => play(it.audio), i * 2100));
 });
 
 /* ---- 分頁 ---- */
