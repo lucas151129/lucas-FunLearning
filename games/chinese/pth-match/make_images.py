@@ -73,18 +73,24 @@ ITEMS = {
 }
 
 # 吉祥物／icon：圓形頭像用，所以主體要留邊、不要頂滿
+# 空空＝三色柯基（橙白＋背上一大塊黑 saddle）、沒有尾巴。
+# 「背上的黑」一定要看得見：所以是 3/4 側身坐姿，不是正面胸像。
 AVATARS = {
     "kongkong": (
-        "head and upper body portrait of a cute chubby corgi puppy with no tail, "
-        "orange and white fur, big upright ears, wearing a small black graduation cap tilted on the head "
-        "and round glasses, cheerful open-mouth smile, waving one front paw, "
+        "sitting tricolor corgi puppy with no tail, seen in three-quarter view turned to its left "
+        "so the large black saddle patch on its back is clearly visible, white chest and front legs, "
+        "tan-orange head, ears and cheeks, white blaze on the muzzle, big upright ears, "
+        "wearing a small black graduation cap tilted on the head and round glasses, "
+        "cheerful open-mouth smile, full body, "
         "centred with generous empty margin around the character",
         "吉祥物（空空，狗博士）",
     ),
     "zh-pth-icon": (
-        "head portrait of a cute chubby corgi puppy with no tail, orange and white fur, "
-        "big upright ears, wearing a small black graduation cap tilted on the head and round glasses, "
-        "cheerful smile, centred with generous empty margin around the character",
+        "sitting tricolor corgi puppy with no tail, three-quarter view turned to its left, "
+        "large black saddle patch clearly visible on the back, white chest and legs, "
+        "tan-orange head and ears, white blaze, big upright ears, "
+        "wearing a small black graduation cap tilted on the head and round glasses, cheerful smile, "
+        "centred with generous empty margin around the character",
         "遊戲 icon（空空）",
     ),
 }
