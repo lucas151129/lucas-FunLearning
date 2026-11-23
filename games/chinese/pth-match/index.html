@@ -43,12 +43,17 @@
 
   header {
     position: relative; z-index: 1; text-align: center;
-    padding: calc(20px + env(safe-area-inset-top)) 14px 8px;
+    padding: calc(18px + env(safe-area-inset-top)) 14px 6px;
   }
   .mascot { display: inline-block; animation: bob 3s ease-in-out infinite; }
+  .mascot img {
+    width: 92px; height: 92px; border-radius: 50%; object-fit: cover;
+    box-shadow: 0 6px 18px rgba(244, 107, 107, .28);
+    border: 3px solid #fff;
+  }
   @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
   header h1 {
-    margin: 6px 0 2px; font-size: clamp(1.6rem, 5vw, 2rem);
+    margin: 8px 0 2px; font-size: clamp(1.6rem, 5vw, 2rem);
     color: var(--coral-deep); letter-spacing: 1px; font-weight: 900;
   }
   header p { margin: 0; font-size: .92rem; color: var(--text-soft); }
@@ -93,7 +98,7 @@
   .col-title { text-align: center; font-weight: 800; color: #c4a99b; font-size: .95rem; margin-bottom: -4px; }
   .card {
     background: var(--card); border: 4px solid transparent; border-radius: var(--radius);
-    box-shadow: var(--shadow); min-height: 104px; padding: 14px 10px;
+    box-shadow: var(--shadow); min-height: 112px; padding: 12px 10px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     cursor: pointer; user-select: none; -webkit-user-select: none;
     transition: transform .13s, border-color .18s, background .18s;
@@ -102,14 +107,20 @@
   .card .w { font-size: clamp(1.4rem, 5vw, 1.75rem); font-weight: 900; line-height: 1.15; letter-spacing: 1px; }
   .card .py { font-size: .82rem; color: var(--text-soft); margin-top: 4px; letter-spacing: .5px; }
 
-  .pic-wrap {
-    width: clamp(80px, 22vw, 110px); height: clamp(80px, 22vw, 110px);
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  /* 圖片（生圖）與 emoji 後備 */
+  .pic {
+    width: clamp(100px, 26vw, 140px); height: clamp(100px, 26vw, 140px);
+    border-radius: 22px; object-fit: contain;
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,.08));
+  }
+  .pic.pic-emoji {
+    object-fit: unset; display: flex; align-items: center; justify-content: center;
     font-size: clamp(2.5rem, 9vw, 3.4rem); line-height: 1;
+    border-radius: 50%;
     background: radial-gradient(circle at 32% 28%, #ffffff, var(--tint, #ffe7d4));
     box-shadow: inset 0 -6px 12px rgba(0,0,0,.05), 0 4px 10px rgba(0,0,0,.06);
+    filter: none;
   }
-  .pic-wrap img { width: 82%; height: 82%; object-fit: contain; }
   .card .tick {
     display: none; font-size: 1.3rem; margin-top: 4px;
     color: var(--mint); font-weight: 900;
@@ -117,7 +128,7 @@
   .card.picked { border-color: var(--coral); background: #fff2ee; transform: scale(1.04); }
   .card.matched { border-color: var(--mint); background: var(--mint-bg); cursor: default; }
   .card.matched .tick { display: block; }
-  .card.matched .pic-wrap, .card.matched .w { opacity: .82; }
+  .card.matched .pic, .card.matched .w { opacity: .82; }
   .card.wrong { border-color: #f2b1b1; background: #fff1f1; animation: wiggle .38s; }
   @keyframes wiggle {
     0%,100% { transform: translateX(0) rotate(0); }
@@ -145,7 +156,7 @@
     transition: transform .13s; user-select: none; -webkit-user-select: none;
   }
   .fcard:active { transform: scale(.94); }
-  .fcard .pic-wrap { margin: 0 auto; }
+  .fcard .pic { margin: 0 auto; }
   .fcard .w { font-size: 1.5rem; font-weight: 900; margin-top: 10px; }
   .fcard .py { font-size: .86rem; color: var(--text-soft); margin-top: 3px; }
   .fcard .spk {
@@ -165,7 +176,7 @@
   @media (min-width: 560px) {
     .board { gap: 18px; }
     .col { gap: 18px; }
-    .card { min-height: 124px; }
+    .card { min-height: 132px; }
   }
 </style>
 </head>
@@ -175,25 +186,7 @@
   <div class="bg-blob b3"></div>
 
   <header>
-    <span class="mascot">
-      <svg viewBox="0 0 120 120" width="82" height="82" aria-hidden="true">
-        <circle cx="30" cy="28" r="16" fill="#5b4a3f"/>
-        <circle cx="90" cy="28" r="16" fill="#5b4a3f"/>
-        <circle cx="30" cy="28" r="8" fill="#f3c4b0"/>
-        <circle cx="90" cy="28" r="8" fill="#f3c4b0"/>
-        <circle cx="60" cy="62" r="44" fill="#ffffff"/>
-        <ellipse cx="44" cy="57" rx="13" ry="16" fill="#3b3b3b" transform="rotate(-12 44 57)"/>
-        <ellipse cx="76" cy="57" rx="13" ry="16" fill="#3b3b3b" transform="rotate(12 76 57)"/>
-        <circle cx="46" cy="58" r="5" fill="#ffffff"/>
-        <circle cx="74" cy="58" r="5" fill="#ffffff"/>
-        <circle cx="47" cy="59" r="2.6" fill="#1f1f1f"/>
-        <circle cx="73" cy="59" r="2.6" fill="#1f1f1f"/>
-        <ellipse cx="60" cy="72" rx="5" ry="3.6" fill="#3b3b3b"/>
-        <path d="M60 75.6 q0 5.4 5 5.4 q5 0 5 -5.4" stroke="#3b3b3b" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-        <circle cx="33" cy="74" r="7" fill="#ffb3c1" opacity=".55"/>
-        <circle cx="87" cy="74" r="7" fill="#ffb3c1" opacity=".55"/>
-      </svg>
-    </span>
+    <span class="mascot"><img src="images/mascot.png" alt="熊貓吉祥物" width="92" height="92"></span>
     <h1>普通話配對</h1>
     <p>聽一聽 · 配一配 · 學普通話</p>
   </header>
@@ -225,18 +218,18 @@
    詞語表（示範資料）
    - word  ：詞語（普通話用字）
    - pinyin：拼音
-   - pic   ：emoji 佔位圖；換真圖時把 img 填成圖片路徑（如 images/apple.png）
-   - bg    ：圖片貼紙的底色（柔粉色系）
+   - img   ：詞語插圖（生圖，放 images/ 資料夾）
+   - pic   ：emoji 後備（img 載入失敗時手動留空 img 即用 emoji）
    - audio ：發音檔，放 audio/ 資料夾
    要加詞語：照格式加一筆，再用 make_audio.py 生成對應 MP3。
    ============================================================ */
 const ITEMS = [
-  { id: 0, word: "蘋果",  pinyin: "píng guǒ",   pic: "🍎", bg: "#ffe0e0", img: "", audio: "audio/pingguo.mp3" },
-  { id: 1, word: "香蕉",  pinyin: "xiāng jiāo", pic: "🍌", bg: "#fff3c9", img: "", audio: "audio/xiangjiao.mp3" },
-  { id: 2, word: "小貓",  pinyin: "xiǎo māo",   pic: "🐱", bg: "#e7e2ff", img: "", audio: "audio/xiaomao.mp3" },
-  { id: 3, word: "小狗",  pinyin: "xiǎo gǒu",   pic: "🐶", bg: "#dceeff", img: "", audio: "audio/xiaogou.mp3" },
-  { id: 4, word: "眼睛",  pinyin: "yǎn jīng",   pic: "👀", bg: "#dcf8e6", img: "", audio: "audio/yanjing.mp3" },
-  { id: 5, word: "鼻子",  pinyin: "bí zi",      pic: "👃", bg: "#ffe7d4", img: "", audio: "audio/bizi.mp3" },
+  { id: 0, word: "蘋果",  pinyin: "píng guǒ",   img: "images/apple.png",   pic: "🍎", audio: "audio/pingguo.mp3" },
+  { id: 1, word: "香蕉",  pinyin: "xiāng jiāo", img: "images/banana.png",  pic: "🍌", audio: "audio/xiangjiao.mp3" },
+  { id: 2, word: "小貓",  pinyin: "xiǎo māo",   img: "images/cat.png",     pic: "🐱", audio: "audio/xiaomao.mp3" },
+  { id: 3, word: "小狗",  pinyin: "xiǎo gǒu",   img: "images/dog.png",     pic: "🐶", audio: "audio/xiaogou.mp3" },
+  { id: 4, word: "眼睛",  pinyin: "yǎn jīng",   img: "images/eye.png",     pic: "👀", audio: "audio/yanjing.mp3" },
+  { id: 5, word: "鼻子",  pinyin: "bí zi",      img: "images/nose.png",    pic: "👃", audio: "audio/bizi.mp3" },
 ];
 
 const PAIRS = 4; // 每輪配對數量（低年級 4 對最合適）
@@ -251,10 +244,9 @@ function shuffle(a) {
   return r;
 }
 function picHTML(it) {
-  const inner = it.img
-    ? `<img src="${it.img}" alt="${it.word}">`
-    : it.pic;
-  return `<div class="pic-wrap" style="--tint:${it.bg}">${inner}</div>`;
+  return it.img
+    ? `<img class="pic" src="${it.img}" alt="${it.word}">`
+    : `<div class="pic pic-emoji">${it.pic}</div>`;
 }
 
 /* ---- 音效 ---- */
