@@ -204,6 +204,17 @@ const GAMES = [
     entry: "games/math/forge/index.html",
   },
   {
+    id: "math-eq",
+    category: "math",
+    title: "解方程模擬器",
+    level: "middle",
+    blurb: "拖一拖，把項移過等號：它會變號、飛過去撞上另一邊、算出結果。一輪十題。",
+    maxScore: 10,
+    icon: "assets/games/math-eq.png?v=1",
+    entry: "games/math/equation-sim/index.html",
+    orientation: "any",
+  },
+  {
     id: "sci-starforge",
     category: "science",
     title: "星際工坊",
