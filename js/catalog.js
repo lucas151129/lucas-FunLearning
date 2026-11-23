@@ -215,6 +215,17 @@ const GAMES = [
     orientation: "any",
   },
   {
+    id: "math-subject",
+    category: "math",
+    title: "主項變換練習",
+    level: "middle",
+    blurb: "把物理公式重新排列：拖走一項，讓指定的字母單獨留在等號一邊。一輪十題。",
+    maxScore: 10,
+    icon: "assets/games/math-subject.png?v=1",
+    entry: "games/math/subject-change/index.html",
+    orientation: "any",
+  },
+  {
     id: "sci-starforge",
     category: "science",
     title: "星際工坊",

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="主項變換練習">
+  <meta name="theme-color" content="#f3efff">
+  <title>主項變換練習</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="bg-decor" id="bg-decor" aria-hidden="true"></div>
+
+  <div class="app">
+
+    <!-- 選擇畫面 -->
+    <section id="home" class="home">
+      <header class="home-header">
+        <div class="hero-badge">
+          <span class="hb-x">x</span><span class="hb-eq">=</span><span class="hb-ans">?</span>
+        </div>
+        <h1>主項變換練習</h1>
+        <p class="tagline">拖一拖，把代數變簡單</p>
+        <div class="home-chips">
+          <span>🎲 自動出題</span>
+          <span>🖐️ 拖動解題</span>
+          <span>⚡ 即時回饋</span>
+        </div>
+      </header>
+
+      <div class="cards">
+        <button class="card" data-module="solve">
+          <div class="card-top">
+            <div class="card-icon" data-icon="calc"></div>
+            <span class="card-tag">一元一次方程</span>
+          </div>
+          <h2>解方程模擬器</h2>
+          <p>把數字拖過等號，觀察符號變化，解出 x 的值</p>
+          <span class="card-go">開始練習 <b>→</b></span>
+        </button>
+        <button class="card" data-module="subject">
+          <div class="card-top">
+            <div class="card-icon" data-icon="swap"></div>
+            <span class="card-tag">公式重排</span>
+          </div>
+          <h2>主項變換練習</h2>
+          <p>把物理公式重新排列，求出指定的字母</p>
+          <span class="card-go">開始練習 <b>→</b></span>
+        </button>
+      </div>
+
+      <p class="home-foot">拖動解題 · 三種難度 · 由淺入深</p>
+    </section>
+
+    <!-- 練習畫面 -->
+    <section id="module" class="module hidden">
+      <header class="module-header">
+        <button class="back" id="btn-back">← 返回</button>
+        <div class="module-title" id="module-title">解方程</div>
+        <button class="icon-btn hidden" id="btn-steps" aria-label="解題步驟" title="解題步驟">步驟</button>
+        <button class="icon-btn" id="btn-fs" aria-label="全屏模式" title="全屏模式">全屏</button>
+        <div class="score" id="score">✓ 0</div>
+      </header>
+
+      <div class="module-body">
+        <div class="module-main">
+          <div class="prompt" id="prompt"></div>
+
+          <main class="canvas" id="canvas">
+            <div class="eq" id="eq"></div>
+          </main>
+
+          <div class="status" id="status"><span id="status-text"></span></div>
+
+          <div class="banner hidden" id="banner"></div>
+
+          <div class="round-done hidden" id="round-done">
+            <div class="rd-card">
+              <p class="rd-title">這一輪完成了！</p>
+              <p class="rd-line"><b id="rd-score">0</b> / <span id="rd-total">10</span></p>
+              <p class="rd-note">每解出一題算一分，拖到最後才計分。</p>
+              <button class="btn btn-primary" id="btn-again">再玩一輪</button>
+            </div>
+          </div>
+
+          <div class="controls">
+            <div class="difficulty" id="difficulty">
+              <button data-diff="1">簡單</button>
+              <button data-diff="2" class="active">中等</button>
+              <button data-diff="3">困難</button>
+            </div>
+            <div class="action-row">
+              <button class="btn" id="btn-undo">↶ 上一步</button>
+              <button class="btn" id="btn-reset">重設</button>
+              <button class="btn btn-primary" id="btn-next">下一題</button>
+            </div>
+          </div>
+          <p class="hint">把<span class="hi">可以移動的項</span>拖到等號另一邊，鬆手即運算；<br>拖不動的（藏在括號或分數裡）會抖動提示。</p>
+        </div>
+
+        <aside class="steps-panel">
+          <div class="steps-head">📋 解題步驟
+            <button class="steps-close" id="btn-steps-close" aria-label="關閉步驟">✕</button>
+          </div>
+          <div class="steps-list" id="steps"></div>
+        </aside>
+        <div class="drawer-backdrop" id="drawer-backdrop"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="math.js"></script>
+  <script src="generators.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

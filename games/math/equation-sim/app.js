@@ -10,6 +10,8 @@
 
   /* ---------------- 狀態 ---------------- */
   const ROUND_TOTAL = 10;    // 一輪 10 題；解完一輪才回報分數給平台
+  // 上架拆成兩張遊戲卡：每張卡只跑自己那一個模式，開場直接進練習
+  const FORCED_MODULE = 'solve';
 
   const state = {
     screen: 'home',          // 'home' | 'module'
@@ -822,5 +824,11 @@
   decorBackground();
   renderIcons();
   bind();
-  renderScreen();
+  if (FORCED_MODULE) {
+    // 單一模式的遊戲卡：不顯示首頁，也不給「返回」
+    document.body.classList.add('solo');
+    startModule(FORCED_MODULE);
+  } else {
+    renderScreen();
+  }
 })();

@@ -724,6 +724,10 @@ html.immersive.steps-open .drawer-backdrop {
   z-index: 55;
 }
 
+/* 單一模式的遊戲卡（上架版）：沒有首頁，也沒有「返回」 */
+body.solo .home { display: none !important; }
+body.solo #btn-back { display: none; }
+
 /* ============ 一輪結束的結算 ============ */
 .round-done {
   position: fixed;
