@@ -28,6 +28,17 @@ const GAMES = [
     entry: "games/chinese/ink-boat/index.html",
   },
   {
+    id: "zh-pth",
+    category: "chinese",
+    title: "普通話配對",
+    level: "lower",
+    blurb: "聽標準普通話，把詞語和圖片配成對。",
+    maxScore: 4,
+    icon: "assets/games/zh-pth.png?v=1",
+    entry: "games/chinese/pth-match/index.html",
+    orientation: "any",
+  },
+  {
     id: "en-candy",
     category: "english",
     title: "字母糖果倉庫",
