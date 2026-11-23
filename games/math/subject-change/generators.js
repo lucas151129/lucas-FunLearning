@@ -208,10 +208,11 @@
     const target = pick(['u', 'a', 't']);
     return { subject: target, L: v('v'), R: norm(M.add(v('u'), M.mul(v('a'), v('t')))) };
   }
-  // 中等（物理）：P = 2(l + w)
+  // 中等（幾何）：P = 2(L + W)
+  // 用大寫：像素字體裡的細楷 l 會被讀成 I / 1
   function subjP2lw() {
-    const target = pick(['l', 'w']);
-    return { subject: target, L: v('P'), R: norm(M.mul(n(2), M.paren(M.add(v('l'), v('w'))))) };
+    const target = pick(['L', 'W']);
+    return { subject: target, L: v('P'), R: norm(M.mul(n(2), M.paren(M.add(v('L'), v('W'))))) };
   }
 
   // 困難：y = (a·x + b)/c
