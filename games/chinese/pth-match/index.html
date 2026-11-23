@@ -20,6 +20,36 @@
     --shadow: 0 8px 22px rgba(214, 156, 120, .16);
     --radius: 26px;
   }
+  /* ---- 兩種裝置的尺寸 ---- */
+  body {
+    --cols: 2;                 /* 配對區一行的格數 */
+    --gap: 8px;
+    --pic: clamp(84px, 27vw, 112px);
+    --fmin: 148px;             /* 聽發音卡最小寬 */
+    --mascot: 50px;
+    --title: 1.2rem;
+    --word: clamp(1.05rem, 4.6vw, 1.3rem);
+    --pinyin: .7rem;
+    --navfont: .92rem;
+    --navpad: 8px 16px;
+    --pad: 14px;
+    --speaker: 40px;
+  }
+  body.dev-ipad {
+    --cols: 4;
+    --gap: 18px;
+    --pic: clamp(120px, 17vw, 175px);
+    --fmin: 190px;
+    --mascot: 112px;
+    --title: 2.2rem;
+    --word: clamp(1.5rem, 2.6vw, 2rem);
+    --pinyin: .95rem;
+    --navfont: 1.15rem;
+    --navpad: 13px 30px;
+    --pad: 24px;
+    --speaker: 54px;
+  }
+
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   html, body { margin: 0; padding: 0; }
   body {
@@ -31,6 +61,7 @@
     background-attachment: fixed;
     overflow-x: hidden;
   }
+  body.choosing { overflow: hidden; }
 
   /* 柔軟背景裝飾 */
   .bg-blob {
@@ -47,26 +78,26 @@
   }
   .mascot { display: inline-block; animation: bob 3s ease-in-out infinite; }
   .mascot img {
-    width: 92px; height: 92px; border-radius: 50%; object-fit: cover;
+    width: var(--mascot); height: var(--mascot); border-radius: 50%; object-fit: cover;
     box-shadow: 0 6px 18px rgba(244, 107, 107, .28);
     border: 3px solid #fff;
   }
   @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
   header h1 {
-    margin: 8px 0 2px; font-size: clamp(1.6rem, 5vw, 2rem);
+    margin: 8px 0 2px; font-size: var(--title);
     color: var(--coral-deep); letter-spacing: 1px; font-weight: 900;
   }
   header p { margin: 0; font-size: .92rem; color: var(--text-soft); }
 
   nav {
-    position: relative; z-index: 6; display: flex; gap: 12px; justify-content: center;
-    padding: 14px 12px 6px; position: sticky; top: 0;
+    position: sticky; top: 0; z-index: 6; display: flex; gap: 10px; justify-content: center;
+    padding: 14px 12px 6px;
     background: linear-gradient(165deg, rgba(255,247,240,.95), rgba(255,236,239,.95));
     backdrop-filter: blur(6px);
   }
   nav button {
     border: 3px solid var(--coral); background: #fff; color: var(--coral-deep);
-    font-size: 1.08rem; font-weight: 800; padding: 12px 26px; border-radius: 999px;
+    font-size: var(--navfont); font-weight: 800; padding: var(--navpad); border-radius: 999px;
     cursor: pointer; transition: transform .13s, background .16s, color .16s, box-shadow .16s;
     box-shadow: 0 6px 16px rgba(244, 107, 107, .18);
   }
@@ -74,55 +105,61 @@
   nav button.active { background: var(--coral); color: #fff; box-shadow: 0 8px 18px rgba(244, 107, 107, .34); }
 
   main {
-    position: relative; z-index: 1; max-width: 720px; margin: 0 auto;
-    padding: 8px max(14px, env(safe-area-inset-right)) 60px max(14px, env(safe-area-inset-left));
+    position: relative; z-index: 1; max-width: 980px; margin: 0 auto;
+    padding: 8px max(var(--pad), env(safe-area-inset-right)) 40px max(var(--pad), env(safe-area-inset-left));
   }
   section { display: none; }
   section.on { display: block; }
 
   .hint {
-    text-align: center; font-size: 1.05rem; font-weight: 700;
+    text-align: center; font-size: 1.02rem; font-weight: 700;
     color: #a5877b; margin: 6px 0 12px; min-height: 1.5em;
   }
   .hint.happy { color: var(--mint); }
 
   /* 星星進度 */
-  .stars { text-align: center; font-size: clamp(1.7rem, 6vw, 2.2rem); letter-spacing: 6px; margin: 4px 0 10px; }
+  .stars { text-align: center; font-size: clamp(1.6rem, 6vw, 2.2rem); letter-spacing: 6px; margin: 4px 0 8px; }
   .stars span { display: inline-block; filter: grayscale(1) opacity(.3); transition: .3s; }
   .stars span.on { filter: none; animation: star-pop .4s ease; }
   @keyframes star-pop { 0% { transform: scale(.3) rotate(-20deg); } 70% { transform: scale(1.25); } 100% { transform: scale(1); } }
 
-  /* ---- 配對遊戲 ---- */
-  .board { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .col { display: flex; flex-direction: column; gap: 14px; }
-  .col-title { text-align: center; font-weight: 800; color: #c4a99b; font-size: .95rem; margin-bottom: -4px; }
+  /* ---- 配對：圖片在上、詞語在下 ---- */
+  .row-title {
+    text-align: center; font-weight: 800; color: #c4a99b;
+    font-size: .9rem; margin: 10px 0 6px;
+  }
+  .grid {
+    display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    gap: var(--gap);
+  }
   .card {
     background: var(--card); border: 4px solid transparent; border-radius: var(--radius);
-    box-shadow: var(--shadow); min-height: 112px; padding: 12px 10px;
+    box-shadow: var(--shadow); padding: 10px 8px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     cursor: pointer; user-select: none; -webkit-user-select: none;
     transition: transform .13s, border-color .18s, background .18s;
   }
   .card:active { transform: scale(.95); }
-  .card .w { font-size: clamp(1.4rem, 5vw, 1.75rem); font-weight: 900; line-height: 1.15; letter-spacing: 1px; }
-  .card .py { font-size: .82rem; color: var(--text-soft); margin-top: 4px; letter-spacing: .5px; }
+  .card.wordcard { min-height: 86px; }
+  .card .w { font-size: var(--word); font-weight: 900; line-height: 1.15; letter-spacing: 1px; }
+  .card .py { font-size: var(--pinyin); color: var(--text-soft); margin-top: 4px; letter-spacing: .5px; }
 
   /* 圖片（生圖）與 emoji 後備 */
   .pic {
-    width: clamp(100px, 26vw, 140px); height: clamp(100px, 26vw, 140px);
-    border-radius: 22px; object-fit: contain;
+    width: var(--pic); height: var(--pic);
+    border-radius: 20px; object-fit: contain;
     filter: drop-shadow(0 6px 12px rgba(0,0,0,.08));
   }
   .pic.pic-emoji {
     object-fit: unset; display: flex; align-items: center; justify-content: center;
-    font-size: clamp(2.5rem, 9vw, 3.4rem); line-height: 1;
+    font-size: calc(var(--pic) * .55); line-height: 1;
     border-radius: 50%;
     background: radial-gradient(circle at 32% 28%, #ffffff, var(--tint, #ffe7d4));
     box-shadow: inset 0 -6px 12px rgba(0,0,0,.05), 0 4px 10px rgba(0,0,0,.06);
     filter: none;
   }
   .card .tick {
-    display: none; font-size: 1.3rem; margin-top: 4px;
+    display: none; font-size: 1.15rem; margin-top: 2px;
     color: var(--mint); font-weight: 900;
   }
   .card.picked { border-color: var(--coral); background: #fff2ee; transform: scale(1.04); }
@@ -139,31 +176,54 @@
   }
 
   .big-btn {
-    display: block; margin: 22px auto 0; border: none;
+    display: block; margin: 20px auto 0; border: none;
     background: linear-gradient(180deg, var(--coral), var(--coral-deep)); color: #fff;
-    font-size: 1.12rem; font-weight: 800; padding: 16px 38px; border-radius: 999px;
+    font-size: 1.08rem; font-weight: 800; padding: 15px 36px; border-radius: 999px;
     cursor: pointer; box-shadow: 0 10px 22px rgba(244, 107, 107, .3);
     transition: transform .13s;
   }
   .big-btn:active { transform: scale(.94); }
   .big-btn.green { background: linear-gradient(180deg, #6fd3a0, var(--mint)); box-shadow: 0 10px 22px rgba(91, 198, 143, .3); }
 
+  /* 手機：把頭部壓薄，令圖片＋詞語一屏放得落 */
+  body.dev-phone header { padding: calc(10px + env(safe-area-inset-top)) 12px 2px; }
+  body.dev-phone header p { display: none; }
+  body.dev-phone header h1 { margin: 4px 0 0; }
+  body.dev-phone nav { padding: 8px 8px 2px; gap: 8px; }
+  body.dev-phone .stars { font-size: 1.25rem; margin: 0 0 2px; }
+  body.dev-phone .hint { font-size: .9rem; margin: 2px 0 4px; }
+  body.dev-phone .row-title { margin: 6px 0 4px; font-size: .8rem; }
+  body.dev-phone .card.wordcard { min-height: 64px; }
+  body.dev-phone .card { padding: 8px 6px; }
+  body.dev-phone .big-btn { margin-top: 14px; padding: 12px 30px; font-size: 1rem; }
+
+  /* 平板：鬆一點 */
+  body.dev-ipad .card.wordcard { min-height: 110px; }
+  body.dev-ipad .hint { font-size: 1.12rem; margin: 10px 0 14px; }
+  body.dev-ipad .row-title { font-size: 1rem; margin: 14px 0 10px; }
+
+  .ghost {
+    display: block; margin: 26px auto 0; background: transparent; border: none;
+    color: #c4a99b; font-size: .9rem; text-decoration: underline; cursor: pointer;
+    font-family: inherit;
+  }
+
   /* ---- 聽發音 ---- */
-  .listen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+  .listen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--fmin), 1fr)); gap: var(--gap); }
   .fcard {
     background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
-    padding: 20px 12px 16px; text-align: center; cursor: pointer;
+    padding: 14px 10px 12px; text-align: center; cursor: pointer;
     transition: transform .13s; user-select: none; -webkit-user-select: none;
   }
   .fcard:active { transform: scale(.94); }
   .fcard .pic { margin: 0 auto; }
-  .fcard .w { font-size: 1.5rem; font-weight: 900; margin-top: 10px; }
-  .fcard .py { font-size: .86rem; color: var(--text-soft); margin-top: 3px; }
+  .fcard .w { font-size: calc(var(--word) * .95); font-weight: 900; margin-top: 8px; }
+  .fcard .py { font-size: var(--pinyin); color: var(--text-soft); margin-top: 2px; }
   .fcard .spk {
-    margin: 12px auto 0; display: flex; align-items: center; justify-content: center;
-    width: 56px; height: 56px; border-radius: 50%;
+    margin: 10px auto 0; display: flex; align-items: center; justify-content: center;
+    width: var(--speaker); height: var(--speaker); border-radius: 50%;
     background: linear-gradient(180deg, var(--coral), var(--coral-deep)); color: #fff;
-    font-size: 1.5rem; box-shadow: 0 6px 14px rgba(244, 107, 107, .3);
+    font-size: calc(var(--speaker) * .45); box-shadow: 0 6px 14px rgba(244, 107, 107, .3);
   }
   .fcard.playing { outline: 5px solid var(--coral); outline-offset: 4px; border-radius: var(--radius); }
 
@@ -172,43 +232,81 @@
   .confetti-bit { position: absolute; top: -12%; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(118vh) rotate(560deg); opacity: 0; } }
 
-  /* 平板／桌面：稍微放大 */
-  @media (min-width: 560px) {
-    .board { gap: 18px; }
-    .col { gap: 18px; }
-    .card { min-height: 132px; }
+  /* ---- 進場選裝置 ---- */
+  .chooser {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; padding: 26px;
+    background: linear-gradient(165deg, #fff7f0, #ffecef);
   }
+  .chooser.hide { display: none; }
+  .chooser img {
+    width: 110px; height: 110px; border-radius: 50%; object-fit: cover;
+    border: 4px solid #fff; box-shadow: 0 8px 22px rgba(244, 107, 107, .26);
+  }
+  .chooser h2 {
+    margin: 6px 0 0; font-size: 1.35rem; color: var(--coral-deep); font-weight: 900;
+  }
+  .chooser p { margin: 0 0 6px; color: var(--text-soft); font-size: .92rem; }
+  .opts { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .opts button {
+    width: 148px; padding: 20px 10px 18px; border-radius: 28px; cursor: pointer;
+    border: 4px solid #ffd9d1; background: #fff; font-family: inherit;
+    box-shadow: 0 10px 24px rgba(214, 156, 120, .18);
+    transition: transform .13s, border-color .16s, background .16s;
+  }
+  .opts button:active { transform: scale(.96); }
+  .opts button.sel { border-color: var(--coral); background: #fff2ee; }
+  .opts .ico { display: block; font-size: 3rem; line-height: 1; margin-bottom: 10px; }
+  .opts .lbl { display: block; font-size: 1.1rem; font-weight: 900; color: var(--text); }
+  .opts .sub { display: block; font-size: .78rem; color: var(--text-soft); margin-top: 4px; }
 </style>
 </head>
-<body>
+<body class="choosing">
+
+  <div id="chooser" class="chooser">
+    <img src="images/mascot.png" alt="熊貓吉祥物">
+    <h2>你是用哪一種？</h2>
+    <p>選好就開始玩</p>
+    <div class="opts">
+      <button data-dev="phone"><span class="ico">📱</span><span class="lbl">手機</span><span class="sub">直向、兩格一列</span></button>
+      <button data-dev="ipad"><span class="ico">📲</span><span class="lbl">平板 / iPad</span><span class="sub">四格一列、大字</span></button>
+    </div>
+  </div>
+
   <div class="bg-blob b1"></div>
   <div class="bg-blob b2"></div>
   <div class="bg-blob b3"></div>
 
   <header>
-    <span class="mascot"><img src="images/mascot.png" alt="熊貓吉祥物" width="92" height="92"></span>
+    <span class="mascot"><img src="images/mascot.png" alt="熊貓吉祥物"></span>
     <h1>普通話配對</h1>
     <p>聽一聽 · 配一配 · 學普通話</p>
   </header>
 
   <nav>
-    <button id="tab-match" class="active">🎮 配對遊戲</button>
-    <button id="tab-listen">🔊 聽發音</button>
+    <button id="tab-listen" class="active">🔊 聽發音</button>
+    <button id="tab-match">🎮 配對遊戲</button>
   </nav>
 
   <main>
-    <section id="sec-match" class="on">
-      <div class="stars" id="stars"></div>
-      <div class="hint" id="match-hint">👆 先點詞語，再點圖片</div>
-      <div class="board" id="board"></div>
-      <button class="big-btn" id="btn-replay">🔄 換一組</button>
-    </section>
-
-    <section id="sec-listen">
+    <section id="sec-listen" class="on">
       <div class="hint">👆 點卡片，聽普通話</div>
       <div class="listen-grid" id="listen-grid"></div>
       <button class="big-btn green" id="btn-listen-all">▶️ 連續播放全部</button>
     </section>
+
+    <section id="sec-match">
+      <div class="stars" id="stars"></div>
+      <div class="hint" id="match-hint">👆 先點下面的詞語，再點上面的圖片</div>
+      <div class="row-title">圖片</div>
+      <div class="grid" id="pic-grid"></div>
+      <div class="row-title">詞語</div>
+      <div class="grid" id="word-grid"></div>
+      <button class="big-btn" id="btn-replay">🔄 換一組</button>
+    </section>
+
+    <button class="ghost" id="btn-device">📱 切換裝置</button>
   </main>
 
   <div id="confetti"></div>
@@ -220,7 +318,7 @@
    - pinyin：拼音（放在詞語下面的小字）
    - img   ：詞語插圖（生圖，放 images/ 資料夾）
    - pic   ：emoji 後備（圖片載入失敗時自動換上）
-   - audio ：發音檔，放 audio/ 資料夾
+   - audio ：發音檔（檔名同圖檔）
    要加詞語：照格式加一筆，跑 make_images.py 與 make_audio.py。
    ============================================================ */
 const ITEMS = [
@@ -338,8 +436,48 @@ function celebrate() {
   }
 }
 
+/* ---- 裝置（手機／平板） ---- */
+const DEV_KEY = "pth-device";
+let device = "phone";
+const chooserEl = document.getElementById("chooser");
+
+function applyDevice(d, remember) {
+  device = d === "ipad" ? "ipad" : "phone";
+  document.body.classList.remove("dev-phone", "dev-ipad", "choosing");
+  document.body.classList.add(device === "ipad" ? "dev-ipad" : "dev-phone");
+  chooserEl.classList.add("hide");
+  document.querySelectorAll(".opts button").forEach(b => {
+    b.classList.toggle("sel", b.dataset.dev === device);
+  });
+  if (remember) {
+    try { localStorage.setItem(DEV_KEY, device); } catch (e) {}
+  }
+  buildMatch();
+  buildListen();
+}
+
+document.querySelectorAll(".opts button").forEach(b => {
+  b.addEventListener("click", () => applyDevice(b.dataset.dev, true));
+});
+document.getElementById("btn-device").addEventListener("click", () => {
+  document.body.classList.add("choosing");
+  chooserEl.classList.remove("hide");
+});
+
+// 記住上次用哪種，進場時先預選（但仍然讓他自己按一下）
+(function () {
+  let last = null;
+  try { last = localStorage.getItem(DEV_KEY); } catch (e) {}
+  if (last) {
+    document.querySelectorAll(".opts button").forEach(b => {
+      b.classList.toggle("sel", b.dataset.dev === last);
+    });
+  }
+})();
+
 /* ---- 配對遊戲 ---- */
-const board = document.getElementById("board");
+const picGrid = document.getElementById("pic-grid");
+const wordGrid = document.getElementById("word-grid");
 const hintEl = document.getElementById("match-hint");
 const starsEl = document.getElementById("stars");
 let roundItems = [];
@@ -359,38 +497,32 @@ function renderStars() {
 }
 function buildMatch() {
   done = false; matched = 0; wrongs = 0; pickedWord = null;
-  hintEl.textContent = "👆 先點詞語，再點圖片";
+  hintEl.textContent = "👆 先點下面的詞語，再點上面的圖片";
   hintEl.classList.remove("happy");
-  board.innerHTML = "";
+  picGrid.innerHTML = "";
+  wordGrid.innerHTML = "";
   renderStars();
 
   roundItems = drawItems(PAIRS);
-  const left = document.createElement("div");
-  left.className = "col";
-  left.innerHTML = '<div class="col-title">詞語</div>';
-  const right = document.createElement("div");
-  right.className = "col";
-  right.innerHTML = '<div class="col-title">圖片</div>';
 
+  // 上：圖片
   shuffle(roundItems).forEach(it => {
     const c = document.createElement("div");
-    c.className = "card";
-    c.dataset.id = it.id;
-    c.innerHTML = `<div class="w">${it.word}</div><div class="py">${it.pinyin}</div>`;
-    c.addEventListener("click", () => pickWord(c, it));
-    left.appendChild(c);
-  });
-  shuffle(roundItems).forEach(it => {
-    const c = document.createElement("div");
-    c.className = "card";
+    c.className = "card piccard";
     c.dataset.id = it.id;
     c.innerHTML = picHTML(it);
     c.addEventListener("click", () => pickPic(c, it));
-    right.appendChild(c);
+    picGrid.appendChild(c);
   });
-
-  board.appendChild(left);
-  board.appendChild(right);
+  // 下：詞語（繁體 + 小字拼音）
+  shuffle(roundItems).forEach(it => {
+    const c = document.createElement("div");
+    c.className = "card wordcard";
+    c.dataset.id = it.id;
+    c.innerHTML = `<div class="w">${it.word}</div><div class="py">${it.pinyin}</div>`;
+    c.addEventListener("click", () => pickWord(c, it));
+    wordGrid.appendChild(c);
+  });
 }
 
 function pickWord(card, item) {
@@ -406,7 +538,7 @@ function pickPic(card, item) {
   if (done || card.classList.contains("matched")) return;
   if (!pickedWord) {
     play(item.audio);
-    hintEl.textContent = "👆 先點左邊的詞語哦";
+    hintEl.textContent = "👆 先點下面的詞語哦";
     return;
   }
   const wItem = roundItems.find(x => String(x.id) === pickedWord.dataset.id);
@@ -475,23 +607,36 @@ document.getElementById("btn-listen-all").addEventListener("click", () => {
   ITEMS.forEach((it, i) => setTimeout(() => play(it.audio), i * 2100));
 });
 
-/* ---- 分頁 ---- */
-const tabMatch = document.getElementById("tab-match");
+/* ---- 分頁（聽發音在前） ---- */
 const tabListen = document.getElementById("tab-listen");
-const secMatch = document.getElementById("sec-match");
+const tabMatch = document.getElementById("tab-match");
 const secListen = document.getElementById("sec-listen");
+const secMatch = document.getElementById("sec-match");
 function switchTab(which) {
-  const isMatch = which === "match";
-  tabMatch.classList.toggle("active", isMatch);
-  tabListen.classList.toggle("active", !isMatch);
-  secMatch.classList.toggle("on", isMatch);
-  secListen.classList.toggle("on", !isMatch);
-  if (isMatch) buildMatch(); else buildListen();
+  const isListen = which === "listen";
+  tabListen.classList.toggle("active", isListen);
+  tabMatch.classList.toggle("active", !isListen);
+  secListen.classList.toggle("on", isListen);
+  secMatch.classList.toggle("on", !isListen);
+  if (!isListen) buildMatch();
 }
-tabMatch.addEventListener("click", () => switchTab("match"));
 tabListen.addEventListener("click", () => switchTab("listen"));
+tabMatch.addEventListener("click", () => switchTab("match"));
 
+/* 未選裝置前先鋪一版（手機尺寸），選完會重建 */
+document.body.classList.add("dev-phone");
+buildListen();
 buildMatch();
+
+/* 直接用網址參數指定（例如嵌在 iframe）：?dev=phone|ipad&tab=listen|match */
+(function () {
+  const q = new URLSearchParams(location.search);
+  const d = q.get("dev");
+  if (d === "phone" || d === "ipad") applyDevice(d, false);
+  if (q.get("tab") === "match") switchTab("match");
+})();
 </script>
 </body>
 </html>
+
+
