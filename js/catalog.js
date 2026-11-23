@@ -34,7 +34,7 @@ const GAMES = [
     level: "lower",
     blurb: "聽標準普通話，把詞語和圖片配成對。",
     maxScore: 4,
-    icon: "assets/games/zh-pth.png?v=1",
+    icon: "assets/games/zh-pth.png?v=2",
     entry: "games/chinese/pth-match/index.html",
     orientation: "any",
   },
@@ -242,3 +242,4 @@ function gameMax(game) {
   if (game.questions && game.questions.length) return game.questions.length;
   return game.maxScore;
 }
+

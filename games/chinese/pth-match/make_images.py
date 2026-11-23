@@ -72,12 +72,41 @@ ITEMS = {
     "shuye": ("a single green tree leaf with visible veins, autumn-free, bright green", "樹葉"),
 }
 
+# 吉祥物／icon：圓形頭像用，所以主體要留邊、不要頂滿
+AVATARS = {
+    "kongkong": (
+        "head and upper body portrait of a cute chubby corgi puppy with no tail, "
+        "orange and white fur, big upright ears, wearing a small black graduation cap tilted on the head "
+        "and round glasses, cheerful open-mouth smile, waving one front paw, "
+        "centred with generous empty margin around the character",
+        "吉祥物（空空，狗博士）",
+    ),
+    "zh-pth-icon": (
+        "head portrait of a cute chubby corgi puppy with no tail, orange and white fur, "
+        "big upright ears, wearing a small black graduation cap tilted on the head and round glasses, "
+        "cheerful smile, centred with generous empty margin around the character",
+        "遊戲 icon（空空）",
+    ),
+}
+
+# 頭像用的 prompt 尾段：不要「填滿畫面」，要留白給圓形裁切
+AVATAR_STYLE = (
+    "cute kawaii children's illustration, flat vector style, thick soft brown outline, "
+    "pastel colours, rounded friendly shapes, plain pure white background, "
+    "no text, no letters, no border"
+)
+
 
 def gen_one(slug: str) -> str:
-    subject, word = ITEMS[slug]
+    if slug in AVATARS:
+        subject, _ = AVATARS[slug]
+        style = AVATAR_STYLE
+    else:
+        subject, _ = ITEMS[slug]
+        style = STYLE
     payload = json.dumps({
         "model": MODEL,
-        "messages": [{"role": "user", "content": f"{subject}, {STYLE}"}],
+        "messages": [{"role": "user", "content": f"{subject}, {style}"}],
     }).encode("utf-8")
     req = urllib.request.Request(
         API,
@@ -114,10 +143,10 @@ def main():
     os.makedirs(OUT_DIR, exist_ok=True)
     args = sys.argv[1:]
     if not args or args[0] == "全部":
-        slugs = list(ITEMS)
+        slugs = list(ITEMS) + list(AVATARS)
     else:
         slugs = args
-    bad = [s for s in slugs if s not in ITEMS]
+    bad = [s for s in slugs if s not in ITEMS and s not in AVATARS]
     if bad:
         sys.exit("不認識的 slug：" + ", ".join(bad))
 
@@ -127,7 +156,8 @@ def main():
         for attempt in (1, 2):
             try:
                 p = gen_one(slug)
-                print(f"[{i}/{len(slugs)}] OK {slug} ({ITEMS[slug][1]}) "
+                label = (ITEMS.get(slug) or AVATARS[slug])[1]
+                print(f"[{i}/{len(slugs)}] OK {slug} ({label}) "
                       f"{os.path.getsize(p)//1024}KB {time.time()-t0:.1f}s", flush=True)
                 ok += 1
                 break
