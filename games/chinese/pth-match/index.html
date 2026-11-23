@@ -3,136 +3,197 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#fff7f0">
 <title>普通話配對</title>
 <style>
   :root {
-    --bg1: #fff3e4;
-    --bg2: #ffe4d6;
+    --bg-top: #fff7f0;
+    --bg-bottom: #ffecef;
     --card: #ffffff;
-    --ink: #4a3f35;
-    --accent: #ff7d4d;
-    --accent-deep: #f05a2a;
-    --green: #54c07a;
-    --green-bg: #e7f7ec;
-    --soft: #f6e7d8;
-    --shadow: 0 6px 18px rgba(120, 70, 30, .14);
+    --text: #5c4a44;
+    --text-soft: #b39a8e;
+    --coral: #ff8a7a;
+    --coral-deep: #f46b6b;
+    --mint: #5bc68f;
+    --mint-bg: #e9f9f0;
+    --shadow: 0 8px 22px rgba(214, 156, 120, .16);
+    --radius: 26px;
   }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   html, body { margin: 0; padding: 0; }
   body {
-    font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", "Segoe UI", sans-serif;
-    color: var(--ink);
+    font-family: "PingFang TC", "PingFang SC", "Noto Sans TC", "Microsoft JhengHei",
+                 -apple-system, "Segoe UI", sans-serif;
+    color: var(--text);
     min-height: 100vh;
-    background: linear-gradient(160deg, var(--bg1), var(--bg2));
+    background: linear-gradient(165deg, var(--bg-top), var(--bg-bottom));
+    background-attachment: fixed;
     overflow-x: hidden;
   }
 
-  header {
-    text-align: center;
-    padding: 20px 12px 8px;
+  /* 柔軟背景裝飾 */
+  .bg-blob {
+    position: fixed; border-radius: 50%; filter: blur(46px);
+    opacity: .5; pointer-events: none; z-index: 0;
   }
-  header .mascot { font-size: 2.6rem; display: inline-block; animation: bob 2.6s ease-in-out infinite; }
-  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
-  header h1 { margin: 6px 0 2px; font-size: 1.7rem; color: var(--accent-deep); letter-spacing: 1px; }
-  header p { margin: 0; font-size: .9rem; color: #a3816b; }
+  .bg-blob.b1 { width: 260px; height: 260px; left: -90px; top: -70px; background: #ffe0c9; }
+  .bg-blob.b2 { width: 300px; height: 300px; right: -110px; top: 30%; background: #ffe1ea; }
+  .bg-blob.b3 { width: 240px; height: 240px; left: -80px; bottom: -60px; background: #e2f6ec; }
+
+  header {
+    position: relative; z-index: 1; text-align: center;
+    padding: calc(20px + env(safe-area-inset-top)) 14px 8px;
+  }
+  .mascot { display: inline-block; animation: bob 3s ease-in-out infinite; }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  header h1 {
+    margin: 6px 0 2px; font-size: clamp(1.6rem, 5vw, 2rem);
+    color: var(--coral-deep); letter-spacing: 1px; font-weight: 900;
+  }
+  header p { margin: 0; font-size: .92rem; color: var(--text-soft); }
 
   nav {
-    display: flex; gap: 10px; justify-content: center;
-    padding: 12px 10px 6px;
-    position: sticky; top: 0; z-index: 6;
-    background: linear-gradient(160deg, rgba(255,243,228,.96), rgba(255,228,214,.96));
-    backdrop-filter: blur(4px);
+    position: relative; z-index: 6; display: flex; gap: 12px; justify-content: center;
+    padding: 14px 12px 6px; position: sticky; top: 0;
+    background: linear-gradient(165deg, rgba(255,247,240,.95), rgba(255,236,239,.95));
+    backdrop-filter: blur(6px);
   }
   nav button {
-    border: 3px solid var(--accent); background: #fff; color: var(--accent-deep);
-    font-size: 1.05rem; font-weight: 800; padding: 11px 24px; border-radius: 999px;
-    cursor: pointer; transition: transform .12s, background .15s, color .15s;
-    box-shadow: var(--shadow);
+    border: 3px solid var(--coral); background: #fff; color: var(--coral-deep);
+    font-size: 1.08rem; font-weight: 800; padding: 12px 26px; border-radius: 999px;
+    cursor: pointer; transition: transform .13s, background .16s, color .16s, box-shadow .16s;
+    box-shadow: 0 6px 16px rgba(244, 107, 107, .18);
   }
-  nav button:active { transform: scale(.95); }
-  nav button.active { background: var(--accent); color: #fff; }
+  nav button:active { transform: scale(.94); }
+  nav button.active { background: var(--coral); color: #fff; box-shadow: 0 8px 18px rgba(244, 107, 107, .34); }
 
-  main { max-width: 860px; margin: 0 auto; padding: 6px 14px 46px; }
+  main {
+    position: relative; z-index: 1; max-width: 720px; margin: 0 auto;
+    padding: 8px max(14px, env(safe-area-inset-right)) 60px max(14px, env(safe-area-inset-left));
+  }
   section { display: none; }
   section.on { display: block; }
 
   .hint {
-    text-align: center; font-size: 1.02rem; font-weight: 700;
-    color: #8a6f57; margin: 4px 0 12px; min-height: 1.4em;
+    text-align: center; font-size: 1.05rem; font-weight: 700;
+    color: #a5877b; margin: 6px 0 12px; min-height: 1.5em;
   }
-  .hint.happy { color: var(--green); }
+  .hint.happy { color: var(--mint); }
 
   /* 星星進度 */
-  .stars { text-align: center; font-size: 1.7rem; letter-spacing: 4px; margin: 2px 0 10px; }
-  .stars span { display: inline-block; filter: grayscale(1) opacity(.35); transition: .25s; }
-  .stars span.on { filter: none; transform: scale(1.08); }
+  .stars { text-align: center; font-size: clamp(1.7rem, 6vw, 2.2rem); letter-spacing: 6px; margin: 4px 0 10px; }
+  .stars span { display: inline-block; filter: grayscale(1) opacity(.3); transition: .3s; }
+  .stars span.on { filter: none; animation: star-pop .4s ease; }
+  @keyframes star-pop { 0% { transform: scale(.3) rotate(-20deg); } 70% { transform: scale(1.25); } 100% { transform: scale(1); } }
 
   /* ---- 配對遊戲 ---- */
-  .board { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .col { display: flex; flex-direction: column; gap: 12px; }
-  .col-title { text-align: center; font-weight: 800; color: #b89b84; font-size: .95rem; margin-bottom: -4px; }
+  .board { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .col { display: flex; flex-direction: column; gap: 14px; }
+  .col-title { text-align: center; font-weight: 800; color: #c4a99b; font-size: .95rem; margin-bottom: -4px; }
   .card {
-    background: var(--card); border: 4px solid transparent; border-radius: 22px;
-    box-shadow: var(--shadow); min-height: 92px; padding: 12px 10px;
+    background: var(--card); border: 4px solid transparent; border-radius: var(--radius);
+    box-shadow: var(--shadow); min-height: 104px; padding: 14px 10px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    cursor: pointer; user-select: none;
-    transition: transform .12s, border-color .18s, background .18s, opacity .18s;
+    cursor: pointer; user-select: none; -webkit-user-select: none;
+    transition: transform .13s, border-color .18s, background .18s;
   }
-  .card:active { transform: scale(.96); }
-  .card .pic { font-size: 3rem; line-height: 1.05; }
-  .card .pic img { width: 88px; height: 88px; object-fit: contain; }
-  .card .w { font-size: 1.5rem; font-weight: 900; line-height: 1.15; }
-  .card .py { font-size: .82rem; color: #b08f7a; margin-top: 3px; letter-spacing: .5px; }
-  .card .tick { display: none; font-size: 1.4rem; margin-top: 2px; }
-  .card.picked { border-color: var(--accent); background: #fff1e9; transform: scale(1.04); }
-  .card.matched { border-color: var(--green); background: var(--green-bg); cursor: default; opacity: .92; }
+  .card:active { transform: scale(.95); }
+  .card .w { font-size: clamp(1.4rem, 5vw, 1.75rem); font-weight: 900; line-height: 1.15; letter-spacing: 1px; }
+  .card .py { font-size: .82rem; color: var(--text-soft); margin-top: 4px; letter-spacing: .5px; }
+
+  .pic-wrap {
+    width: clamp(80px, 22vw, 110px); height: clamp(80px, 22vw, 110px);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: clamp(2.5rem, 9vw, 3.4rem); line-height: 1;
+    background: radial-gradient(circle at 32% 28%, #ffffff, var(--tint, #ffe7d4));
+    box-shadow: inset 0 -6px 12px rgba(0,0,0,.05), 0 4px 10px rgba(0,0,0,.06);
+  }
+  .pic-wrap img { width: 82%; height: 82%; object-fit: contain; }
+  .card .tick {
+    display: none; font-size: 1.3rem; margin-top: 4px;
+    color: var(--mint); font-weight: 900;
+  }
+  .card.picked { border-color: var(--coral); background: #fff2ee; transform: scale(1.04); }
+  .card.matched { border-color: var(--mint); background: var(--mint-bg); cursor: default; }
   .card.matched .tick { display: block; }
-  .card.wrong { border-color: #f2a0a0; background: #fff0f0; animation: shake .34s; }
-  @keyframes shake {
-    0%,100% { transform: translateX(0); }
-    20% { transform: translateX(-9px); }
-    40% { transform: translateX(9px); }
-    60% { transform: translateX(-6px); }
-    80% { transform: translateX(6px); }
+  .card.matched .pic-wrap, .card.matched .w { opacity: .82; }
+  .card.wrong { border-color: #f2b1b1; background: #fff1f1; animation: wiggle .38s; }
+  @keyframes wiggle {
+    0%,100% { transform: translateX(0) rotate(0); }
+    20% { transform: translateX(-8px) rotate(-2deg); }
+    40% { transform: translateX(8px) rotate(2deg); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
   }
 
   .big-btn {
-    display: block; margin: 20px auto 0; border: none;
-    background: var(--accent); color: #fff; font-size: 1.1rem; font-weight: 800;
-    padding: 15px 34px; border-radius: 999px; cursor: pointer; box-shadow: var(--shadow);
-    transition: transform .12s;
+    display: block; margin: 22px auto 0; border: none;
+    background: linear-gradient(180deg, var(--coral), var(--coral-deep)); color: #fff;
+    font-size: 1.12rem; font-weight: 800; padding: 16px 38px; border-radius: 999px;
+    cursor: pointer; box-shadow: 0 10px 22px rgba(244, 107, 107, .3);
+    transition: transform .13s;
   }
-  .big-btn:active { transform: scale(.95); }
+  .big-btn:active { transform: scale(.94); }
+  .big-btn.green { background: linear-gradient(180deg, #6fd3a0, var(--mint)); box-shadow: 0 10px 22px rgba(91, 198, 143, .3); }
 
   /* ---- 聽發音 ---- */
-  .listen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+  .listen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
   .fcard {
-    background: var(--card); border-radius: 24px; box-shadow: var(--shadow);
-    padding: 18px 10px 14px; text-align: center; cursor: pointer;
-    transition: transform .12s;
+    background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 20px 12px 16px; text-align: center; cursor: pointer;
+    transition: transform .13s; user-select: none; -webkit-user-select: none;
   }
   .fcard:active { transform: scale(.94); }
-  .fcard .pic { font-size: 3.4rem; line-height: 1.05; }
-  .fcard .pic img { width: 96px; height: 96px; object-fit: contain; }
-  .fcard .w { font-size: 1.45rem; font-weight: 900; margin-top: 8px; }
-  .fcard .py { font-size: .84rem; color: #b08f7a; margin-top: 2px; }
+  .fcard .pic-wrap { margin: 0 auto; }
+  .fcard .w { font-size: 1.5rem; font-weight: 900; margin-top: 10px; }
+  .fcard .py { font-size: .86rem; color: var(--text-soft); margin-top: 3px; }
   .fcard .spk {
-    margin-top: 10px; display: inline-flex; align-items: center; justify-content: center;
-    width: 52px; height: 52px; border-radius: 50%;
-    background: var(--accent); color: #fff; font-size: 1.5rem;
-    box-shadow: var(--shadow);
+    margin: 12px auto 0; display: flex; align-items: center; justify-content: center;
+    width: 56px; height: 56px; border-radius: 50%;
+    background: linear-gradient(180deg, var(--coral), var(--coral-deep)); color: #fff;
+    font-size: 1.5rem; box-shadow: 0 6px 14px rgba(244, 107, 107, .3);
   }
-  .fcard.playing { outline: 5px solid var(--accent); outline-offset: 3px; }
+  .fcard.playing { outline: 5px solid var(--coral); outline-offset: 4px; border-radius: var(--radius); }
 
   /* 彩帶 */
   #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; overflow: hidden; }
   .confetti-bit { position: absolute; top: -12%; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(118vh) rotate(560deg); opacity: 0; } }
+
+  /* 平板／桌面：稍微放大 */
+  @media (min-width: 560px) {
+    .board { gap: 18px; }
+    .col { gap: 18px; }
+    .card { min-height: 124px; }
+  }
 </style>
 </head>
 <body>
+  <div class="bg-blob b1"></div>
+  <div class="bg-blob b2"></div>
+  <div class="bg-blob b3"></div>
+
   <header>
-    <span class="mascot">🐼</span>
+    <span class="mascot">
+      <svg viewBox="0 0 120 120" width="82" height="82" aria-hidden="true">
+        <circle cx="30" cy="28" r="16" fill="#5b4a3f"/>
+        <circle cx="90" cy="28" r="16" fill="#5b4a3f"/>
+        <circle cx="30" cy="28" r="8" fill="#f3c4b0"/>
+        <circle cx="90" cy="28" r="8" fill="#f3c4b0"/>
+        <circle cx="60" cy="62" r="44" fill="#ffffff"/>
+        <ellipse cx="44" cy="57" rx="13" ry="16" fill="#3b3b3b" transform="rotate(-12 44 57)"/>
+        <ellipse cx="76" cy="57" rx="13" ry="16" fill="#3b3b3b" transform="rotate(12 76 57)"/>
+        <circle cx="46" cy="58" r="5" fill="#ffffff"/>
+        <circle cx="74" cy="58" r="5" fill="#ffffff"/>
+        <circle cx="47" cy="59" r="2.6" fill="#1f1f1f"/>
+        <circle cx="73" cy="59" r="2.6" fill="#1f1f1f"/>
+        <ellipse cx="60" cy="72" rx="5" ry="3.6" fill="#3b3b3b"/>
+        <path d="M60 75.6 q0 5.4 5 5.4 q5 0 5 -5.4" stroke="#3b3b3b" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+        <circle cx="33" cy="74" r="7" fill="#ffb3c1" opacity=".55"/>
+        <circle cx="87" cy="74" r="7" fill="#ffb3c1" opacity=".55"/>
+      </svg>
+    </span>
     <h1>普通話配對</h1>
     <p>聽一聽 · 配一配 · 學普通話</p>
   </header>
@@ -153,7 +214,7 @@
     <section id="sec-listen">
       <div class="hint">👆 點卡片，聽普通話</div>
       <div class="listen-grid" id="listen-grid"></div>
-      <button class="big-btn" id="btn-listen-all">▶️ 連續播放全部</button>
+      <button class="big-btn green" id="btn-listen-all">▶️ 連續播放全部</button>
     </section>
   </main>
 
@@ -165,16 +226,17 @@
    - word  ：詞語（普通話用字）
    - pinyin：拼音
    - pic   ：emoji 佔位圖；換真圖時把 img 填成圖片路徑（如 images/apple.png）
+   - bg    ：圖片貼紙的底色（柔粉色系）
    - audio ：發音檔，放 audio/ 資料夾
    要加詞語：照格式加一筆，再用 make_audio.py 生成對應 MP3。
    ============================================================ */
 const ITEMS = [
-  { id: 0, word: "蘋果",  pinyin: "píng guǒ",   pic: "🍎", img: "", audio: "audio/pingguo.mp3" },
-  { id: 1, word: "香蕉",  pinyin: "xiāng jiāo", pic: "🍌", img: "", audio: "audio/xiangjiao.mp3" },
-  { id: 2, word: "小貓",  pinyin: "xiǎo māo",   pic: "🐱", img: "", audio: "audio/xiaomao.mp3" },
-  { id: 3, word: "小狗",  pinyin: "xiǎo gǒu",   pic: "🐶", img: "", audio: "audio/xiaogou.mp3" },
-  { id: 4, word: "眼睛",  pinyin: "yǎn jīng",   pic: "👀", img: "", audio: "audio/yanjing.mp3" },
-  { id: 5, word: "鼻子",  pinyin: "bí zi",      pic: "👃", img: "", audio: "audio/bizi.mp3" },
+  { id: 0, word: "蘋果",  pinyin: "píng guǒ",   pic: "🍎", bg: "#ffe0e0", img: "", audio: "audio/pingguo.mp3" },
+  { id: 1, word: "香蕉",  pinyin: "xiāng jiāo", pic: "🍌", bg: "#fff3c9", img: "", audio: "audio/xiangjiao.mp3" },
+  { id: 2, word: "小貓",  pinyin: "xiǎo māo",   pic: "🐱", bg: "#e7e2ff", img: "", audio: "audio/xiaomao.mp3" },
+  { id: 3, word: "小狗",  pinyin: "xiǎo gǒu",   pic: "🐶", bg: "#dceeff", img: "", audio: "audio/xiaogou.mp3" },
+  { id: 4, word: "眼睛",  pinyin: "yǎn jīng",   pic: "👀", bg: "#dcf8e6", img: "", audio: "audio/yanjing.mp3" },
+  { id: 5, word: "鼻子",  pinyin: "bí zi",      pic: "👃", bg: "#ffe7d4", img: "", audio: "audio/bizi.mp3" },
 ];
 
 const PAIRS = 4; // 每輪配對數量（低年級 4 對最合適）
@@ -188,10 +250,11 @@ function shuffle(a) {
   }
   return r;
 }
-function picHTML(it, size) {
-  return it.img
-    ? `<img src="${it.img}" alt="${it.word}" style="width:${size}px;height:${size}px;object-fit:contain;">`
+function picHTML(it) {
+  const inner = it.img
+    ? `<img src="${it.img}" alt="${it.word}">`
     : it.pic;
+  return `<div class="pic-wrap" style="--tint:${it.bg}">${inner}</div>`;
 }
 
 /* ---- 音效 ---- */
@@ -227,16 +290,16 @@ function chime(ok) {
 function celebrate() {
   const emo = ["🎉", "⭐", "🎊", "🌟", "👏", "💛", "🧡"];
   const box = document.getElementById("confetti");
-  for (let i = 0; i < 28; i++) {
+  for (let i = 0; i < 30; i++) {
     const s = document.createElement("span");
     s.className = "confetti-bit";
     s.textContent = emo[Math.floor(Math.random() * emo.length)];
     s.style.left = (Math.random() * 100) + "%";
-    s.style.fontSize = (20 + Math.random() * 28) + "px";
+    s.style.fontSize = (20 + Math.random() * 30) + "px";
     s.style.animationDuration = (1.7 + Math.random() * 1.5) + "s";
     s.style.animationDelay = (Math.random() * 0.5) + "s";
     box.appendChild(s);
-    setTimeout(() => s.remove(), 3800);
+    setTimeout(() => s.remove(), 4000);
   }
 }
 
@@ -286,7 +349,7 @@ function buildMatch() {
     const c = document.createElement("div");
     c.className = "card";
     c.dataset.id = it.id;
-    c.innerHTML = `<div class="pic">${picHTML(it, 88)}</div>`;
+    c.innerHTML = picHTML(it);
     c.addEventListener("click", () => pickPic(c, it));
     right.appendChild(c);
   });
@@ -306,14 +369,13 @@ function pickWord(card, item) {
 
 function pickPic(card, item) {
   if (done || card.classList.contains("matched")) return;
-  if (!pickedWord) { // 還沒選詞語，點圖片就只唸發音
+  if (!pickedWord) {
     play(item.audio);
     hintEl.textContent = "👆 先點左邊的詞語哦";
     return;
   }
   const wItem = roundItems.find(x => String(x.id) === pickedWord.dataset.id);
   if (pickedWord.dataset.id === String(item.id)) {
-    // 配對成功
     pickedWord.classList.remove("picked");
     pickedWord.classList.add("matched");
     pickedWord.innerHTML += '<div class="tick">✅</div>';
@@ -336,10 +398,9 @@ function pickPic(card, item) {
       hintEl.textContent = "✅ 做對了！繼續～";
     }
   } else {
-    // 配錯：搖一搖，重播詞語音，鼓勵再試
     wrongs++;
     card.classList.add("wrong");
-    setTimeout(() => card.classList.remove("wrong"), 360);
+    setTimeout(() => card.classList.remove("wrong"), 400);
     hintEl.textContent = "👂 聽一聽，再試一次";
     if (wItem) play(wItem.audio);
   }
@@ -362,7 +423,7 @@ function buildListen() {
     const c = document.createElement("div");
     c.className = "fcard";
     c.innerHTML = `
-      <div class="pic">${picHTML(it, 96)}</div>
+      ${picHTML(it)}
       <div class="w">${it.word}</div>
       <div class="py">${it.pinyin}</div>
       <div class="spk">🔊</div>`;
