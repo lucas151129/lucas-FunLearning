@@ -263,7 +263,16 @@ button { font-family: inherit; touch-action: manipulation; }
   100% { transform: scale(1); }
 }
 .eq-sign { font-weight: 400; color: var(--accent-dark); font-size: 1em; padding: 0 3px; }
-.side { display: inline-flex; align-items: center; }
+/* 等號左／右各自是一塊「工作區」，用極淡的底色分開，學生一眼分得出兩邊 */
+.side {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 24px;
+  transition: background .18s ease;
+}
+.side[data-side="L"] { background: rgba(139, 92, 246, .12); }
+.side[data-side="R"] { background: rgba(251, 146, 60, .12); }
 
 /* ---------- 數學元素 ---------- */
 .m-var { font-style: italic; }
@@ -293,6 +302,8 @@ button { font-family: inherit; touch-action: manipulation; }
 
 /* 可拖動單元：像一顆可以捏起來的軟糖 */
 .drag-unit {
+  display: inline-flex;
+  align-items: center;
   cursor: grab;
   padding: 9px 14px;
   margin: 0 3px;
@@ -353,6 +364,38 @@ button { font-family: inherit; touch-action: manipulation; }
   100% { opacity: 0; left: 20px; top: -15px; }
 }
 
+/* 落點上方逐格拼出來的計算式：-35 ÷ 5 = -7 */
+.calc-bubble {
+  position: fixed;
+  z-index: 9600;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 18px;
+  background: var(--card);
+  border: 3px solid var(--outline);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-2);
+  font-family: var(--font-pixel);
+  font-size: 32px;
+  line-height: 1.05;
+  color: var(--ink);
+  white-space: nowrap;
+  transition: opacity .2s ease, transform .2s ease;
+}
+.calc-bubble.out { opacity: 0; transform: translate(-50%, -108%) scale(.94); }
+.calc-bubble .cb {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(8px) scale(.8);
+  transition: opacity .16s ease, transform .22s cubic-bezier(.34, 1.56, .64, 1);
+}
+.calc-bubble .cb.on { opacity: 1; transform: none; }
+.calc-bubble .cb-op { color: var(--accent-dark); }
+.calc-bubble .cb-eq { color: var(--muted); }
+.calc-bubble .cb-r { color: #b45309; }
 /* 分數被拆掉：分數線先淡掉，分母跟著消失 */
 .frac.frac-leaving .frac-num { animation: fracBarOut .3s ease forwards; }
 @keyframes fracBarOut {
@@ -814,6 +857,8 @@ html.dsh-embed .difficulty button { min-height: 34px; padding: 4px 0; font-size:
 html.dsh-embed .btn { min-height: 38px; padding: 4px 10px; font-size: 14px; border-width: 2px; }
 html.dsh-embed .banner { padding: 8px 12px; font-size: 14px; border-width: 2px; }
 html.dsh-embed .banner .banner-eq { font-size: 22px; gap: 8px; }
+html.dsh-embed .side { padding: 6px 10px; }
+html.dsh-embed .calc-bubble { font-size: 26px; padding: 5px 12px; }
 html.dsh-embed .rd-card { padding: 16px 18px; }
 html.dsh-embed .rd-line { font-size: 34px; }
 

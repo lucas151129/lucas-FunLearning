@@ -605,13 +605,80 @@
 
   /* 一整個步驟＝一場小化學反應：
    *   積木飛向對面 → 對面那一邊升起來接 → 撞上（光環／擠壓）
-   *   → 算出結果重繪 → 新的結果從高處「落回」等式位置
+   *   → 落點上方逐格拼出計算式（-35 ÷5 = -7）
+ *   → 算出結果重繪 → 新的結果從高處「落回」等式位置
    */
   const LIFT_AT = 300;      // 對面開始升起的時間（讓「見到你飛來才升起來」）
   const LIFT_PX = 28;       // 升起的幅度（要和 CSS .side.lift 的 translateY 一致）
   const FLY_MS = 500;       // 積木飛到對面的時間
-  const IMPACT_HOLD = 200;  // 撞上後停一下，讓學生看清楚
-  const REACTION_MS = FLY_MS + IMPACT_HOLD;
+  const REVEAL_LEAD = 60;   // 撞上後幾耐開始出第一個數
+  const REVEAL_STEP = 1000; // 每一個數字之間隔 1 秒（使用者指定）
+  const REVEAL_MS = REVEAL_LEAD + REVEAL_STEP * 2 + 1000; // 出到「= 結果」後停 1 秒才落回
+  const REACTION_MS = FLY_MS + REVEAL_MS;
+
+  // 這一步在「對面」做了什麼運算：a 運算 b = 結果
+  function calcOf(d, next) {
+    const isL = d.fromSide === 'L';
+    const dstNode = isL ? state.eq.R : state.eq.L;
+    const nextDst = isL ? next.R : next.L;
+    const u = d.unit;
+    let op = '';
+    let b = '';
+    if (u.kind === 'term') {
+      op = u.sign === -1 ? '+' : '−';
+      b = M.toStr(u.node);
+    } else if (u.kind === 'factor') {
+      op = '÷';
+      b = u.coef !== undefined ? M.ratToStr(u.coef) : M.toStr(u.node);
+    } else {
+      op = '×';
+      b = M.toStr(u.node);
+    }
+    // toStr 會把分數寫成 (y)/(4)，單一符號的括號拿掉比較好讀
+    const tidy = (s) => s.replace(/\(([A-Za-z0-9.]+)\)/g, '$1');
+    return { a: tidy(M.toStr(dstNode)), op: op, b: tidy(b), r: tidy(M.toStr(nextDst)) };
+  }
+
+  // 在落點上方顯示「a 運算 b = 結果」，逐格出現
+  // 節奏：a →（1 秒）op b →（1 秒）= 與結果 →（1 秒）才落回
+  function showCalc(calc, x, y) {
+    const old = document.getElementById('calc-bubble');
+    if (old) old.remove();
+    const box = el('div', 'calc-bubble');
+    box.id = 'calc-bubble';
+    [
+      ['cb-a', calc.a],
+      ['cb-op', calc.op + ' ' + calc.b],
+      ['cb-eq', '='],
+      ['cb-r', calc.r],
+    ].forEach(([cls, txt]) => {
+      const s = el('span', 'cb ' + cls, txt);
+      box.appendChild(s);
+    });
+    box.style.left = Math.round(x) + 'px';
+    box.style.top = '0px';
+    document.body.appendChild(box);
+    // 不可以跑到畫布外面（會壓住上面的提示條）：量完高度再夾一次
+    const bh = box.offsetHeight || 52;
+    const canvasEl = $('canvas');
+    const cr = canvasEl ? canvasEl.getBoundingClientRect() : null;
+    const top = cr ? Math.max(y, cr.top + bh + 6) : y;
+    box.style.top = Math.round(top) + 'px';
+    // 「=」跟結果同時出，學生讀起來是一組
+    const parts = Array.prototype.slice.call(box.children);
+    parts.forEach((p, i) => {
+      const step = Math.min(i, 2);
+      setTimeout(() => p.classList.add('on'), REVEAL_LEAD + step * REVEAL_STEP);
+    });
+    return parts[parts.length - 1];
+  }
+
+  function clearCalc() {
+    const box = document.getElementById('calc-bubble');
+    if (!box) return;
+    box.classList.add('out');
+    setTimeout(() => box.remove(), 220);
+  }
 
   // 撞擊點：對面那一邊「最可能吸收這次變化」的那一塊（優先數字），沒有就用整邊中心
   function impactCenter(dstEl) {
@@ -667,30 +734,21 @@
     committing = true;
     playLeaving(d, next);
 
-    // 1) 積木飛過去，一邊飛一邊縮
-    d.chip.style.transition = 'transform ' + FLY_MS + 'ms cubic-bezier(.45, 0, .35, 1), opacity .12s ease';
-    d.chip.style.transform = 'translate(' + (tx - cw / 2) + 'px,' + (ty - ch / 2) + 'px) scale(' + CHIP_SCALE + ') rotate(0deg)';
-
-    // 2) 對面那一邊升起來準備接
-    setTimeout(() => {
-      if (!dstEl) return;
-      void dstEl.offsetWidth;
-      dstEl.classList.add('lift');
-    }, LIFT_AT);
-
-    // 3) 撞上
-    setTimeout(() => {
-      d.chip.style.opacity = '0';
-      if (dstEl) {
-        dstEl.classList.remove('lift');
-        dstEl.classList.add('clash');
-      }
-      spawnBurst(bx, by);
-    }, FLY_MS);
-
-    // 4) 算出結果 → 重繪 → 新的結果落回位置
-    setTimeout(() => {
+    // 計時器集中管理，方便學生點一下就跳過
+    let finished = false;
+    const timers = [];
+    const later = (ms, fn) => { timers.push(setTimeout(fn, ms)); };
+    function onSkipTap(e) {
+      if (e && e.target && e.target.closest && e.target.closest('.chip')) return;
+      finishNow();
+    }
+    function finishNow() {
+      if (finished) return;
+      finished = true;
+      timers.forEach(clearTimeout);
+      document.removeEventListener('pointerdown', onSkipTap, true);
       d.chip.remove();
+      clearCalc();
       state.history.push({ L: state.eq.L, R: state.eq.R });
       state.eq = next;
       state.steps.push({ L: next.L, R: next.R });
@@ -713,7 +771,39 @@
         setTimeout(() => apart.classList.remove('appear'), 380);
       }
       committing = false;
-    }, REACTION_MS);
+    }
+
+    // 1) 積木飛過去，一邊飛一邊縮
+    d.chip.style.transition = 'transform ' + FLY_MS + 'ms cubic-bezier(.45, 0, .35, 1), opacity .12s ease';
+    d.chip.style.transform = 'translate(' + (tx - cw / 2) + 'px,' + (ty - ch / 2) + 'px) scale(' + CHIP_SCALE + ') rotate(0deg)';
+
+    // 2) 對面那一邊升起來準備接
+    later(LIFT_AT, () => {
+      if (!dstEl) return;
+      void dstEl.offsetWidth;
+      dstEl.classList.add('lift');
+    });
+
+    // 3) 撞上：光環，然後在落點上方逐格拼出計算式
+    later(FLY_MS, () => {
+      d.chip.style.opacity = '0';
+      if (dstEl) {
+        dstEl.classList.remove('lift');
+        dstEl.classList.add('clash');
+      }
+      spawnBurst(bx, by);
+      const calc = calcOf(d, next);
+      const r = dstEl ? dstEl.getBoundingClientRect() : null;
+      const cx = r ? r.left + r.width / 2 : bx;
+      // 貼在落點那一邊的上緣（不要再往上推 LIFT_PX，否則會跑出畫布）
+      const cyTop = (r ? r.top : by) - 8;
+      showCalc(calc, cx, cyTop);
+      // 學生看夠了可以點一下直接落回
+      document.addEventListener('pointerdown', onSkipTap, true);
+    });
+
+    // 4) 算出結果 → 重繪 → 新的結果落回位置
+    later(REACTION_MS, finishNow);
   }
   function shake(leaf) {
     leaf.classList.remove('shake');
