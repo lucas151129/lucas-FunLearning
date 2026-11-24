@@ -276,6 +276,14 @@ button { font-family: inherit; touch-action: manipulation; }
 
 /* ---------- 數學元素 ---------- */
 .m-var { font-style: italic; }
+/* 要找出來的那個字母：螢光筆標記（主項變換要追住它） */
+.m-var.is-subject {
+  background: linear-gradient(180deg, rgba(253, 230, 138, .5), rgba(253, 230, 138, .95));
+  border-radius: 5px;
+  padding: 0 .1em;
+  box-shadow: 0 1px 0 rgba(245, 158, 11, .5);
+}
+
 .m-op { margin: 0 .22em; color: var(--accent-dark); }
 .m-op.m-op-lead { margin-left: 0; margin-right: .18em; }
 /* 加減號屬於後面那一項：拖走那一項時一起淡、一起消失 */
@@ -298,6 +306,15 @@ button { font-family: inherit; touch-action: manipulation; }
 .frac-den { padding: .14em .4em .04em; }
 
 .paren-group { display: inline-flex; align-items: center; margin: 0; }
+/* 係數拖到括號上：提示「放手就乘入去」 */
+.paren-group.expand-hover {
+  outline: 3px dashed var(--accent);
+  outline-offset: 3px;
+  border-radius: 12px;
+  background: rgba(139, 92, 246, .16);
+}
+
+
 .paren-glyph { font-family: inherit; color: var(--accent-dark); font-size: 1.08em; }
 
 /* 可拖動單元：像一顆可以捏起來的軟糖 */

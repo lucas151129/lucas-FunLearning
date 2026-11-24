@@ -225,6 +225,16 @@
     eq.appendChild(l);
     eq.appendChild(el('span', 'eq-sign', '='));
     eq.appendChild(r);
+    markSubject();
+  }
+
+  // 把「要找出來的那個字母」用螢光筆標起來，讓學生知道追哪一個
+  function markSubject() {
+    const eq = $('eq');
+    if (!eq || !state.subject) return;
+    eq.querySelectorAll('.m-var').forEach((v) => {
+      v.classList.toggle('is-subject', v.textContent === state.subject);
+    });
   }
 
   function renderSteps() {
@@ -248,13 +258,20 @@
     p.innerHTML = '';
     if (state.module === 'solve') {
       p.appendChild(textSpan('解方程：求出 '));
-      p.appendChild(varSpan('x'));
+      p.appendChild(subjectSpan('x'));
       p.appendChild(textSpan(' 的值'));
     } else {
       p.appendChild(textSpan('以 '));
-      p.appendChild(varSpan(state.subject));
+      p.appendChild(subjectSpan(state.subject));
       p.appendChild(textSpan(' 為主項'));
     }
+  }
+
+  // 提示欄裡的目標字母，跟式子裡用同一種螢光筆標記
+  function subjectSpan(name) {
+    const s = varSpan(name);
+    s.classList.add('is-subject');
+    return s;
   }
 
   function renderBanner() {
@@ -450,7 +467,7 @@
     chip.style.fontSize = Math.round((eqFont || 48) * 1.32) + 'px';
     chip.appendChild(buildChipContent(unit, false));
     document.body.appendChild(chip);
-    drag = { unit, fromSide, chip, sourceEl, crossed: false, op: signOf(sourceEl) };
+    drag = { unit, fromSide, chip, sourceEl, crossed: false, op: signOf(sourceEl), hoverParen: null, wantExpand: false };
     positionChip(chip, e.clientX, e.clientY);
     sourceEl.classList.add('drag-source');
     // 加減號屬於這一項，跟著一起淡
@@ -476,6 +493,8 @@
   function onDragMove(e) {
     if (!drag) return;
     positionChip(drag.chip, e.clientX, e.clientY);
+    // 拖係數去括號 → 準備「乘入去」（拆括號）
+    updateExpandHover(e);
     const eqSign = document.querySelector('#eq .eq-sign');
     if (!eqSign) return;
     const rect = eqSign.getBoundingClientRect();
@@ -490,13 +509,60 @@
       content.classList.add('flip');
     }
   }
+
+  /* ---------------- 拆括號（把外面的係數乘入去） ---------------- */
+  // a(x ± b) → ax ± ab；只處理「整個邊就是 係數 × 括號」這種形狀
+  function expandProd(node) {
+    if (!node || node.type !== 'prod') return null;
+    if (node.factors.length !== 1) return null;
+    const f = node.factors[0];
+    if (f.type !== 'paren') return null;
+    if (!M.ratIsInt(node.coef)) return null;
+    const n = node.coef.n;
+    if (Math.abs(n) < 2) return null;
+    const neg = n < 0;
+    const a = Math.abs(n);
+    const inner = f.a;
+    const parts = inner.type === 'sum' ? inner.terms : [{ sign: 1, node: inner }];
+    let acc = null;
+    for (const t of parts) {
+      const product = M.normalize(M.mul(M.num(a), t.node));
+      const positive = (t.sign === 1) !== neg;
+      const signed = positive ? product : M.neg(product);
+      acc = acc === null ? signed : M.add(acc, signed);
+    }
+    return M.normalize(acc);
+  }
+
+  function updateExpandHover(e) {
+    const canExpand = drag && drag.unit.kind === 'factor' && drag.unit.coef !== undefined
+      && !!expandProd(state.eq[drag.fromSide]);
+    let group = null;
+    if (canExpand) {
+      const hit = document.elementFromPoint(e.clientX, e.clientY);
+      const g = hit && hit.closest ? hit.closest('.paren-group') : null;
+      const sideEl = g && g.closest('.side');
+      if (g && sideEl && sideEl.dataset.side === drag.fromSide) group = g;
+    }
+    if (drag.hoverParen === group) return;
+    if (drag.hoverParen) drag.hoverParen.classList.remove('expand-hover');
+    drag.hoverParen = group;
+    drag.wantExpand = !!group;
+    if (group) {
+      group.classList.add('expand-hover');
+      setStatus('放手＝把 ' + drag.unit.coef.n + ' 乘入括號', 'ok');
+    } else {
+      showDefaultStatus();
+    }
+  }
   function onDragUp() {
     window.removeEventListener('pointermove', onDragMove);
     window.removeEventListener('pointerup', onDragUp);
     window.removeEventListener('pointercancel', onDragCancel);
     if (!drag) return;
     const d = drag; drag = null;
-    if (d.crossed) commitMove(d);
+    if (d.wantExpand) commitExpand(d);
+    else if (d.crossed) commitMove(d);
     else cancelDrag(d);
   }
   function onDragCancel() {
@@ -505,6 +571,7 @@
     if (drag) { cancelDrag(drag); drag = null; }
   }
   function cancelDrag(d) {
+    if (d.hoverParen) d.hoverParen.classList.remove('expand-hover');
     d.sourceEl.classList.remove('drag-source');
     if (d.op) d.op.classList.remove('op-dim');
     d.chip.style.opacity = '0';
@@ -616,8 +683,11 @@
   const REVEAL_MS = REVEAL_LEAD + REVEAL_STEP * 2 + 1000; // 出到「= 結果」後停 1 秒才落回
   const REACTION_MS = FLY_MS + REVEAL_MS;
 
+  // toStr 會把分數寫成 (y)/(4)，單一符號的括號拿掉比較好讀
+  const tidy = (s) => s.replace(/\(([A-Za-z0-9.]+)\)/g, '$1');
+
   // 這一步在「對面」做了什麼運算：a 運算 b = 結果
-  function calcOf(d, next) {
+  function calcItems(d, next) {
     const isL = d.fromSide === 'L';
     const dstNode = isL ? state.eq.R : state.eq.L;
     const nextDst = isL ? next.R : next.L;
@@ -634,25 +704,39 @@
       op = '×';
       b = M.toStr(u.node);
     }
-    // toStr 會把分數寫成 (y)/(4)，單一符號的括號拿掉比較好讀
-    const tidy = (s) => s.replace(/\(([A-Za-z0-9.]+)\)/g, '$1');
-    return { a: tidy(M.toStr(dstNode)), op: op, b: tidy(b), r: tidy(M.toStr(nextDst)) };
+    return [
+      { text: tidy(M.toStr(dstNode)), cls: 'cb-a', step: 0 },
+      { text: op + ' ' + tidy(b), cls: 'cb-op', step: 1 },
+      { text: '=', cls: 'cb-eq', step: 2 },
+      { text: tidy(M.toStr(nextDst)), cls: 'cb-r', step: 2 },
+    ];
   }
 
-  // 在落點上方顯示「a 運算 b = 結果」，逐格出現
-  // 節奏：a →（1 秒）op b →（1 秒）= 與結果 →（1 秒）才落回
-  function showCalc(calc, x, y) {
+  // 拆括號的過程：2 × x − 2 × 6 = 2x − 12
+  function expandItems(node, next) {
+    const coef = node.coef.n;
+    const neg = coef < 0;
+    const a = Math.abs(coef);
+    const inner = node.factors[0].a;
+    const parts = inner.type === 'sum' ? inner.terms : [{ sign: 1, node: inner }];
+    const items = parts.map((t, i) => {
+      const positive = (t.sign === 1) !== neg;
+      const sign = i === 0 ? (positive ? '' : '− ') : (positive ? '+ ' : '− ');
+      return { text: sign + a + ' × ' + tidy(M.toStr(t.node)), cls: i === 0 ? 'cb-a' : 'cb-op', step: Math.min(i, 2) };
+    });
+    items.push({ text: '=', cls: 'cb-eq', step: 2 });
+    items.push({ text: tidy(M.toStr(next)), cls: 'cb-r', step: 2 });
+    return items;
+  }
+
+  // 在落點上方顯示計算過程，逐格出現（每格 1 秒、可點擊跳過）
+  function showCalc(items, x, y) {
     const old = document.getElementById('calc-bubble');
     if (old) old.remove();
     const box = el('div', 'calc-bubble');
     box.id = 'calc-bubble';
-    [
-      ['cb-a', calc.a],
-      ['cb-op', calc.op + ' ' + calc.b],
-      ['cb-eq', '='],
-      ['cb-r', calc.r],
-    ].forEach(([cls, txt]) => {
-      const s = el('span', 'cb ' + cls, txt);
+    items.forEach((it) => {
+      const s = el('span', 'cb ' + it.cls, it.text);
       box.appendChild(s);
     });
     box.style.left = Math.round(x) + 'px';
@@ -664,13 +748,11 @@
     const cr = canvasEl ? canvasEl.getBoundingClientRect() : null;
     const top = cr ? Math.max(y, cr.top + bh + 6) : y;
     box.style.top = Math.round(top) + 'px';
-    // 「=」跟結果同時出，學生讀起來是一組
-    const parts = Array.prototype.slice.call(box.children);
-    parts.forEach((p, i) => {
-      const step = Math.min(i, 2);
+    Array.prototype.slice.call(box.children).forEach((p, i) => {
+      const step = items[i] ? items[i].step : i;
       setTimeout(() => p.classList.add('on'), REVEAL_LEAD + step * REVEAL_STEP);
     });
-    return parts[parts.length - 1];
+    return box;
   }
 
   function clearCalc() {
@@ -792,18 +874,83 @@
         dstEl.classList.add('clash');
       }
       spawnBurst(bx, by);
-      const calc = calcOf(d, next);
+      
       const r = dstEl ? dstEl.getBoundingClientRect() : null;
       const cx = r ? r.left + r.width / 2 : bx;
       // 貼在落點那一邊的上緣（不要再往上推 LIFT_PX，否則會跑出畫布）
       const cyTop = (r ? r.top : by) - 8;
-      showCalc(calc, cx, cyTop);
+      showCalc(calcItems(d, next), cx, cyTop);
       // 學生看夠了可以點一下直接落回
       document.addEventListener('pointerdown', onSkipTap, true);
     });
 
     // 4) 算出結果 → 重繪 → 新的結果落回位置
     later(REACTION_MS, finishNow);
+  }
+  // 放手在括號上：把係數乘入去，先演一次 2 × x − 2 × 6 = 2x − 12
+  function commitExpand(d) {
+    const side = d.fromSide;
+    const node = state.eq[side];
+    const next = expandProd(node);
+    if (!next) { cancelDrag(d); return; }
+
+    committing = true;
+    const group = d.hoverParen;
+    const rect = group ? group.getBoundingClientRect() : null;
+    if (group) group.classList.remove('expand-hover');
+    if (d.sourceEl) d.sourceEl.classList.remove('drag-source');
+
+    // 積木縮入括號
+    if (rect) {
+      const cx0 = rect.left + rect.width / 2;
+      const cy0 = rect.top + rect.height / 2;
+      d.chip.style.transition = 'transform .2s ease, opacity .2s ease';
+      d.chip.style.transform = 'translate(' + (cx0 - 30) + 'px,' + (cy0 - 30) + 'px) scale(.4)';
+      d.chip.style.opacity = '0';
+    }
+    setTimeout(() => d.chip.remove(), 240);
+
+    const items = expandItems(node, next);
+    const cx = rect ? rect.left + rect.width / 2 : 0;
+    const cyTop = rect ? rect.top - 8 : 0;
+
+    let finished = false;
+    const timers = [];
+    const later = (ms, fn) => { timers.push(setTimeout(fn, ms)); };
+    function onSkipTap(e) {
+      if (e && e.target && e.target.closest && e.target.closest('.chip')) return;
+      finishNow();
+    }
+    function finishNow() {
+      if (finished) return;
+      finished = true;
+      timers.forEach(clearTimeout);
+      document.removeEventListener('pointerdown', onSkipTap, true);
+      clearCalc();
+      state.history.push({ L: state.eq.L, R: state.eq.R });
+      state.eq = side === 'L' ? { L: next, R: state.eq.R } : { L: state.eq.L, R: next };
+      state.steps.push({ L: state.eq.L, R: state.eq.R });
+      const wasSolved = state.solved;
+      state.solved = checkSolved();
+      if (!wasSolved && state.solved) {
+        state.score += 1;
+        if (state.score >= ROUND_TOTAL) finishRound();
+      }
+      renderScreen();
+      const landed = document.querySelector('#eq .side[data-side="' + side + '"]');
+      if (landed) {
+        landed.classList.add('drop');
+        setTimeout(() => landed.classList.remove('drop'), 480);
+      }
+      committing = false;
+    }
+
+    later(200, () => {
+      if (rect) spawnBurst(cx, rect.top + rect.height / 2);
+      showCalc(items, cx, cyTop);
+      document.addEventListener('pointerdown', onSkipTap, true);
+    });
+    later(200 + REVEAL_LEAD + REVEAL_STEP * 2 + 1000, finishNow);
   }
   function shake(leaf) {
     leaf.classList.remove('shake');
