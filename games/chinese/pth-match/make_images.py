@@ -42,7 +42,8 @@ UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like 
 
 # slug -> (英文描述, 中文詞，只作記錄)
 ITEMS = {
-    "zaoshanghao": ("a cheerful smiling sun rising above soft green hills with two small white clouds", "早上好"),
+    "zaoshanghao": ("a cheerful smiling sun rising above soft green hills with two small white clouds", "早上好（舊版）"),
+    "zaoshanghao-v2": ("a happy primary school boy with a school backpack waving hello to his smiling female teacher, the teacher waving back, warm morning light, greeting at the school gate", "早上好（學生向老師打招呼）"),
     "tongxue": ("two happy classmates, a boy and a girl in school uniform, standing side by side and waving", "同學"),
     "laoshi": ("a friendly young female teacher with glasses, holding an open book, smiling", "老師"),
     "youxi": ("two happy children playing together with colourful building blocks and a ball", "遊戲"),

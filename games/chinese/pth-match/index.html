@@ -322,7 +322,7 @@
    要加詞語：照格式加一筆，跑 make_images.py 與 make_audio.py。
    ============================================================ */
 const ITEMS = [
-  { id:  0, word: "早上好", pinyin: "zǎo shang hǎo", img: "images/zaoshanghao.png", pic: "🌅" },
+  { id:  0, word: "早上好", pinyin: "zǎo shang hǎo", img: "images/zaoshanghao-v2.png", pic: "👋" },
   { id:  1, word: "同學",   pinyin: "tóng xué",      img: "images/tongxue.png",     pic: "👫" },
   { id:  2, word: "老師",   pinyin: "lǎo shī",       img: "images/laoshi.png",      pic: "👩‍🏫" },
   { id:  3, word: "遊戲",   pinyin: "yóu xì",        img: "images/youxi.png",       pic: "🧩" },
@@ -353,8 +353,8 @@ const ITEMS = [
   { id: 28, word: "葡萄",   pinyin: "pú táo",        img: "images/putao.png",       pic: "🍇" },
   { id: 29, word: "樹葉",   pinyin: "shù yè",        img: "images/shuye.png",       pic: "🍃" },
 ];
-// 發音檔名 = 圖檔名，換 .png 為 .mp3
-ITEMS.forEach(it => { it.audio = "audio/" + it.img.slice(7).replace(/\.png$/, ".mp3"); });
+// 發音檔名 = 圖檔名，換 .png 為 .mp3；圖檔可以加 -v2 之類的版本尾巴（換圖避快取）
+ITEMS.forEach(it => { it.audio = "audio/" + it.img.slice(7).replace(/(-v\d+)?\.png$/, ".mp3"); });
 
 const PAIRS = 4; // 每局配對數量（低年級 4 對最合適）
 
